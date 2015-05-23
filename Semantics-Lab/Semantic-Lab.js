@@ -17,7 +17,8 @@ var Lab = {
         ["Text",this.jax[0],math],
         ["Enable",this.SMML],
         ["Text",this.jax[1],math],
-        ["ShowMathML",this]
+        ["ShowMathML",this],
+        ["CollapseWideMath",MathJax.Extension.Collapse]
       );
     }
   },
@@ -29,7 +30,7 @@ var Lab = {
   Keep: function () {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
-        +this.example.value+';'
+        +this.example.value+';'+this.width.value+';'
         +escape(this.input.value);
   },
   //
@@ -60,6 +61,16 @@ var Lab = {
       event.returnValue = false;
       this.Typeset();
     }
+  },
+  //
+  //  Set the width of the output div
+  //
+  setWidth: function (width) {
+    this.enriched.style.width = width;
+    MathJax.Hub.Queue(
+      ["GetContainerWidths",MathJax.Extension.Collapse],
+      ["CollapseWideMath",MathJax.Extension.Collapse]
+    );
   },
   //
   //  Directly select a specific test equation
@@ -97,12 +108,15 @@ MathJax.Hub.Queue(function () {
   Lab.SMML = MathJax.Extension.SemanticMathML;
   Lab.jax = MathJax.Hub.getAllJax();
   Lab.input = document.getElementById("input");
+  Lab.enriched = document.getElementById("enriched");
   Lab.mathml = document.getElementById("mathml");
   Lab.example = document.getElementById("example");
+  Lab.width = document.getElementById("width");
   if (window.location.search.length > 1) {
-    var match = window.location.search.match(/^\?(.*?);(.*)$/);
+    var match = window.location.search.match(/^\?(.*?);(.*?);(.*)$/);
     Lab.example.value = match[1]; Lab.Current = parseInt(match[1]);
-    Lab.input.value = unescape(match[2]);
+    Lab.width.value = match[2]; Lab.enriched.style.width = match[2];
+    Lab.input.value = unescape(match[3]);
     Lab.Typeset();
   }
 });

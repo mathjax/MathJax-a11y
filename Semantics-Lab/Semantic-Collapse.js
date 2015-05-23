@@ -234,7 +234,7 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     //  MathJax internal format, with collapsing).
     //
     Filter: function (jax,id,script) {
-      if (jax.enriched) {
+      if (jax.enriched /*&& jax.root.Get("display") === "block"*/) {
         if (jax.enriched.nodeName.toLowerCase() !== "math") {
           var math = document.createElement("math");
           math.appendChild(jax.enriched);
@@ -242,6 +242,103 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
         }
         jax.root = this.MakeMML(jax.enriched);
         jax.root.inputID = script.id;
+        jax.root.SRE = {action: this.Actions(jax.root)};
+      }
+    },
+    //
+    //  Produce an array of collapsible actions
+    //  sorted by depth and complexity
+    //
+    Actions: function (node) {
+      var actions = [];
+      this.getActions(node,0,actions);
+      return this.sortActions(actions);
+    },
+    getActions: function (node,depth,actions) {
+      depth++;
+      for (var i = 0, m = node.data.length; i < m; i++) {
+        if (node.data[i]) {
+          var child = node.data[i];
+          if (child.collapsible) {
+            if (!actions[depth]) actions[depth] = [];
+            actions[depth].push(child);
+            this.getActions(child.data[1],depth,actions);
+          } else if (!child.isToken) {
+            this.getActions(child,depth,actions);
+          }
+        }
+      }
+    },
+    sortActions: function (actions) {
+      var ACTIONS = [];
+      for (var i = 0, m = actions.length; i < m; i++) {
+        if (actions[i]) ACTIONS = ACTIONS.concat(actions[i].sort(this.sortActionsBy));
+      }
+      return ACTIONS;
+    },
+    sortActionsBy: function (a,b) {
+      a = a.data[1].complexity; b = b.data[1].complexity;
+      return (a < b ? -1 : a > b ? 1 : 0);
+    },
+    
+    CollapseWideMath: function (element) {
+      var collapse = [];
+      var jax = MathJax.Hub.getAllJax(element);
+      for (var i = 0, m = jax.length; i < m; i++) {
+        var SRE = jax[i].root.SRE, changed = false;
+        if (SRE && SRE.action.length) {
+          var w = SRE.width;
+          for (var j = SRE.action.length-1; j >= 0; j--) {
+            var action = SRE.action[j], selection = action.selection;
+            action.selection = (w > SRE.cwidth ? 1 : 2);
+            if (action.selection !== selection) changed = true;
+            w = action.SREwidth;
+          }
+          if (changed) collapse.push(jax[i].SourceElement());
+        }
+      }
+      if (collapse.length === 0) return;
+      if (collapse.length === 1) collapse = collapse[0];
+      return MathJax.Hub.Rerender(collapse);
+    },
+    getActionWidths: function (math,box) {
+      var actions = math.SRE.action;
+      for (var j = actions.length-1; j >= 0; j--) {
+        var action = actions[j];
+        if (action.SREwidth == null) {
+          action.selection = 1;
+          var html = math.data[0].toHTML(box);
+          action.SREwidth = html.bbox.w;
+        }
+      }
+      math.SRE.actionWidths = true;
+      for (j = actions.length-1; j >= 0; j--) actions[j].selection = 2;
+      html = math.data[0].toHTML(box);
+      html.bbox.exactW = false;
+    },
+    
+    GetContainerWidths: function () {
+      var JAX = MathJax.Hub.getAllJax();
+      var i, m, script, span = MathJax.HTML.Element("span",{style:{display:"block"}});
+      var math = [], jax, root;
+      for (i = 0, m = JAX.length; i < m; i++) {
+        jax = JAX[i], root = jax.root;
+        if (root.SRE && root.SRE.action.length) {
+          script = jax.SourceElement();
+          script.previousSibling.style.display = "none";
+          script.parentNode.insertBefore(span.cloneNode(false),script);
+          math.push([jax,script]);
+        }
+      }
+      for (i = 0, m = math.length; i < m; i++) {
+        jax = math[i][0], script = math[i][1];
+        if (script.previousSibling.offsetWidth)
+          jax.root.SRE.cwidth = script.previousSibling.offsetWidth / jax.HTMLCSS.em /jax.HTMLCSS.scale;
+      }
+      for (i = 0, m = math.length; i < m; i++) {
+        jax = math[i][0], script = math[i][1];
+        script.parentNode.removeChild(script.previousSibling);
+        script.previousSibling.style.display = "";
       }
     },
 
@@ -271,7 +368,7 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     MakeAction: function (collapse,mml) {
       var maction = MML.maction(collapse).With({
         actiontype:"toggle", complexity:collapse.getComplexity(), collapsible:true,
-        attrNames: ["actiontype","complexity"], attr: {}
+        attrNames: ["actiontype","complexity"], attr: {}, selection:2
       });
       if (mml.type === "math") {
         var mrow = MML.mrow().With({
@@ -530,6 +627,69 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     /*****************************************************************/
 
   };
+  
+  MathJax.Hub.processSectionDelay = 0;
+
+  var HTMLCSS;
+  MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
+    HTMLCSS = MathJax.OutputJax["HTML-CSS"];
+    var MML = MathJax.ElementJax.mml;
+    var toHTML = MML.math.prototype.toHTML;
+    
+    MML.math.Augment({
+      toHTML: function (span,div,phase) {
+        var SPAN = toHTML.apply(this,arguments);
+        if (this.SRE && this.SRE.action.length && !this.SRE.actionWidths) {
+          if (!phase || phase === HTMLCSS.PHASE.I) {
+            span = span.firstChild.firstChild;
+            if (this.href) span = span.firstChild;
+            var stack = span.firstChild;
+            if (stack.style.position !== "relative") stack = stack.nextSibling;
+            var box = stack.firstChild, html = box.firstChild;
+            if (this.SRE.width == null) {
+              this.SRE.width = html.bbox.w;
+              this.SRE.cwidth = HTMLCSS.cwidth;
+            }
+            Collapse.getActionWidths(this,box);
+            if (!phase && this.SRE.width <= this.SRE.cwidth) {
+              toHTML.call(this,span,div,HTMLCSS.PHASE.II);
+              toHTML.call(this,span,div,HTMLCSS.PHASE.III);
+            }
+          }
+        }
+        return SPAN;
+      }
+    });
+    
+    var timer = null, running = false, retry = false;
+    var resizeAction = function () {
+      timer = null;
+      running = true;
+      MathJax.Hub.Queue(
+        ["GetContainerWidths",Collapse],
+        ["CollapseWideMath",Collapse],
+        function () {
+          running = false;
+          if (retry) {
+            retry = false;
+            setTimeout(resizeHandler,0);
+          }
+        }
+      );
+    };
+    var resizeHandler = function (event) {
+      if (running) {retry = true; return}
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(resizeAction, 100);
+    };
+    window.addEventListener("resize",resizeHandler);
+  });
+
+  /* 
+   * MathJax.Hub.Register.MessageHook("End Math",function (message) {
+   *   MathJax.Hub.Queue(["CollapseWideMath",Collapse,message[1]]);
+   * });
+   */
 
   //
   //  Add the filter into the post-input hooks (priority 100, so other
@@ -571,8 +731,8 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
             if (this.data[i]) complexity += this.data[i].getComplexity();
           if (m > 1) complexity += m * COMPLEXITY.CHILD;
         }
-        this.complexity = complexity;
         if (this.attrNames && !("complexity" in this)) this.attrNames.push("complexity");
+        this.complexity = complexity;
       }
       return this.complexity;
     }
@@ -710,7 +870,7 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       //  Don't cache it, since selection can change.
       //
       if (this.complexity == null) this.attrNames.push("complexity");
-      this.complexity = this.selected().getComplexity();
+      this.complexity = (this.collapsible ? this.data[0] : this.selected()).getComplexity();
       return this.complexity;
     }
   });
