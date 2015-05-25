@@ -281,49 +281,107 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       return (a < b ? -1 : a > b ? 1 : 0);
     },
     
+    //
+    //  Find math that is too wide and collapse it
+    //
     CollapseWideMath: function (element) {
-      var collapse = [];
+      this.GetContainerWidths(element);
       var jax = MathJax.Hub.getAllJax(element);
-      for (var i = 0, m = jax.length; i < m; i++) {
-        var SRE = jax[i].root.SRE, changed = false;
+      var state = {collapse: [], jax: jax, m: jax.length, i: 0, changed:false};
+      return this.collapseState(state);
+    },
+    collapseState: function (state) {
+      while (state.i < state.m) {
+        var jax = state.jax[state.i], collapse = state.collapse;
+        var SRE = jax.root.SRE; state.changed = false;
         if (SRE && SRE.action.length) {
-          var w = SRE.width;
-          for (var j = SRE.action.length-1; j >= 0; j--) {
-            var action = SRE.action[j], selection = action.selection;
-            action.selection = (w > SRE.cwidth ? 1 : 2);
-            if (action.selection !== selection) changed = true;
-            w = action.SREwidth;
+          if (SRE.cwidth < SRE.m || SRE.cwidth > SRE.M) {
+            var restart = this.getActionWidths(jax,state); if (restart) return restart;
+            this.collapseActions(SRE,state);
+            if (state.changed) collapse.push(jax.SourceElement());
           }
-          if (changed) collapse.push(jax[i].SourceElement());
         }
+        state.i++;
       }
       if (collapse.length === 0) return;
       if (collapse.length === 1) collapse = collapse[0];
       return MathJax.Hub.Rerender(collapse);
     },
-    getActionWidths: function (math,box) {
-      var actions = math.SRE.action;
-      for (var j = actions.length-1; j >= 0; j--) {
+    
+    //
+    //  Find the actions that need to be collapsed to acheive
+    //  the correct width, and retain the sizes that would cause
+    //  the equation to be expanded or collapsed further.
+    //
+    collapseActions: function (SRE,state) {
+      var w = SRE.width ,m = w, M = 1000000;
+      for (var j = SRE.action.length-1; j >= 0; j--) {
+        var action = SRE.action[j], selection = action.selection;
+        if (w > SRE.cwidth) {
+          action.selection = 1;
+          m = action.SREwidth; M = w;
+        } else {
+          action.selection = 2;
+        }
+        w = action.SREwidth;
+        if (action.selection !== selection) state.changed = true;
+      }
+      SRE.m = m; SRE.M = M;
+    },
+
+    //
+    //  Get the widths of the different collapsings,
+    //  trapping any restarts, and restarting the process
+    //  when the event has occurred.
+    //
+    getActionWidths: function (jax,state) {
+      if (!jax.root.SRE.actionWidths) {
+        MathJax.OutputJax["HTML-CSS"].getMetrics(jax);
+        try {this.computeActionWidths(jax.root)} catch (err) {
+          if (!err.restart) throw err;
+          return MathJax.Callback.After(["collapseState",this,state],err.restart);
+        }
+        state.changed = true;
+      }
+      return null;
+    },
+    //
+    //  Compute the action widths by collapsing each
+    //  maction, and recording the width of the complete equation
+    //
+    computeActionWidths: function (math) {
+      var html = math.data[0].HTMLspanElement(), box = html.parentNode;
+      math.SRE.width = box.bbox.w;
+      var actions = math.SRE.action, j;
+      for (j = actions.length-1; j >= 0; j--) actions[j].selection = 2;
+      for (j = actions.length-1; j >= 0; j--) {
         var action = actions[j];
         if (action.SREwidth == null) {
           action.selection = 1;
-          var html = math.data[0].toHTML(box);
+          html = math.data[0].toHTML(box);
           action.SREwidth = html.bbox.w;
         }
       }
       math.SRE.actionWidths = true;
-      for (j = actions.length-1; j >= 0; j--) actions[j].selection = 2;
-      html = math.data[0].toHTML(box);
-      html.bbox.exactW = false;
     },
-    
-    GetContainerWidths: function () {
-      var JAX = MathJax.Hub.getAllJax();
+
+    //
+    //  Get the widths of the containers of tall the math elements
+    //  that can be collapsed (so we can tell which ones NEED to be
+    //  collapsed).  Do this in a way that only causes two reflows.
+    //
+    GetContainerWidths: function (element) {
+      var JAX = MathJax.Hub.getAllJax(element);
       var i, m, script, span = MathJax.HTML.Element("span",{style:{display:"block"}});
       var math = [], jax, root;
       for (i = 0, m = JAX.length; i < m; i++) {
         jax = JAX[i], root = jax.root;
         if (root.SRE && root.SRE.action.length) {
+          if (root.SRE.width == null) {
+            root.SRE.cwidth = jax.HTMLCSS.cwidth;
+            root.SRE.m = root.SRE.width = root.data[0].HTMLspanElement().parentNode.bbox.w;
+            root.SRE.M = 1000000;
+          }
           script = jax.SourceElement();
           script.previousSibling.style.display = "none";
           script.parentNode.insertBefore(span.cloneNode(false),script);
@@ -630,43 +688,16 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
   
   MathJax.Hub.processSectionDelay = 0;
 
-  var HTMLCSS;
+  //
+  //  Add a resize handler to check for math that needs
+  //  to be collapsed or expanded.
+  //
   MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
-    HTMLCSS = MathJax.OutputJax["HTML-CSS"];
-    var MML = MathJax.ElementJax.mml;
-    var toHTML = MML.math.prototype.toHTML;
-    
-    MML.math.Augment({
-      toHTML: function (span,div,phase) {
-        var SPAN = toHTML.apply(this,arguments);
-        if (this.SRE && this.SRE.action.length && !this.SRE.actionWidths) {
-          if (!phase || phase === HTMLCSS.PHASE.I) {
-            span = span.firstChild.firstChild;
-            if (this.href) span = span.firstChild;
-            var stack = span.firstChild;
-            if (stack.style.position !== "relative") stack = stack.nextSibling;
-            var box = stack.firstChild, html = box.firstChild;
-            if (this.SRE.width == null) {
-              this.SRE.width = html.bbox.w;
-              this.SRE.cwidth = HTMLCSS.cwidth;
-            }
-            Collapse.getActionWidths(this,box);
-            if (!phase && this.SRE.width <= this.SRE.cwidth) {
-              toHTML.call(this,span,div,HTMLCSS.PHASE.II);
-              toHTML.call(this,span,div,HTMLCSS.PHASE.III);
-            }
-          }
-        }
-        return SPAN;
-      }
-    });
-    
     var timer = null, running = false, retry = false;
     var resizeAction = function () {
       timer = null;
       running = true;
       MathJax.Hub.Queue(
-        ["GetContainerWidths",Collapse],
         ["CollapseWideMath",Collapse],
         function () {
           running = false;
@@ -684,12 +715,6 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     };
     window.addEventListener("resize",resizeHandler);
   });
-
-  /* 
-   * MathJax.Hub.Register.MessageHook("End Math",function (message) {
-   *   MathJax.Hub.Queue(["CollapseWideMath",Collapse,message[1]]);
-   * });
-   */
 
   //
   //  Add the filter into the post-input hooks (priority 100, so other
