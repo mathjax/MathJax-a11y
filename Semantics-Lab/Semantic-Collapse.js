@@ -234,7 +234,9 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     //  MathJax internal format, with collapsing).
     //
     Filter: function (jax,id,script) {
-      if (jax.enriched /*&& jax.root.Get("display") === "block"*/) {
+      if (jax.enriched &&
+             (jax.root.Get("display") === "block" ||
+              script.parentNode.childNodes.length <= 3)) {
         if (jax.enriched.nodeName.toLowerCase() !== "math") {
           var math = document.createElement("math");
           math.appendChild(jax.enriched);
