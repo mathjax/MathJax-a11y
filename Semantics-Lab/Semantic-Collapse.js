@@ -181,6 +181,7 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       infixop: 15,
       fenced: 18,
       bigop: 20,
+      integral: 20,
       fraction: 12,
       sqrt: 9,
       root: 12,
@@ -659,6 +660,14 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     Collapse_bigop: function (node,mml) {
       if (mml.complexity > this.COLLAPSE.bigop || mml.data[0].type !== "mo") {
         var id = mml.attr["data-semantic-content"].split(/,/); id = id[id.length-1];
+        var op = node.querySelector('*[data-semantic-id="'+id+'"]');
+        mml = this.MakeAction(this.Marker(op.textContent),mml);
+      }
+      return mml;
+    },
+    Collapse_integral: function (node,mml) {
+      if (mml.complexity > this.COLLAPSE.integral || mml.data[0].type !== "mo") {
+        var id = (mml.attr["data-semantic-content"].split(/,/))[0];
         var op = node.querySelector('*[data-semantic-id="'+id+'"]');
         mml = this.MakeAction(this.Marker(op.textContent),mml);
       }
