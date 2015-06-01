@@ -945,3 +945,29 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
   });
 
 });
+
+MathJax.Hub.Register.StartupHook("HTML-CSS maction Ready",function () {
+  var HTMLCSS = MathJax.OutputJax["HTML-CSS"],
+      MML = MathJax.ElementJax.mml;
+  var TOGGLE = MML.maction.prototype.HTMLaction.toggle;
+  
+  function MouseOver (event) {
+    var frame = event.currentTarget;
+    if (frame.className !== "MathJax_HitBox") frame = frame.previousSibling;
+    frame.style.background = "blue"; frame.style.opacity = .1;
+    return  MathJax.Extension.MathEvents.Event.False(event);
+  };
+
+  function MouseOut (event) {
+    var frame = event.currentTarget;
+    if (frame.className !== "MathJax_HitBox") frame = frame.previousSibling;
+    frame.style.background = ""; frame.style.opacity = "";
+    return  MathJax.Extension.MathEvents.Event.False(event);
+  };
+
+  MML.maction.prototype.HTMLaction.toggle = function (span,frame,selection) {
+    frame.onmouseover = span.childNodes[1].onmouseover = MouseOver;
+    frame.onmouseout = span.childNodes[1].onmouseout = MouseOut;
+    TOGGLE.apply(this,arguments);
+  }
+});
