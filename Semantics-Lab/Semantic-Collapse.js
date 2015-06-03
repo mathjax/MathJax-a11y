@@ -9,6 +9,8 @@
 (function () {
   var MML;
   MathJax.Hub.Register.StartupHook("mml Jax Ready",function ()  {MML = MathJax.ElementJax.mml});
+  
+  var NOCOLLAPSE = 10000000; // really big complexity
 
   var Collapse = MathJax.Extension.Collapse = {
     version: "1.0",
@@ -53,7 +55,11 @@
       superscript: 9,
       subscript: 9,
       subsup: 9,
-      punctuated: 12
+      punctuated: {
+        endpunct: NOCOLLAPSE,
+        startpunct: NOCOLLAPSE,
+        default: 12
+      }
     },
     //
     //  These are the characters to use for the various collapsed elements
@@ -468,10 +474,12 @@
       if (type) {
         if (this["Collapse_"+type]) mml = (this["Collapse_"+type])(node,mml);
         else if (this.COLLAPSE[type] && this.MARKER[type]) {
-          if (mml.complexity > this.COLLAPSE[type]) {
+          var role = mml.attr["data-semantic-role"];
+          var complexity = this.COLLAPSE[type];
+          if (typeof(complexity) !== "number") complexity = complexity[role] || complexity.default;
+          if (mml.complexity > complexity) {
             var marker = this.MARKER[type];
-            if (typeof(marker) !== "string")
-              marker = marker[mml.attr["data-semantic-role"]] || marker.default;
+            if (typeof(marker) !== "string") marker = marker[role] || marker.default;
             mml = this.MakeAction(this.Marker(marker),mml);
           }
         }
