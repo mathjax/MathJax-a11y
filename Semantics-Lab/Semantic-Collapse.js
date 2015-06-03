@@ -1,141 +1,3 @@
-
-//
-//  Patch MathJax processInput() to perform the postInputHooks
-//  (this is part of the semantic-enhance branch, but this file
-//   calls on the CDN rather than a local copy).
-//
-MathJax.Hub.postInputHooks = MathJax.Callback.Hooks(true);
-MathJax.Hub.processInput = function (state) {
-  var jax, STATE = MathJax.ElementJax.STATE;
-  var script, prev, m = state.scripts.length;
-  try {
-    //
-    //  Loop through the scripts
-    //
-    while (state.i < m) {
-      script = state.scripts[state.i]; if (!script) {state.i++; continue}
-      //
-      //  Remove previous error marker, if any
-      //
-      prev = script.previousSibling;
-      if (prev && prev.className === "MathJax_Error") {prev.parentNode.removeChild(prev)}
-      //
-      //  Check if already processed or needs processing
-      //
-      if (!script.MathJax || script.MathJax.state === STATE.PROCESSED) {state.i++; continue};
-      if (!script.MathJax.elementJax || script.MathJax.state === STATE.UPDATE) {
-        this.checkScriptSiblings(script);                 // remove preJax/postJax etc.
-        var type = script.type.replace(/ *;(.|\s)*/,"");  // the input jax type
-        var input = this.inputJax[type];                  // the input jax itself
-        jax = input.Process(script,state);                // run the input jax
-        if (typeof jax === 'function') {                  // if a callback was returned
-          if (jax.called) continue;                       //   go back and call Process() again
-          this.RestartAfter(jax);                         //   wait for the callback
-        }
-        jax = jax.Attach(script,input.id);                // register the jax on the script
-        this.saveScript(jax,state,script,STATE);          // add script to state
-        this.postInputHooks.Execute(jax,input.id,script); // run global jax filters
-      } else if (script.MathJax.state === STATE.OUTPUT) {
-        this.saveScript(script.MathJax.elementJax,state,script,STATE); // add script to state
-      }
-      //
-      //  Go on to the next script, and check if we need to update the processing message
-      //
-      state.i++; var now = new Date().getTime();
-      if (now - state.start > this.processUpdateTime && state.i < state.scripts.length)
-        {state.start = now; this.RestartAfter(MathJax.Callback.Delay(1))}
-    }
-  } catch (err) {return this.processError(err,state,"Input")}
-  //
-  //  Put up final message, reset the state and return
-  //
-  if (state.scripts.length && this.config.showProcessingMessages)
-    MathJax.Message.Set(["ProcessMath","Processing math: %1%%",100],0);
-  state.start = new Date().getTime(); state.i = state.j = 0;
-  return null;
-};
-
-//
-//  The semantic-enrichment filter.
-//
-MathJax.Extension.SemanticMathML = {
-  version: "1.0",
-  enrich: false,
-  running: false,
-  //
-  //  Names of attributes to force if set by mstyle
-  //  (so SRE doesn't have to look these up)
-  //
-  mstyleLookup: {
-    mi: ["mathvariant"],
-    mo: ["mathvariant","accent","largeop","form","fence","separator","movablelimits"],
-    mn: ["mathvariant"],
-    mtext: ["mathvariant"],
-    ms: ["mathvariant"],
-    mfrac: ["linethickness"],
-    mfenced: ["open","close","separators"],
-    menclose: ["notation"],
-    munder: ["accentunder"],
-    mover: ["accent"],
-    munderover: ["accent","accentunder"]
-  },
-  Filter: function (jax,id,script) {
-    delete jax.enriched;
-    this.running = true;
-    if (this.enrich) jax.enriched = sre.Semantic.enrichMathml(jax.root.toMathML());
-    this.running = false;
-  },
-  Enable: function () {this.enrich = true},
-  Disable: function () {this.enrich = false}
-};
-MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML]);
-//
-//  Override toMathML's attribute function to include additional attributes
-//  inherited from mstyle (so SRE doesn't have to look them up).
-//  Eventually, this should be moved to toMathML.js directly
-//
-MathJax.Hub.Register.StartupHook("toMathML Ready",function () {
-  var MML = MathJax.ElementJax.mml,
-      SMML = MathJax.Extension.SemanticMathML;
-  MML.mbase.Augment({
-    toMathMLattributes: function () {
-      var defaults = (this.type === "mstyle" ? MML.math.prototype.defaults : this.defaults);
-      var names = (this.attrNames||MML.copyAttributeNames),
-          skip = MML.skipAttributes, copy = MML.copyAttributes,
-          lookup = SMML.mstyleLookup[this.type]||[];
-      var attr = [], ATTR = (this.attr||{});
-
-      if (this.type === "math" && (!this.attr || !this.attr.xmlns))
-        attr.push('xmlns="http://www.w3.org/1998/Math/MathML"');
-      if (!this.attrNames) {
-        for (var id in defaults) {if (!skip[id] && !copy[id] && defaults.hasOwnProperty(id)) {
-          if (this[id] != null && this[id] !== defaults[id]) {
-            if (this.Get(id,null,1) !== this[id]) this.toMathMLaddAttr(attr,id,this[id]);
-          }
-        }}
-      }
-      for (var i = 0, m = names.length; i < m; i++) {
-        if (copy[names[i]] === 1 && !defaults.hasOwnProperty(names[i])) continue;
-        value = ATTR[names[i]]; if (value == null) value = this[names[i]];
-        if (value != null) this.toMathMLaddAttr(attr,names[i],value);
-      }
-      for (i = 0, m = lookup.length; i < m; i++) {
-        id = lookup[i];
-        if (defaults.hasOwnProperty(id) && !attr["_"+id]) {
-          value = this.Get(id,1);
-          if (value != null) this.toMathMLaddAttr(attr,id,value);
-        }
-      }
-      this.toMathMLclass(attr);
-      if (attr.length) return " "+attr.join(" "); else return "";
-    },
-    toMathMLaddAttr: function (attr,id,value) {
-      attr.push(id+'="'+this.toMathMLquote(value)+'"');
-      attr["_"+id] = 1;
-    }
-  });
-});
-
 //
 //  A filter to convert the enhanced MathML to MathJax internal format
 //  so we can display it, while adding maction elements for parts that
@@ -144,8 +6,9 @@ MathJax.Hub.Register.StartupHook("toMathML Ready",function () {
 //
 //  The parameters controlling the complexity measure still need work.
 //
-MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
-  var MML = MathJax.ElementJax.mml;
+(function () {
+  var MML;
+  MathJax.Hub.Register.StartupHook("mml Jax Ready",function ()  {MML = MathJax.ElementJax.mml});
 
   var Collapse = MathJax.Extension.Collapse = {
     version: "1.0",
@@ -284,6 +147,12 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       return (a < b ? -1 : a > b ? 1 : 0);
     },
     
+    /*****************************************************************/
+    /*
+     *  These routines implement the automatic collapsing of equations
+     *  based on container widths
+     */
+
     //
     //  Find math that is too wide and collapse it
     //
@@ -403,6 +272,38 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       }
     },
 
+    /*****************************************************************/
+
+    //
+    //  A resize handler that can be tied to the window resize event
+    //  to collapse math automatically on resize.
+    //
+
+    timer: null,
+    running: false,
+    retry: false,
+    
+    resizeHandler: function (event) {
+      if (Collapse.running) {Collapse.retry = true; return}
+      if (Collapse.timer) clearTimeout(Collapse.timer);
+      Collapse.timer = setTimeout(Collapse.resizeAction, 100);
+    },
+    resizeAction: function () {
+      Collapse.timer = null;
+      Collapse.running = true;
+      MathJax.Hub.Queue(
+        ["CollapseWideMath",Collapse],
+        ["resizeCheck",Collapse]
+      );
+    },
+    resizeCheck: function () {
+      Collapse.running = false;
+      if (Collapse.retry) {
+        Collapse.retry = false;
+        setTimeout(Collapse.resizeHandler,0);
+      }
+    },
+    
     /*****************************************************************/
 
     //
@@ -554,9 +455,6 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     },
 
     /*****************************************************************/
-    /*
-     *  These routines implement the collapsing of the various semantic types
-     */
 
     //
     //  If there is a specific routine for the type, do that, otherwise
@@ -581,6 +479,11 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       return mml;
     },
 
+    //
+    //  If a parent is going to be collapsible, if can call this
+    //  to put back a collapsed child (rather than have too many 
+    //  nested collapsings)
+    //
     UncollapseChild: function (mml,n,m) {
       if (m == null) m = 1;
       if (mml.attr["data-semantic-children"].split(/,/).length === m) {
@@ -593,6 +496,11 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       }
       return 0
     },
+
+    /*****************************************************************/
+    /*
+     *  These routines implement the collapsing of the various semantic types
+     */
 
     //
     //  For fenced elements, if the contents are collapsed,
@@ -610,7 +518,7 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
     },
     
     //
-    //  Collapse function applications of the argument is collapsed
+    //  Collapse function applications if the argument is collapsed
     //
     Collapse_appl: function (node,mml) {
       if (this.UncollapseChild(mml,2,2)) 
@@ -674,6 +582,9 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
       return mml;
     },
     
+    //
+    //  Include super- and subscripts into a collapsed base
+    //
     Collapse_superscript: function (node,mml) {
       this.UncollapseChild(mml,0,2);
       if (mml.complexity > this.COLLAPSE.superscript)
@@ -697,50 +608,37 @@ MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
 
   };
   
+  //
+  //  Prevent flicker between input and output phases
+  //
   MathJax.Hub.processSectionDelay = 0;
 
   //
   //  Add a resize handler to check for math that needs
   //  to be collapsed or expanded.
   //
-  MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
-    var timer = null, running = false, retry = false;
-    var resizeAction = function () {
-      timer = null;
-      running = true;
-      MathJax.Hub.Queue(
-        ["CollapseWideMath",Collapse],
-        function () {
-          running = false;
-          if (retry) {
-            retry = false;
-            setTimeout(resizeHandler,0);
-          }
-        }
-      );
-    };
-    var resizeHandler = function (event) {
-      if (running) {retry = true; return}
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(resizeAction, 100);
-    };
-    window.addEventListener("resize",resizeHandler);
-  });
+  window.addEventListener("resize",Collapse.resizeHandler);
 
   //
   //  Add the filter into the post-input hooks (priority 100, so other
   //  hooks run first, in particular, the enrichment hook).
   //
   MathJax.Hub.postInputHooks.Add(["Filter",Collapse],100);
+  
+})();
 
-  var COMPLEXITY = Collapse.COMPLEXITY;
 
-  /*****************************************************************/
-  /*
-   *  Add Collapse() and getComplexity() methods to the internal
-   *  MathML elements, and override these in the elements that need
-   *  special handling.
-   */
+/*****************************************************************/
+/*
+ *  Add Collapse() and getComplexity() methods to the internal
+ *  MathML elements, and override these in the elements that need
+ *  special handling.
+ */
+
+MathJax.Hub.Register.StartupHook("mml Jax Ready", function () {
+  var MML = MathJax.ElementJax.mml,
+      Collapse = MathJax.Extension.Collapse,
+      COMPLEXITY = Collapse.COMPLEXITY;
 
   MML.mbase.Augment({
     //

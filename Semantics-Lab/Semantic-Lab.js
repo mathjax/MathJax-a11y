@@ -65,12 +65,10 @@ var Lab = {
   //
   //  Set the width of the output div
   //
-  setWidth: function (width) {
-    this.enriched.style.width = width;
-    MathJax.Hub.Queue(
-      ["GetContainerWidths",MathJax.Extension.Collapse],
-      ["CollapseWideMath",MathJax.Extension.Collapse]
-    );
+  setWidth: function (width,skipHandler) {
+    this.enriched.style.width = width+"%";
+    document.getElementById("range_output").innerHTML = width+"%";
+    if (!skipHandler) MathJax.Extension.Collapse.resizeHandler({});
   },
   //
   //  Directly select a specific test equation
@@ -116,6 +114,7 @@ MathJax.Hub.Queue(function () {
     var match = window.location.search.match(/^\?(.*?);(.*?);(.*)$/);
     Lab.example.value = match[1]; Lab.Current = parseInt(match[1]);
     Lab.width.value = match[2]; Lab.enriched.style.width = match[2];
+    Lab.setWidth(Lab.width.value,true);
     Lab.input.value = unescape(match[3]);
     Lab.Typeset();
   }
