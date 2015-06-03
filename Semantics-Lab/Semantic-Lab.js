@@ -31,6 +31,7 @@ var Lab = {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
         +this.example.value+';'+this.width.value+';'
+        +this.highlight+';'+this.overflow+';'
         +escape(this.input.value);
   },
   //
@@ -66,9 +67,34 @@ var Lab = {
   //  Set the width of the output div
   //
   setWidth: function (width,skipHandler) {
-    this.enriched.style.width = width+"%";
+    this.container.style.width = width+"%";
     document.getElementById("range_output").innerHTML = width+"%";
     if (!skipHandler) MathJax.Extension.Collapse.resizeHandler({});
+  },
+  //
+  //  The highlight selection
+  //
+  highlight: "none",
+  setHighlight: function (type,skipUpdate) {
+    this.highlight = type;
+    if (!skipUpdate) MathJax.Hub.Queue(["Rerender",this.jax[1]]);
+  },
+  //
+  //  The overflow toggle
+  //
+  overflow: false,
+  setOverflow: function (type,skipUpdate) {
+    this.overflow = type;
+    if (!skipUpdate) MathJax.Hub.Queue(["Rerender",MathJax.Hub]);
+  },
+  NewMath: function (message) {
+    if (!this.overflow) return;
+    var jax = MathJax.Hub.getJaxFor(message[1]);
+    if (jax.root.Get("display") === "block") {
+      var div = jax.SourceElement().previousSibling;
+      div.style.overflow = "auto";
+      div.style.minHeight = (div.offsetHeight+1) + "px"; // force height to be big enough
+    }
   },
   //
   //  Directly select a specific test equation
@@ -100,22 +126,50 @@ var Lab = {
 
 };
 //
+//  Hook into toggle action for highlighting
+//
+MathJax.Hub.Register.StartupHook("HTML-CSS maction Ready",function () {
+  var MML = MathJax.ElementJax.mml;
+  var TOGGLE = MML.maction.prototype.HTMLaction.toggle;
+  MML.maction.prototype.HTMLaction.toggle = function (span,frame,selection) {
+    TOGGLE.apply(this,arguments);
+    var child = span.childNodes[1];
+    if (Lab.highlight !== "hover") {
+      frame.onmouseover = frame.onmouseout = child.onmouseover = child.onmouseout = null;
+    }
+    if (Lab.highlight === "flame") {
+      frame.style.backgroundColor = "blue"; frame.style.opacity = .05;
+    }
+  };
+},20);
+
+//
+//  Hook into "New Math" signal to set overflow
+//
+MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
+
+//
 //  Initialize everything once MathJax has run the first time
 //
 MathJax.Hub.Queue(function () {
   Lab.SMML = MathJax.Extension.SemanticMathML;
   Lab.jax = MathJax.Hub.getAllJax();
   Lab.input = document.getElementById("input");
+  Lab.container = document.getElementById("container");
   Lab.enriched = document.getElementById("enriched");
   Lab.mathml = document.getElementById("mathml");
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
   if (window.location.search.length > 1) {
-    var match = window.location.search.match(/^\?(.*?);(.*?);(.*)$/);
+    var match = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*)$/);
     Lab.example.value = match[1]; Lab.Current = parseInt(match[1]);
     Lab.width.value = match[2]; Lab.enriched.style.width = match[2];
     Lab.setWidth(Lab.width.value,true);
-    Lab.input.value = unescape(match[3]);
+    Lab.highlight = document.getElementById("highlight").value = match[3];
+    Lab.setHighlight(Lab.highlight,true);
+    Lab.overflow = document.getElementById("overflow").checked = (match[4] === "true");
+    Lab.setOverflow(Lab.overflow,true);
+    Lab.input.value = unescape(match[5]);
     Lab.Typeset();
   }
 });

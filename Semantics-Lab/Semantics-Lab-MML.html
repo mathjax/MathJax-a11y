@@ -11,19 +11,28 @@ MathJax.Hub.Config({
   menuSettings: {CHTMLpreview: false}
 });
 </script>
-<!--<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML"></script>-->
-<script src="../../MathJax/unpacked/MathJax.js?config=MML_HTMLorMML"></script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML"></script>
 <script src="InputHooks.js"></script>
 <script src="Semantic-MathML.js"></script>
 <script src="Semantic-Collapse.js"></script>
+<script src="Semantic-Action-Hover.js"></script>
 <script src="Semantic-Lab.js"></script>
 <script src="http://progressiveaccess.com/content/tests.js"></script>
 </head>
 <body>
 
 <p>
-<div style="float:right">
+<div style="float:right; text-align:center">
 <a href="Semantics-Lab-TeX.html"><button>TeX Lab</button></a>
+<div style="margin-top:.75em; border:1px solid #CCC; padding: 5px; text-align:left">
+<small>Highlight:</small> <select id="highlight" onchange="Lab.setHighlight(this.value)">
+<option value="none">None</option>
+<option value="hover">Hover</option>
+<option value="flame">Flame</option>
+</select><br/>
+<input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
+<small>Scrolling overflow</small>
+</div>
 </div>
 <table border="0" cellpadding="0" cellspacing="2">
 <tr><td align="left" colspan="2">Enter MathMLcode here:</td></tr>
@@ -43,13 +52,13 @@ MathJax.Hub.Config({
 </p>
 
 <p>
+<div id="container" style="padding-right:8px; width:100%">
 Original Math:
-<div style="border:1px solid; padding:3px"><math></math></div>
+<div id="original" style="border:1px solid; padding:3px"><math></math></div>
 </p>
 <p>
 Enriched Math:
-<div style="padding-right:8px">
-<div id="enriched" style="border:1px solid; padding:3px; width:100%"><math></math></div>
+<div id="enriched" style="border:1px solid; padding:3px"><math></math></div>
 </div>
 <input type="range" id="width" max="100" min="10" value="100"
  style="width:50%; margin-top:.5em" oninput="Lab.setWidth(this.value)"></input>
