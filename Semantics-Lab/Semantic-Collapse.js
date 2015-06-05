@@ -167,6 +167,7 @@
     //  Find math that is too wide and collapse it
     //
     CollapseWideMath: function (element) {
+      if (!this.enrich) return;
       this.GetContainerWidths(element);
       var jax = MathJax.Hub.getAllJax(element);
       var state = {collapse: [], jax: jax, m: jax.length, i: 0, changed:false};

@@ -18,6 +18,7 @@ MathJax.Hub.Config({
 <script src="Semantic-Collapse.js"></script>
 <script src="Semantic-Action-Hover.js"></script>
 <script src="Semantic-Lab.js"></script>
+<script src="Semantic-Lab-Defaults.js"></script>
 <script>
 Lab.Examples = [
   "x = \\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}",
@@ -62,7 +63,7 @@ input[type="checkbox"] {margin-left: 0}
 <span style="background:white; padding:0 5px; font-size:95%;">Options</span>
 </div>
 
-<input id="collapse" type="checkbox" checked="true" onchange="Lab.setCollapse(this.checked)" />
+<input id="collapse" type="checkbox" onchange="Lab.setCollapse(this.checked)" />
 <small>Collapse MathML</small><br/>
 
 <input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
@@ -121,7 +122,7 @@ Enriched MathML:
 <pre id="mathml"></pre>
 </div>
 </p>
-<math></math> <!-- force MathML input to load -->
+<math></math> <!-- force MathML input jax to load -->
 
 </body>
 </html>

@@ -3,6 +3,15 @@
 //
 var Lab = {
   //
+  //  Defaults for the options
+  //
+  defaults: {
+    collapse: true,
+    highlight: "none",
+    width: 100,
+    overflow: false
+  },
+  //
   //  The TeX code for the examples menu
   //
   Examples: [],
@@ -167,6 +176,13 @@ MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 //  Initialize everything once MathJax has run the first time
 //
 MathJax.Hub.Queue(function () {
+  var defaults = [null,"",
+    String(Lab.defaults.width),
+    String(Lab.defaults.collapse),
+    String(Lab.defaults.overflow),
+    Lab.defaults.highlight,
+    ""
+  ];
   Lab.SMML = MathJax.Extension.SemanticMathML;
   Lab.jax = MathJax.Hub.getAllJax();
   Lab.input = document.getElementById("input");
@@ -175,18 +191,17 @@ MathJax.Hub.Queue(function () {
   Lab.mathml = document.getElementById("mathml");
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
-  if (window.location.search.length > 1) {
-    var match = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
-    Lab.example.value = match[1]; Lab.Current = parseInt(match[1]);
-    Lab.width.value = match[2]; Lab.enriched.style.width = match[2];
-    Lab.setWidth(Lab.width.value,true);
-    Lab.collapse = document.getElementById("collapse").checked = (match[3] === "true");
-    Lab.setCollapse(Lab.collapse,true);
-    Lab.overflow = document.getElementById("overflow").checked = (match[4] === "true");
-    Lab.setOverflow(Lab.overflow,true);
-    Lab.highlight = document.getElementById("highlight").value = match[5];
-    Lab.setHighlight(Lab.highlight,true);
-    Lab.input.value = unescape(match[6]);
-    Lab.Typeset();
-  }
+  if (window.location.search.length > 1) 
+    defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
+  Lab.example.value = defaults[1]; Lab.Current = parseInt(defaults[1]);
+  Lab.width.value = defaults[2]; Lab.enriched.style.width = defaults[2];
+  Lab.setWidth(Lab.width.value,true);
+  Lab.collapse = document.getElementById("collapse").checked = (defaults[3] === "true");
+  Lab.setCollapse(Lab.collapse,true);
+  Lab.overflow = document.getElementById("overflow").checked = (defaults[4] === "true");
+  Lab.setOverflow(Lab.overflow,true);
+  Lab.highlight = document.getElementById("highlight").value = defaults[5];
+  Lab.setHighlight(Lab.highlight,true);
+  Lab.input.value = unescape(defaults[6]);
+  if (Lab.input.value !== "") Lab.Typeset();
 });
