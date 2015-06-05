@@ -30,8 +30,8 @@ var Lab = {
   Keep: function () {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
-        +this.example.value+';'+this.width.value+';'
-        +this.highlight+';'+this.overflow+';'
+        +[this.example.value, this.width.value,
+          this.collapse, this.overflow, this.highlight,""].join(';')
         +escape(this.input.value);
   },
   //
@@ -78,6 +78,21 @@ var Lab = {
   setHighlight: function (type,skipUpdate) {
     this.highlight = type;
     if (!skipUpdate) MathJax.Hub.Queue(["Rerender",this.jax[1]]);
+  },
+  //
+  //  The collapse toggle
+  //
+  collapse: true,
+  setCollapse: function (type,skipUpdate) {
+    this.collapse = type;
+    MathJax.Extension.Collapse[type ? "Enable" : "Disable"]();
+    if (!skipUpdate) {
+      MathJax.Hub.Queue(
+        ["Reprocess",this.jax[1]],
+        ["ShowMathML",this],
+        ["CollapseWideMath",MathJax.Extension.Collapse]
+      );
+    }
   },
   //
   //  The overflow toggle
@@ -161,15 +176,17 @@ MathJax.Hub.Queue(function () {
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
   if (window.location.search.length > 1) {
-    var match = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*)$/);
+    var match = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
     Lab.example.value = match[1]; Lab.Current = parseInt(match[1]);
     Lab.width.value = match[2]; Lab.enriched.style.width = match[2];
     Lab.setWidth(Lab.width.value,true);
-    Lab.highlight = document.getElementById("highlight").value = match[3];
-    Lab.setHighlight(Lab.highlight,true);
+    Lab.collapse = document.getElementById("collapse").checked = (match[3] === "true");
+    Lab.setCollapse(Lab.collapse,true);
     Lab.overflow = document.getElementById("overflow").checked = (match[4] === "true");
     Lab.setOverflow(Lab.overflow,true);
-    Lab.input.value = unescape(match[5]);
+    Lab.highlight = document.getElementById("highlight").value = match[5];
+    Lab.setHighlight(Lab.highlight,true);
+    Lab.input.value = unescape(match[6]);
     Lab.Typeset();
   }
 });

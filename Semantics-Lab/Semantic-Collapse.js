@@ -99,6 +99,10 @@
 
     /*****************************************************************/
 
+    enrich: true,
+    Enable: function () {this.enrich = true},
+    Disable: function () {this.enrich = false},
+    
     //
     //  The main filter (convert the enriched MathML to the
     //  MathJax internal format, with collapsing).
@@ -112,7 +116,7 @@
           math.appendChild(jax.enriched);
           jax.enriched = math;
         }
-        jax.root = this.MakeMML(jax.enriched);
+        jax.root = (this.enrich ? this : MathJax.InputJax.MathML.Parse.prototype).MakeMML(jax.enriched);
         jax.root.inputID = script.id;
         jax.root.SRE = {action: this.Actions(jax.root)};
       }
