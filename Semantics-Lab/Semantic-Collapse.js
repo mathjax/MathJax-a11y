@@ -44,6 +44,8 @@
       number: 3,
       text: 10,
       infixop: 15,
+      relseq: 15,
+      multirel: 15,
       fenced: 18,
       bigop: 20,
       integral: 20,
@@ -52,6 +54,7 @@
       root: 12,
       vector: 15,
       matrix: 15,
+      cases: 15,
       superscript: 9,
       subscript: 9,
       subsup: 9,
@@ -70,20 +73,29 @@
       identifier: "x",
       number: "#",
       text: "...",
-      appl: "f()",
+      appl: {
+        "limit function": "lim",
+        default: "f()"
+      },
       fraction: "/",
       sqrt: "\u221A",
       root: "\u221A",
-      vector: "\u27E8:\u27E9",
       superscript: "\u25FD\u02D9",
       subscript: "\u25FD.",
       subsup:"\u25FD:",
+      vector: {
+        binomial: "(:)",
+        determinant: "|:|",
+        default: "\u27E8:\u27E9"
+      },
       matrix: {
         squarematrix: "[::]",
         rowvector: "\u27E8\u22EF\u27E9",
         columnvector: "\u27E8\u22EE\u27E9",
-        unknown: "(::)"
+        determinant: "|::|",
+        default: "(::)"
       },
+      cases: "{:",
       infixop: {
         addition: "+",
         subtraction: "\u2212",
@@ -131,6 +143,7 @@
       return this.sortActions(actions);
     },
     getActions: function (node,depth,actions) {
+      if (node.isToken) return;
       depth++;
       for (var i = 0, m = node.data.length; i < m; i++) {
         if (node.data[i]) {
@@ -139,7 +152,7 @@
             if (!actions[depth]) actions[depth] = [];
             actions[depth].push(child);
             this.getActions(child.data[1],depth,actions);
-          } else if (!child.isToken) {
+          } else {
             this.getActions(child,depth,actions);
           }
         }
@@ -532,10 +545,14 @@
     
     //
     //  Collapse function applications if the argument is collapsed
+    //  (Handle role="limit function" a bit better?)
     //
     Collapse_appl: function (node,mml) {
-      if (this.UncollapseChild(mml,2,2)) 
-        mml = this.MakeAction(this.Marker(this.MARKER.appl),mml);
+      if (this.UncollapseChild(mml,2,2)) {
+        var marker = this.MARKER.appl;
+        marker = marker[mml.attr["data-semantic-role"]] || marker.default;
+        mml = this.MakeAction(this.Marker(marker),mml);
+      }
       return mml;
     },
 
@@ -595,6 +612,29 @@
       return mml;
     },
     
+    //
+    //  For multirel and relseq, use proper symbol
+    //
+    Collapse_relseq: function (node,mml) {
+      if (mml.complexity > this.COLLAPSE.relseq) {
+        var content = mml.attr["data-semantic-content"].split(/,/);
+        var op = node.querySelector('*[data-semantic-id="'+content[0]+'"]');
+        var marker = op.textContent;
+        if (content.length > 1) marker += "\u22EF";
+        mml = this.MakeAction(this.Marker(marker),mml);
+      }
+      return mml;
+    },
+    Collapse_multirel: function (node,mml) {
+      if (mml.complexity > this.COLLAPSE.multirel) {
+        var content = mml.attr["data-semantic-content"].split(/,/);
+        var op = node.querySelector('*[data-semantic-id="'+content[0]+'"]');
+        var marker = op.textContent+"\u22EF";
+        mml = this.MakeAction(this.Marker(marker),mml);
+      }
+      return mml;
+    },
+
     //
     //  Include super- and subscripts into a collapsed base
     //
