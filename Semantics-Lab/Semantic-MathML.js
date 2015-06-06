@@ -78,4 +78,24 @@ MathJax.Hub.Register.StartupHook("toMathML Ready",function () {
       attr["_"+id] = 1;
     }
   });
+  
+  //
+  //  Adjust setTeXclass for <mo> so that added elements don't
+  //  cause unwanted space.
+  //
+  var TEXCLASS = MML.mo.prototype.setTeXclass;
+  MML.mo.Augment({
+    setTeXclass: function (prev) {
+      var values = this.getValues("form","lspace","rspace"); // sets useMMLspacing
+      if (this.useMMLspacing) {
+        this.texClass = MML.TEXCLASS.NONE;
+        return this;
+      }
+      if (this.attr && this.attr["data-semantic-added"]) {
+        this.texClass = this.prevClass = MML.TEXCLASS.NONE;
+        return prev;
+      }
+      return TEXCLASS.apply(this,arguments);
+    }
+  });
 });
