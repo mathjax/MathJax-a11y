@@ -8,20 +8,47 @@
 //  Don't use the fast preview
 //
 MathJax.Hub.Config({
-  menuSettings: {CHTMLpreview: false}
+  menuSettings: {CHTMLpreview: false},
+  MMLorHTML: {MSIE: "HTML"}
 });
 </script>
 <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML"></script>
+<script src="InputHooks.js"></script>
+<script src="Semantic-MathML.js"></script>
 <script src="Semantic-Collapse.js"></script>
+<script src="Semantic-Action-Hover.js"></script>
 <script src="Semantic-Lab.js"></script>
+<script src="Semantic-Lab-Defaults.js"></script>
 <script src="http://progressiveaccess.com/content/tests.js"></script>
 </head>
 <body>
 
 <p>
-<div style="float:right">
+<div style="float:right; text-align:center">
 <a href="Semantics-Lab-TeX.html"><button>TeX Lab</button></a>
+
+<div style="margin-top:1.5em; border:1px solid #CCC; padding: 10px; text-align:left; position:relative">
+<div style="text-align:center; line-height:0; height:0; width:85%; position:absolute; top:-1px">
+<span style="background:white; padding:0 5px; font-size:95%;">Options</span>
 </div>
+
+<input id="collapse" type="checkbox" onchange="Lab.setCollapse(this.checked)" />
+<small>Collapse MathML</small><br/>
+
+<input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
+<small>Scrolling overflow</small><br/>
+
+<small>Highlight:</small>
+<select id="highlight" onchange="Lab.setHighlight(this.value)">
+<option value="none">None</option>
+<option value="hover">Hover</option>
+<option value="flame">Flame</option>
+</select><br/>
+</div>
+
+</div>
+
+<table border="0" cellpadding="0" cellspacing="2">
 <table border="0" cellpadding="0" cellspacing="2">
 <tr><td align="left" colspan="2">Enter MathMLcode here:</td></tr>
 <tr><td colspan="2"><textarea id="input" rows="10" cols="60" onkeypress="Lab.CheckKey(event)" style="font-size:110%"></textarea></td></tr>
@@ -40,12 +67,17 @@ MathJax.Hub.Config({
 </p>
 
 <p>
+<div id="container" style="padding-right:8px; width:100%">
 Original Math:
-<div style="border:1px solid; padding:3px"><math></math></div>
+<div id="original" style="border:1px solid; padding:3px"><math></math></div>
 </p>
 <p>
 Enriched Math:
-<div style="border:1px solid; padding:3px"><math></math></div>
+<div id="enriched" style="border:1px solid; padding:3px"><math></math></div>
+</div>
+<input type="range" id="width" max="100" min="10" value="100"
+ style="width:50%; margin-top:.5em" oninput="Lab.setWidth(this.value)"></input>
+<span id="range_output">100%</span>
 </p>
 <p>
 Enriched MathML:
