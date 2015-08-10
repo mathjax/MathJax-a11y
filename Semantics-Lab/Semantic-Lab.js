@@ -132,10 +132,6 @@ var Lab = {
     this.Typeset();
   },
   //
-  // Current test equation.
-  //
-  Current: 0,
-  //
   // Select next test equation.
   //
   Next: function() {
@@ -203,5 +199,6 @@ MathJax.Hub.Queue(function () {
   Lab.highlight = document.getElementById("highlight").value = defaults[5];
   Lab.setHighlight(Lab.highlight,true);
   Lab.input.value = unescape(defaults[6]);
+  Lab.Current = 0;
   if (Lab.input.value !== "") Lab.Typeset();
 });
