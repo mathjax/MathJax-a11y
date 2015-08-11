@@ -132,6 +132,10 @@ var Lab = {
     this.Typeset();
   },
   //
+  // Current test equation.
+  //
+  Current: 0,
+  //
   // Select next test equation.
   //
   Next: function() {
@@ -172,7 +176,7 @@ MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 //  Initialize everything once MathJax has run the first time
 //
 MathJax.Hub.Queue(function () {
-  var defaults = [null,"",
+  var defaults = [null,"0",
     String(Lab.defaults.width),
     String(Lab.defaults.collapse),
     String(Lab.defaults.overflow),
@@ -189,8 +193,10 @@ MathJax.Hub.Queue(function () {
   Lab.width = document.getElementById("width");
   if (window.location.search.length > 1) 
     defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
-  Lab.example.value = defaults[1]; Lab.Current = parseInt(defaults[1]);
-  Lab.width.value = defaults[2]; Lab.enriched.style.width = defaults[2];
+  Lab.example.value = defaults[1];
+  Lab.Current = parseInt(defaults[1]);
+  Lab.width.value = defaults[2];
+  Lab.enriched.style.width = defaults[2];
   Lab.setWidth(Lab.width.value,true);
   Lab.collapse = document.getElementById("collapse").checked = (defaults[3] === "true");
   Lab.setCollapse(Lab.collapse,true);
@@ -199,6 +205,5 @@ MathJax.Hub.Queue(function () {
   Lab.highlight = document.getElementById("highlight").value = defaults[5];
   Lab.setHighlight(Lab.highlight,true);
   Lab.input.value = unescape(defaults[6]);
-  Lab.Current = 0;
   if (Lab.input.value !== "") Lab.Typeset();
 });
