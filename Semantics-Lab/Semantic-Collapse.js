@@ -8,7 +8,7 @@
 //
 (function () {
   var MML;
-  MathJax.Hub.Register.StartupHook("mml Jax Ready",function ()  {MML = MathJax.ElementJax.mml});
+  MathJax.Hub.Register.StartupHook("Sre Ready",function ()  {MML = MathJax.ElementJax.mml});
   
   var NOCOLLAPSE = 10000000; // really big complexity
 
@@ -688,7 +688,7 @@
  *  special handling.
  */
 
-MathJax.Hub.Register.StartupHook("mml Jax Ready", function () {
+MathJax.Hub.Register.StartupHook("Sre Ready", function () {
   var MML = MathJax.ElementJax.mml,
       Collapse = MathJax.Extension.Collapse,
       COMPLEXITY = Collapse.COMPLEXITY;

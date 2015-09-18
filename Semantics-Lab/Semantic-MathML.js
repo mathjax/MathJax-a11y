@@ -37,7 +37,8 @@ MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML]);
 //  inherited from mstyle (so SRE doesn't have to look them up).
 //  Eventually, this should be moved to toMathML.js directly
 //
-MathJax.Hub.Register.StartupHook("toMathML Ready",function () {
+MathJax.Hub.Register.StartupHook("Sre Ready",function () {
+  console.log(sre);
   var MML = MathJax.ElementJax.mml,
       SMML = MathJax.Extension.SemanticMathML;
       
