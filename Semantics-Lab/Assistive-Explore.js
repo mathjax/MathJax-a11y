@@ -1,6 +1,8 @@
+//
+// Connection to SRE explorer.
+//
 
-
-(function() {
+MathJax.Hub.Register.StartupHook("Sre Ready", function() {
   var FALSE, KEY;
   MathJax.Hub.Register.StartupHook("MathEvents Ready",function () {
     FALSE = MathJax.Extension.MathEvents.Event.False;
@@ -9,37 +11,32 @@
 
   var Explorer = MathJax.Extension.Explorer = {
     enriched: [],
-    active: [],
     speechDiv: null,
     //
-    // Collates all enriched jaxs.
+    // Collates all enriched jaxs and adds a key event.
     //
-    Register: function(jax, id, script) {
-      if (jax.enriched) {
-        Explorer.enriched.push(jax);
+    Register: function(msg) {
+      var script = msg[1];
+      if (script && script.id) {
+        var jax = MathJax.Hub.getJaxFor(script.id);
+        if (jax && jax.enriched) {
+          Explorer.enriched.push(jax);
+          Explorer.AddEvent(script);
+        }
       };
     },
     //
-    // Adds key events to each enriched jax.
+    // Adds a key event to an enriched jax.
     //
-    AddEvents: function() {
-      for (var i = 0, jax; jax = Explorer.enriched[i]; i++) {
-        // This is costly! Can I do this also by walking back from script?
-        var frame = document.getElementById(jax.inputID + '-Frame');
-        if (frame) {
-          Explorer.AddEvent(frame);
-          Explorer.active.push(jax);
+    AddEvent: function(script) {
+      if (script.previousSibling) {
+        var math = script.previousSibling.firstElementChild;
+        if (math) {
+          math.onkeydown = Explorer.Keydown;
+          return;
         }
       }
-      if (Explorer.enriched.length !== Explorer.active.length) {
-        MathJax.Hub.Queue(["AddEvents", Explorer]);
-      }
-    },
-    //
-    // Adds a single key event.
-    //
-    AddEvent: function(element) {
-      element.onkeydown = Explorer.Keydown;
+      MathJax.Hub.Queue(["AddEvent", Explorer, script]);
     },
     // 
     // Event execution on keydown. Subsumes the same method of MathEvents.
@@ -48,6 +45,7 @@
       if (event.keyCode === KEY.SPACE) {
         var math = event.target;
         if (event.shiftKey) {
+          //TODO: (sorge) Hook up the actual explorer here.
           Explorer.AddSpeech(math);
           var speechNode = Explorer.GetRoot(math);
           Explorer.Speak(speechNode.getAttribute('data-semantic-speech'));
@@ -86,7 +84,7 @@
       Explorer.speechDiv.textContent = speech;
     },
     //
-    //
+    // Retrieves the root node of the semantic tree.
     //
     GetRoot: function(math) {
       var speechNodes = math.querySelectorAll('span[data-semantic-speech]');
@@ -99,9 +97,7 @@
     }
   };
   
-  MathJax.Hub.postInputHooks.Add(["Register", Explorer], 200);
-
   MathJax.Hub.Register.MessageHook("End Math",
-                                   ["AddEvents", MathJax.Extension.Explorer]);
+                                   ["Register", MathJax.Extension.Explorer]);
 
-})();
+});
