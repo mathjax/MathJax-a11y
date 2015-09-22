@@ -38,24 +38,78 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
       }
       MathJax.Hub.Queue(["AddEvent", Explorer, script]);
     },
+    walker: null,
+    currentHighlight: null,
     // 
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
     Keydown: function (event) {
+      if (event.keyCode === KEY.ESCAPE) {
+        if (!Explorer.walker) return;
+        Explorer.DeactivateWalker();
+        FALSE(event);
+        return;
+      }
+      // If walker is active we redirect there.
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.move(event.keyCode);
+        if (move === null) return;
+        if (move) {
+          Explorer.Speak(Explorer.walker.speech());
+          Explorer.Highlight();
+        }
+        FALSE(event);
+        return;
+      }
+      var math = event.target;
       if (event.keyCode === KEY.SPACE) {
-        var math = event.target;
         if (event.shiftKey) {
-          //TODO: (sorge) Hook up the actual explorer here.
-          Explorer.AddSpeech(math);
-          var speechNode = Explorer.GetRoot(math);
-          Explorer.Speak(speechNode.getAttribute('data-semantic-speech'));
+          Explorer.ActivateWalker(math);
         } else {
           MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
         }
-      } else if (event.keyCode === KEY.ESCAPE) {
-        Explorer.RemoveSpeech();
+        FALSE(event);
+        return;
       }
-      FALSE(event);
+    },
+    //
+    // Activates the walker.
+    //
+    ActivateWalker: function(math) {
+      Explorer.AddSpeech(math);
+      var speechGenerator = new sre.DirectSpeechGenerator();
+      Explorer.walker = new sre.SyntaxWalker(math, speechGenerator);
+      Explorer.walker.activate();
+      Explorer.Speak(Explorer.walker.speech());
+      Explorer.Highlight();
+    },
+    //
+    // Deactivates the walker.
+    //
+    DeactivateWalker: function() {
+      Explorer.RemoveSpeech();
+      Explorer.Unhighlight();
+      Explorer.currentHighlight = null;
+      Explorer.walker.deactivate();
+      Explorer.walker = null;
+    },
+    //
+    // Highlights the current node.
+    //
+    Highlight: function() {
+      Explorer.Unhighlight();
+      var node = Explorer.walker.getCurrentNode();
+      console.log(node);
+      node.style.backgroundColor = "rgba(0,0,255,.2)";
+      Explorer.currentHighlight = node;
+    },
+    //
+    // Unhighlights the old node.
+    //
+    Unhighlight: function() {
+      if (Explorer.currentHighlight) {
+        Explorer.currentHighlight.style.backgroundColor = "rgba(0,0,0,0)";
+      }
     },
     //
     // Adds the speech div.
@@ -65,6 +119,7 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
         Explorer.speechDiv = MathJax.HTML.addElement(
           document.body, "div", {className:"MathJax_SpeechOutput",
                                  style: {fontSize: '1px', color: '#FFFFFF'}});
+                                 // style: {fontSize: '12px', color: '#000000'}});
         Explorer.speechDiv.setAttribute('aria-live', 'assertive');
       }
     },
@@ -82,18 +137,6 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
     //
     Speak: function(speech) {
       Explorer.speechDiv.textContent = speech;
-    },
-    //
-    // Retrieves the root node of the semantic tree.
-    //
-    GetRoot: function(math) {
-      var speechNodes = math.querySelectorAll('span[data-semantic-speech]');
-      for (var i = 0, speechNode; speechNode = speechNodes[i]; i++) {
-        if (!speechNode.hasAttribute('data-semantic-parent')) {
-          return speechNode;
-        }
-      }
-      return speechNodes[0];
     }
   };
   
