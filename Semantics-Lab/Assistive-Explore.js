@@ -2,9 +2,9 @@
 // Connection to SRE explorer.
 //
 
-MathJax.Hub.Register.StartupHook("Sre Ready", function() {
+MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   var FALSE, KEY;
-  MathJax.Hub.Register.StartupHook("MathEvents Ready",function () {
+  MathJax.Hub.Register.StartupHook('MathEvents Ready', function() {
     FALSE = MathJax.Extension.MathEvents.Event.False;
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
@@ -23,7 +23,7 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
           Explorer.enriched.push(jax);
           Explorer.AddEvent(script);
         }
-      };
+      }
     },
     //
     // Adds a key event to an enriched jax.
@@ -36,14 +36,14 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
           return;
         }
       }
-      MathJax.Hub.Queue(["AddEvent", Explorer, script]);
+      MathJax.Hub.Queue(['AddEvent', Explorer, script]);
     },
     walker: null,
     currentHighlight: null,
-    // 
+    //
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
-    Keydown: function (event) {
+    Keydown: function(event) {
       if (event.keyCode === KEY.ESCAPE) {
         if (!Explorer.walker) return;
         Explorer.DeactivateWalker();
@@ -99,8 +99,7 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
     Highlight: function() {
       Explorer.Unhighlight();
       var node = Explorer.walker.getCurrentNode();
-      console.log(node);
-      node.style.backgroundColor = "rgba(0,0,255,.2)";
+      node.style.backgroundColor = 'rgba(0,0,255,.2)';
       Explorer.currentHighlight = node;
     },
     //
@@ -108,7 +107,7 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
     //
     Unhighlight: function() {
       if (Explorer.currentHighlight) {
-        Explorer.currentHighlight.style.backgroundColor = "rgba(0,0,0,0)";
+        Explorer.currentHighlight.style.backgroundColor = 'rgba(0,0,0,0)';
       }
     },
     //
@@ -117,9 +116,10 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
     AddSpeech: function(math) {
       if (!Explorer.speechDiv) {
         Explorer.speechDiv = MathJax.HTML.addElement(
-          document.body, "div", {className:"MathJax_SpeechOutput",
-                                 style: {fontSize: '1px', color: '#FFFFFF'}});
-                                 // style: {fontSize: '12px', color: '#000000'}});
+            document.body, 'div', {className: 'MathJax_SpeechOutput',
+              style: {fontSize: '1px', color: '#FFFFFF'}}
+            // style: {fontSize: '12px', color: '#000000'}}
+            );
         Explorer.speechDiv.setAttribute('aria-live', 'assertive');
       }
     },
@@ -139,8 +139,8 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function() {
       Explorer.speechDiv.textContent = speech;
     }
   };
-  
-  MathJax.Hub.Register.MessageHook("End Math",
-                                   ["Register", MathJax.Extension.Explorer]);
+
+  MathJax.Hub.Register.MessageHook('End Math',
+                                   ['Register', MathJax.Extension.Explorer]);
 
 });
