@@ -114,6 +114,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         rect.setAttribute('fill', 'rgba(0,0,255,.2)');
         node.parentNode.insertBefore(rect, node);
         Explorer.currentHighlight = rect;
+      } else if (MathJax.Hub.config.MathMenu.settings.renderer === 'NativeMML') {
+        var style = document.createElementNS(
+          'http://www.w3.org/1998/Math/MathML', 'mstyle');
+        style.setAttribute('mathbackground', '#33CCFF');
+        node.parentNode.replaceChild(style, node);
+        style.appendChild(node);
+        Explorer.currentHighlight = style;
       } else {
         node.style.backgroundColor = 'rgba(0,0,255,.2)';
         Explorer.currentHighlight = node;
@@ -127,7 +134,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (MathJax.Hub.config.MathMenu.settings.renderer === 'SVG') {
           Explorer.currentHighlight.parentNode.removeChild(
               Explorer.currentHighlight);
-        } else {
+      } else if (MathJax.Hub.config.MathMenu.settings.renderer === 'NativeMML') {
+        //TODO: We could cache the mstyle element as it does not change!
+        Explorer.currentHighlight.parentNode.replaceChild(
+          Explorer.currentHighlight.firstElementChild,
+          Explorer.currentHighlight);
+      } else {
           Explorer.currentHighlight.style.backgroundColor = 'rgba(0,0,0,0)';
         }
       }
