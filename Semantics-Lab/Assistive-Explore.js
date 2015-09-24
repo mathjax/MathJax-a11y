@@ -1,7 +1,6 @@
 //
 // Connection to SRE explorer.
 //
-
 MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   var FALSE, KEY;
   MathJax.Hub.Register.StartupHook('MathEvents Ready', function() {
@@ -72,6 +71,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         return;
       }
     },
+    //TODO: REFACTOR NOTES
+    // -- Walker factory wrt global config.
+    // -- Colour selector for highlighting with enum element.
     //
     // Activates the walker.
     //
@@ -93,13 +95,19 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker.deactivate();
       Explorer.walker = null;
     },
+    //TODO: REFACTOR NOTES
+    // -- Cache the mstyle element as it does not change.
+    // -- Cache the SVG rectangle and only update bbox + transform.
+    // -- Rewrite switch into a selector dictionary.
+    // -- Highlight factory with renderer specific highlight classes.
     //
     // Highlights the current node.
     //
     Highlight: function() {
       Explorer.Unhighlight();
       var node = Explorer.walker.getCurrentNode();
-      if (MathJax.Hub.config.MathMenu.settings.renderer === 'SVG') {
+      switch (MathJax.Hub.config.MathMenu.settings.renderer) {
+      case 'SVG':
         var bbox = node.getBBox();
         var rect = document.createElementNS(
             'http://www.w3.org/2000/svg', 'rect');
@@ -114,34 +122,37 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         rect.setAttribute('fill', 'rgba(0,0,255,.2)');
         node.parentNode.insertBefore(rect, node);
         Explorer.currentHighlight = rect;
-      } else if (MathJax.Hub.config.MathMenu.settings.renderer === 'NativeMML') {
+      case 'NativeMML':
         var style = document.createElementNS(
           'http://www.w3.org/1998/Math/MathML', 'mstyle');
         style.setAttribute('mathbackground', '#33CCFF');
         node.parentNode.replaceChild(style, node);
         style.appendChild(node);
         Explorer.currentHighlight = style;
-      } else {
+      case 'HTML-CSS':
+      case 'CommonHTML':
         node.style.backgroundColor = 'rgba(0,0,255,.2)';
         Explorer.currentHighlight = node;
+      default:
       }
     },
     //
     // Unhighlights the old node.
     //
     Unhighlight: function() {
-      if (Explorer.currentHighlight) {
-        if (MathJax.Hub.config.MathMenu.settings.renderer === 'SVG') {
-          Explorer.currentHighlight.parentNode.removeChild(
-              Explorer.currentHighlight);
-      } else if (MathJax.Hub.config.MathMenu.settings.renderer === 'NativeMML') {
-        //TODO: We could cache the mstyle element as it does not change!
+      if (!Explorer.currentHighlight) return;
+      switch (MathJax.Hub.config.MathMenu.settings.renderer) {
+      case 'SVG':
+        Explorer.currentHighlight.parentNode.removeChild(
+            Explorer.currentHighlight);
+      case 'NativeMML':
         Explorer.currentHighlight.parentNode.replaceChild(
           Explorer.currentHighlight.firstElementChild,
           Explorer.currentHighlight);
-      } else {
-          Explorer.currentHighlight.style.backgroundColor = 'rgba(0,0,0,0)';
-        }
+      case 'HTML-CSS':
+      case 'CommonHTML':
+        Explorer.currentHighlight.style.backgroundColor = 'rgba(0,0,0,0)';
+      default:
       }
     },
     //
