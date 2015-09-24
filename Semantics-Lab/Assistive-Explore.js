@@ -99,15 +99,37 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     Highlight: function() {
       Explorer.Unhighlight();
       var node = Explorer.walker.getCurrentNode();
-      node.style.backgroundColor = 'rgba(0,0,255,.2)';
-      Explorer.currentHighlight = node;
+      if (MathJax.Hub.config.MathMenu.settings.renderer === 'SVG') {
+        var bbox = node.getBBox();
+        var rect = document.createElementNS(
+            'http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', bbox.x);
+        rect.setAttribute('y', bbox.y);
+        rect.setAttribute('width', bbox.width);
+        rect.setAttribute('height', bbox.height);
+        var transform = node.getAttribute('transform');
+        if (transform) {
+          rect.setAttribute('transform', transform);
+        }
+        rect.setAttribute('fill', 'rgba(0,0,255,.2)');
+        node.parentNode.insertBefore(rect, node);
+        Explorer.currentHighlight = rect;
+      } else {
+        node.style.backgroundColor = 'rgba(0,0,255,.2)';
+        Explorer.currentHighlight = node;
+      }
     },
     //
     // Unhighlights the old node.
     //
     Unhighlight: function() {
       if (Explorer.currentHighlight) {
-        Explorer.currentHighlight.style.backgroundColor = 'rgba(0,0,0,0)';
+        if (MathJax.Hub.config.MathMenu.settings.renderer === 'SVG') {
+          Explorer.currentHighlight.parentNode.removeChild(
+              Explorer.currentHighlight);
+        } else {
+          Explorer.currentHighlight.style.backgroundColor = 'rgba(0,0,0,0)';
+        }
       }
     },
     //
@@ -117,8 +139,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (!Explorer.speechDiv) {
         Explorer.speechDiv = MathJax.HTML.addElement(
             document.body, 'div', {className: 'MathJax_SpeechOutput',
-              style: {fontSize: '1px', color: '#FFFFFF'}}
-            // style: {fontSize: '12px', color: '#000000'}}
+              // style: {fontSize: '1px', color: '#FFFFFF'}}
+            style: {fontSize: '12px', color: '#000000'}}
             );
         Explorer.speechDiv.setAttribute('aria-live', 'assertive');
       }
