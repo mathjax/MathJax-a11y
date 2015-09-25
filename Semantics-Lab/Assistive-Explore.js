@@ -106,7 +106,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     Highlight: function() {
       Explorer.Unhighlight();
       var node = Explorer.walker.getCurrentNode();
-      console.log(MathJax.Hub.config.MathMenu.settings.renderer);
       switch (MathJax.Hub.config.MathMenu.settings.renderer) {
       case 'SVG':
         var bbox = node.getBBox();
