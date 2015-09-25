@@ -148,13 +148,16 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       case 'SVG':
         Explorer.currentHighlight.parentNode.removeChild(
             Explorer.currentHighlight);
+        break;
       case 'NativeMML':
         Explorer.currentHighlight.parentNode.replaceChild(
           Explorer.currentHighlight.firstElementChild,
           Explorer.currentHighlight);
+        break;
       case 'HTML-CSS':
       case 'CommonHTML':
         Explorer.currentHighlight.style.backgroundColor = 'rgba(0,0,0,0)';
+        break;
       default:
       }
     },
