@@ -122,6 +122,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         rect.setAttribute('fill', 'rgba(0,0,255,.2)');
         node.parentNode.insertBefore(rect, node);
         Explorer.currentHighlight = rect;
+        break;
       case 'NativeMML':
         var style = document.createElementNS(
           'http://www.w3.org/1998/Math/MathML', 'mstyle');
@@ -129,10 +130,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         node.parentNode.replaceChild(style, node);
         style.appendChild(node);
         Explorer.currentHighlight = style;
+        break;
       case 'HTML-CSS':
       case 'CommonHTML':
         node.style.backgroundColor = 'rgba(0,0,255,.2)';
         Explorer.currentHighlight = node;
+        break;
       default:
       }
     },
