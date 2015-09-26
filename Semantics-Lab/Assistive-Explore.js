@@ -110,34 +110,34 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     HighlightNode: function(node) {
       switch (MathJax.Hub.config.MathMenu.settings.renderer) {
-      case 'SVG':
-        var bbox = node.getBBox();
-        var rect = document.createElementNS(
-            'http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', bbox.x);
-        rect.setAttribute('y', bbox.y);
-        rect.setAttribute('width', bbox.width);
-        rect.setAttribute('height', bbox.height);
-        var transform = node.getAttribute('transform');
-        if (transform) {
-          rect.setAttribute('transform', transform);
-        }
-        rect.setAttribute('fill', 'rgba(0,0,255,.2)');
-        node.parentNode.insertBefore(rect, node);
-        return rect;
-      case 'NativeMML':
-        var style = document.createElementNS(
-          'http://www.w3.org/1998/Math/MathML', 'mstyle');
-        style.setAttribute('mathbackground', '#33CCFF');
-        node.parentNode.replaceChild(style, node);
-        style.appendChild(node);
-        return style;
-      case 'HTML-CSS':
-      case 'CommonHTML':
-        node.style.backgroundColor = 'rgba(0,0,255,.2)';
-        return node;
-      default:
-        return null;
+        case 'SVG':
+          var bbox = node.getBBox();
+          var rect = document.createElementNS(
+              'http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', bbox.x);
+          rect.setAttribute('y', bbox.y);
+          rect.setAttribute('width', bbox.width);
+          rect.setAttribute('height', bbox.height);
+          var transform = node.getAttribute('transform');
+          if (transform) {
+            rect.setAttribute('transform', transform);
+          }
+          rect.setAttribute('fill', 'rgba(0,0,255,.2)');
+          node.parentNode.insertBefore(rect, node);
+          return rect;
+        case 'NativeMML':
+          var style = document.createElementNS(
+              'http://www.w3.org/1998/Math/MathML', 'mstyle');
+          style.setAttribute('mathbackground', '#33CCFF');
+          node.parentNode.replaceChild(style, node);
+          style.appendChild(node);
+          return style;
+        case 'HTML-CSS':
+        case 'CommonHTML':
+          node.style.backgroundColor = 'rgba(0,0,255,.2)';
+          return node;
+        default:
+          return null;
       }
     },
     //
@@ -149,17 +149,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     UnhighlightNode: function(node) {
       switch (MathJax.Hub.config.MathMenu.settings.renderer) {
-      case 'SVG':
-        node.parentNode.removeChild(node);
-        break;
-      case 'NativeMML':
-        node.parentNode.replaceChild(node.firstElementChild, node);
-        break;
-      case 'HTML-CSS':
-      case 'CommonHTML':
-        node.style.backgroundColor = 'rgba(0,0,0,0)';
-        break;
-      default:
+        case 'SVG':
+          node.parentNode.removeChild(node);
+          break;
+        case 'NativeMML':
+          node.parentNode.replaceChild(node.firstElementChild, node);
+          break;
+        case 'HTML-CSS':
+        case 'CommonHTML':
+          node.style.backgroundColor = 'rgba(0,0,0,0)';
+          break;
+        default:
       }
     },
     //
@@ -170,7 +170,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.speechDiv = MathJax.HTML.addElement(
             document.body, 'div', {className: 'MathJax_SpeechOutput',
               // style: {fontSize: '1px', color: '#FFFFFF'}}
-            style: {fontSize: '12px', color: '#000000'}}
+              style: {fontSize: '12px', color: '#000000'}}
             );
         Explorer.speechDiv.setAttribute('aria-live', 'assertive');
       }
