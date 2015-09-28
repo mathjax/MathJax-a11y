@@ -9,18 +9,24 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   var Explorer = MathJax.Extension.Explorer = {
-    enriched: [],
     speechDiv: null,
+    enriched: {},
     //
     // Collates all enriched jaxs and adds a key event.
     //
     Register: function(msg) {
       var script = msg[1];
-      if (script && script.id) {
+      var type = msg[2];
+      if (type === 'Update' && script && script.id) {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
-          Explorer.enriched.push(jax);
+          Explorer.enriched[script.id] = script;
           Explorer.AddEvent(script);
+        }
+      }
+      if (type === 'Rerender') {
+        for (var key in Explorer.enriched) {
+          Explorer.AddEvent(Explorer.enriched[key]);
         }
       }
     },
@@ -192,7 +198,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     }
   };
 
-  MathJax.Hub.Register.MessageHook('End Math',
-                                   ['Register', MathJax.Extension.Explorer]);
-
+  MathJax.Hub.Register.MessageHook(
+    'End Math', ['Register', MathJax.Extension.Explorer]);
+  
 });
