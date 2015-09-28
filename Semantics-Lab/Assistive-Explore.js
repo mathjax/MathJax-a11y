@@ -117,6 +117,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     HighlightNode: function(node) {
       switch (MathJax.Hub.config.MathMenu.settings.renderer) {
         case 'SVG':
+          if (node.tagName === 'svg') {
+            node.style.backgroundColor = 'rgba(0,0,255,.2)';
+            return node;
+          }
           var bbox = node.getBBox();
           var rect = document.createElementNS(
               'http://www.w3.org/2000/svg', 'rect');
@@ -156,6 +160,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     UnhighlightNode: function(node) {
       switch (MathJax.Hub.config.MathMenu.settings.renderer) {
         case 'SVG':
+          if (node.tagName === 'svg') {
+            node.style.backgroundColor = 'rgba(0,0,0,0)';
+            break;
+          }
           node.parentNode.removeChild(node);
           break;
         case 'NativeMML':
