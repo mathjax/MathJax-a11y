@@ -120,6 +120,9 @@ var Lab = {
       div.style.minHeight = (div.offsetHeight+1) + "px"; // force height to be big enough
     }
   },
+  setColor: function(value) {
+    Lab.color = value;
+  },
   //
   //  Directly select a specific test equation
   //
@@ -181,7 +184,8 @@ MathJax.Hub.Queue(function () {
     String(Lab.defaults.collapse),
     String(Lab.defaults.overflow),
     Lab.defaults.highlight,
-    ""
+    "",
+    "blue"
   ];
   Lab.SMML = MathJax.Extension.SemanticMathML;
   Lab.jax = MathJax.Hub.getAllJax();
@@ -205,5 +209,6 @@ MathJax.Hub.Queue(function () {
   Lab.highlight = document.getElementById("highlight").value = defaults[5];
   Lab.setHighlight(Lab.highlight,true);
   Lab.input.value = unescape(defaults[6]);
+  Lab.color = unescape(defaults[7]);
   if (Lab.input.value !== "") Lab.Typeset();
 });
