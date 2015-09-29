@@ -46,6 +46,30 @@ MathJax.Hub.Config({
 <option value="hover">Hover</option>
 <option value="flame">Flame</option>
 </select><br/>
+
+<small>Background:</small>
+<select id="background" onchange="Lab.setBackground(this.value)">
+<option value="blue">blue</option>
+<option value="red">red</option>
+<option value="green">green</option>
+<option value="yellow">yellow</option>
+<option value="cyan">cyan</option>
+<option value="magenta">magenta</option>
+<option value="white">white</option>
+<option value="black">black</option>
+</select><br/>
+
+<small>Foreground:</small>
+<select id="foreground" onchange="Lab.setForeground(this.value)">
+<option value="black">black</option>
+<option value="white">white</option>
+<option value="magenta">magenta</option>
+<option value="cyan">cyan</option>
+<option value="yellow">yellow</option>
+<option value="green">green</option>
+<option value="red">red</option>
+<option value="blue">blue</option>
+</select><br/>
 </div>
 
 </div>

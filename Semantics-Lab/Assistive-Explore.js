@@ -15,22 +15,30 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Registers new Maths and adds a key event if it is enriched.
     //
     Register: function(msg) {
+      console.log(msg);
       var script = document.getElementById(msg[1]);
       if (script && script.id) {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
+          console.log(jax);
           Explorer.enriched[script.id] = script;
           Explorer.AddEvent(script);
         }
       }
     },
     //TODO: Add counter to give up eventually.
+    //TODO: How to retrieve the with the actual events immediately.
     //
     // Adds a key event to an enriched jax.
     //
     AddEvent: function(script) {
-      if (script.previousSibling) {
-        var math = script.previousSibling.firstElementChild;
+      var id = script.id + '-Frame';
+      var sibling = script.previousSibling;
+      if (sibling) {
+        var math = sibling.id !== id ? sibling.firstElementChild : sibling;
+        if (math.className === 'MathJax_MathML') {
+          math = math.firstElementChild;
+        }
         if (math) {
           math.onkeydown = Explorer.Keydown;
           return;
