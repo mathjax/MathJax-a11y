@@ -9,7 +9,8 @@ var Lab = {
     collapse: true,
     highlight: "none",
     width: 100,
-    overflow: false
+    overflow: false,
+    background: "blue"
   },
   //
   //  The TeX code for the examples menu
@@ -40,7 +41,7 @@ var Lab = {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
         +[this.example.value, this.width.value,
-          this.collapse, this.overflow, this.highlight,""].join(';')
+          this.collapse, this.overflow, this.highlight, this.background, ""].join(';')
         +escape(this.input.value);
   },
   //
@@ -120,8 +121,12 @@ var Lab = {
       div.style.minHeight = (div.offsetHeight+1) + "px"; // force height to be big enough
     }
   },
-  setColor: function(value) {
-    Lab.color = value;
+  //
+  // Background color;
+  //
+  background: "blue",
+  setBackground: function(value) {
+    Lab.background = value;
   },
   //
   //  Directly select a specific test equation
@@ -184,8 +189,8 @@ MathJax.Hub.Queue(function () {
     String(Lab.defaults.collapse),
     String(Lab.defaults.overflow),
     Lab.defaults.highlight,
+    Lab.defaults.background,
     "",
-    "blue"
   ];
   Lab.SMML = MathJax.Extension.SemanticMathML;
   Lab.jax = MathJax.Hub.getAllJax();
@@ -196,7 +201,7 @@ MathJax.Hub.Queue(function () {
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
   if (window.location.search.length > 1) 
-    defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
+    defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
   Lab.example.value = defaults[1];
   Lab.Current = parseInt(defaults[1]);
   Lab.width.value = defaults[2];
@@ -208,7 +213,8 @@ MathJax.Hub.Queue(function () {
   Lab.setOverflow(Lab.overflow,true);
   Lab.highlight = document.getElementById("highlight").value = defaults[5];
   Lab.setHighlight(Lab.highlight,true);
-  Lab.input.value = unescape(defaults[6]);
-  Lab.color = unescape(defaults[7]);
+  Lab.background = document.getElementById("background").value = defaults[6];
+  Lab.background = defaults[6];
+  Lab.input.value = unescape(defaults[7]);
   if (Lab.input.value !== "") Lab.Typeset();
 });
