@@ -15,12 +15,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Registers new Maths and adds a key event if it is enriched.
     //
     Register: function(msg) {
-      console.log(msg);
       var script = document.getElementById(msg[1]);
       if (script && script.id) {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
-          console.log(jax);
           Explorer.enriched[script.id] = script;
           Explorer.AddEvent(script);
         }
@@ -91,10 +89,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var speechGenerator = new sre.DirectSpeechGenerator();
       Explorer.walker = new sre.SemanticWalker(math, speechGenerator);
       Explorer.highlighter = sre.HighlighterFactory.highlighter(
-        MathJax.Hub.outputJax["jax/mml"][0].id,
-        {color: Lab.background, alpha: .2},
-        {color: Lab.foreground, alpha: 1}
-      );
+          MathJax.Hub.outputJax['jax/mml'][0].id,
+          {color: Lab.background, alpha: .2},
+          {color: Lab.foreground, alpha: 1}
+          );
       Explorer.walker.activate();
       Explorer.Speak(Explorer.walker.speech());
       Explorer.Highlight();
@@ -153,6 +151,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   };
 
   MathJax.Hub.Register.MessageHook(
-    'New Math', ['Register', MathJax.Extension.Explorer]);
-  
+      'New Math', ['Register', MathJax.Extension.Explorer]);
+
 });
