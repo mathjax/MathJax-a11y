@@ -10,7 +10,8 @@ var Lab = {
     highlight: "none",
     width: 100,
     overflow: false,
-    background: "blue"
+    background: "blue",
+    foreground: "black"
   },
   //
   //  The TeX code for the examples menu
@@ -41,7 +42,8 @@ var Lab = {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
         +[this.example.value, this.width.value,
-          this.collapse, this.overflow, this.highlight, this.background, ""].join(';')
+          this.collapse, this.overflow, this.highlight,
+          this.background, this.foreground, ""].join(';')
         +escape(this.input.value);
   },
   //
@@ -129,6 +131,13 @@ var Lab = {
     Lab.background = value;
   },
   //
+  // Foreground color;
+  //
+  foreground: "blue",
+  setForeground: function(value) {
+    Lab.foreground = value;
+  },
+  //
   //  Directly select a specific test equation
   //
   DirectSelect: function (n) {
@@ -190,6 +199,7 @@ MathJax.Hub.Queue(function () {
     String(Lab.defaults.overflow),
     Lab.defaults.highlight,
     Lab.defaults.background,
+    Lab.defaults.foreground,
     "",
   ];
   Lab.SMML = MathJax.Extension.SemanticMathML;
@@ -201,7 +211,7 @@ MathJax.Hub.Queue(function () {
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
   if (window.location.search.length > 1) 
-    defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
+    defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
   Lab.example.value = defaults[1];
   Lab.Current = parseInt(defaults[1]);
   Lab.width.value = defaults[2];
@@ -215,6 +225,8 @@ MathJax.Hub.Queue(function () {
   Lab.setHighlight(Lab.highlight,true);
   Lab.background = document.getElementById("background").value = defaults[6];
   Lab.background = defaults[6];
-  Lab.input.value = unescape(defaults[7]);
+  Lab.foreground = document.getElementById("foreground").value = defaults[7];
+  Lab.foreground = defaults[7];
+  Lab.input.value = unescape(defaults[8]);
   if (Lab.input.value !== "") Lab.Typeset();
 });

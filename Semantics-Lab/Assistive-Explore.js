@@ -83,7 +83,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var speechGenerator = new sre.DirectSpeechGenerator();
       Explorer.walker = new sre.SemanticWalker(math, speechGenerator);
       Explorer.highlighter = sre.HighlighterFactory.highlighter(
-        MathJax.Hub.outputJax["jax/mml"][0].id, {color: Lab.background, alpha: .2});
+        MathJax.Hub.outputJax["jax/mml"][0].id,
+        {color: Lab.background, alpha: .2},
+        {color: Lab.foreground, alpha: 1}
+      );
       Explorer.walker.activate();
       Explorer.Speak(Explorer.walker.speech());
       Explorer.Highlight();
