@@ -12,24 +12,19 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     speechDiv: null,
     enriched: {},
     //
-    // Collates all enriched jaxs and adds a key event.
+    // Registers new Maths and adds a key event if it is enriched.
     //
     Register: function(msg) {
-      var script = msg[1];
-      var type = msg[2];
-      if (type === 'Update' && script && script.id) {
+      var script = document.getElementById(msg[1]);
+      if (script && script.id) {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
           Explorer.enriched[script.id] = script;
           Explorer.AddEvent(script);
         }
       }
-      if (type === 'Rerender') {
-        for (var key in Explorer.enriched) {
-          Explorer.AddEvent(Explorer.enriched[key]);
-        }
-      }
     },
+    //TODO: Add counter to give up eventually.
     //
     // Adds a key event to an enriched jax.
     //
@@ -44,7 +39,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       MathJax.Hub.Queue(['AddEvent', Explorer, script]);
     },
     walker: null,
-    currentHighlight: null,
+    highlighter: null,
     //
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
@@ -87,6 +82,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.AddSpeech(math);
       var speechGenerator = new sre.DirectSpeechGenerator();
       Explorer.walker = new sre.SemanticWalker(math, speechGenerator);
+      Explorer.highlighter = sre.HighlighterFactory.highlighter(
+        MathJax.Hub.outputJax["jax/mml"][0].id, {color: 'blue', alpha: .2});
       Explorer.walker.activate();
       Explorer.Speak(Explorer.walker.speech());
       Explorer.Highlight();
@@ -101,80 +98,18 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker.deactivate();
       Explorer.walker = null;
     },
-    //TODO: REFACTOR NOTES
-    // -- Cache the mstyle element as it does not change.
-    // -- Cache the SVG rectangle and only update bbox + transform.
-    // -- Rewrite switch into a selector dictionary.
-    // -- Highlight factory with renderer specific highlight classes.
+    //
+    // Highlights the focused nodes.
+    //
     Highlight: function() {
       Explorer.Unhighlight();
-      var nodes = Explorer.walker.getFocus().getNodes();
-      Explorer.currentHighlight = nodes.map(Explorer.HighlightNode);
+      Explorer.highlighter.highlight(Explorer.walker.getFocus().getNodes());
     },
     //
-    // Highlights the current node.
-    //
-    HighlightNode: function(node) {
-      switch (MathJax.Hub.config.MathMenu.settings.renderer) {
-        case 'SVG':
-          if (node.tagName === 'svg') {
-            node.style.backgroundColor = 'rgba(0,0,255,.2)';
-            return node;
-          }
-          var bbox = node.getBBox();
-          var rect = document.createElementNS(
-              'http://www.w3.org/2000/svg', 'rect');
-          rect.setAttribute('x', bbox.x);
-          rect.setAttribute('y', bbox.y);
-          rect.setAttribute('width', bbox.width);
-          rect.setAttribute('height', bbox.height);
-          var transform = node.getAttribute('transform');
-          if (transform) {
-            rect.setAttribute('transform', transform);
-          }
-          rect.setAttribute('fill', 'rgba(0,0,255,.2)');
-          node.parentNode.insertBefore(rect, node);
-          return rect;
-        case 'NativeMML':
-          var style = document.createElementNS(
-              'http://www.w3.org/1998/Math/MathML', 'mstyle');
-          style.setAttribute('mathbackground', '#33CCFF');
-          node.parentNode.replaceChild(style, node);
-          style.appendChild(node);
-          return style;
-        case 'HTML-CSS':
-        case 'CommonHTML':
-          node.style.backgroundColor = 'rgba(0,0,255,.2)';
-          return node;
-        default:
-          return null;
-      }
-    },
-    //
-    // Unhighlights the old node.
+    // Unhighlights the old nodes.
     //
     Unhighlight: function() {
-      if (!Explorer.currentHighlight) return;
-      Explorer.currentHighlight.forEach(Explorer.UnhighlightNode);
-    },
-    UnhighlightNode: function(node) {
-      switch (MathJax.Hub.config.MathMenu.settings.renderer) {
-        case 'SVG':
-          if (node.tagName === 'svg') {
-            node.style.backgroundColor = 'rgba(0,0,0,0)';
-            break;
-          }
-          node.parentNode.removeChild(node);
-          break;
-        case 'NativeMML':
-          node.parentNode.replaceChild(node.firstElementChild, node);
-          break;
-        case 'HTML-CSS':
-        case 'CommonHTML':
-          node.style.backgroundColor = 'rgba(0,0,0,0)';
-          break;
-        default:
-      }
+      Explorer.highlighter.unhighlight();
     },
     //
     // Adds the speech div.
@@ -207,6 +142,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   };
 
   MathJax.Hub.Register.MessageHook(
-    'End Math', ['Register', MathJax.Extension.Explorer]);
+    'New Math', ['Register', MathJax.Extension.Explorer]);
   
 });
