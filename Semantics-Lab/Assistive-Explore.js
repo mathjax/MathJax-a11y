@@ -32,10 +32,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // 
     GetHoverer: function() {
       Explorer.hoverer = sre.HighlighterFactory.highlighter(
-        MathJax.Hub.outputJax['jax/mml'][0].id,
         {color: Lab.background, alpha: .1},
         {color: Lab.foreground, alpha: 1},
-        {mode: 'hover', browser: MathJax.Hub.Browser.name}
+        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+         mode: 'hover', browser: MathJax.Hub.Browser.name}
       );
     },
     MouseOver: function(event) {
@@ -154,7 +154,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           MathJax.Hub.outputJax['jax/mml'][0].id,
           {color: Lab.background, alpha: .2},
           {color: Lab.foreground, alpha: 1},
-          {mode: 'walk', browser: MathJax.Hub.Browser.name}
+          {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+           mode: 'walk', browser: MathJax.Hub.Browser.name}
       );
       Explorer.walker.activate();
       Explorer.Speak(Explorer.walker.speech());
