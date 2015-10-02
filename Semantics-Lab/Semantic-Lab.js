@@ -166,23 +166,6 @@ var Lab = {
   }
 
 };
-//
-//  Hook into toggle action for highlighting
-//
-MathJax.Hub.Register.StartupHook("HTML-CSS maction Ready",function () {
-  var MML = MathJax.ElementJax.mml;
-  var TOGGLE = MML.maction.prototype.HTMLaction.toggle;
-  MML.maction.prototype.HTMLaction.toggle = function (span,frame,selection) {
-    TOGGLE.apply(this,arguments);
-    var child = span.childNodes[1];
-    if (Lab.highlight !== "hover") {
-      frame.onmouseover = frame.onmouseout = child.onmouseover = child.onmouseout = null;
-    }
-    if (Lab.highlight === "flame") {
-      frame.style.backgroundColor = "blue"; frame.style.opacity = .05;
-    }
-  };
-},20);
 
 //
 //  Hook into "New Math" signal to set overflow
