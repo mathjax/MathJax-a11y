@@ -39,13 +39,19 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       );
     },
     MouseOver: function(event) {
-      var frame = event.currentTarget;
-      Explorer.GetHoverer();
-      Explorer.hoverer.highlight([frame]);
-      return  MathJax.Extension.MathEvents.Event.False(event);
+      if (Lab.highlight === 'none') return;
+      if (Lab.highlight === 'hover') {
+        var frame = event.currentTarget;
+        Explorer.GetHoverer();
+        Explorer.hoverer.highlight([frame]);
+      }
+      MathJax.Extension.MathEvents.Event.False(event);
     },
     MouseOut: function (event) {
-      Explorer.hoverer.unhighlight();
+      if (Explorer.hoverer) {
+        Explorer.hoverer.unhighlight();
+        Explorer.hoverer = null;
+      }
       return  MathJax.Extension.MathEvents.Event.False(event);
     },
     //TODO: Add counter to give up eventually.
