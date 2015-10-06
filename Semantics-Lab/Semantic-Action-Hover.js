@@ -1,13 +1,12 @@
 //
 //  Hook into toggle action for highlighting
 //
+//TODO: Get this to work on all renderers.
 
 var HIGHLIGHT = MathJax.Extension.Highlight = {
-  ToggleMethod: null,
   ClickMethod: null,
   Events: function () {
   var MML = MathJax.ElementJax.mml;
-  var TOGGLE = MML.maction.prototype.HTMLaction.toggle;
   var CLICK = MML.maction.prototype.HTMLclick;
   function OpenCollapsed(mml) {
     if (mml.collapsible) mml.selection = 2;
@@ -18,11 +17,6 @@ var HIGHLIGHT = MathJax.Extension.Highlight = {
   };
 
   MML.maction.Augment({
-    HTMLaction: {
-      toggle: function (span,frame,selection) {
-        TOGGLE.apply(this,arguments);
-      }
-    },
     HTMLclick: function (event) {
       if (this.collapsible && event.shiftKey) {
         if (this.selection === 1) OpenCollapsed(this);
@@ -37,12 +31,6 @@ var HIGHLIGHT = MathJax.Extension.Highlight = {
   },
   SetToggle: function () {
     var MML = MathJax.ElementJax.mml;
-    HIGHLIGHT.GetToggle();
-    MML.maction.prototype.HTMLaction.toggle = HIGHLIGHT.Toggle;
-  },
-  GetToggle: function() {
-    var MML = MathJax.ElementJax.mml;
-    HIGHLIGHT.ToggleMethod = MML.maction.prototype.HTMLaction.toggle;
     HIGHLIGHT.ClickMethod = MML.maction.prototype.HTMLclick;
   }
 };
