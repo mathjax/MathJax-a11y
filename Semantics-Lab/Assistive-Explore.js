@@ -12,8 +12,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     walker: null,
     highlighter: null,
     hoverer: null,
+    flamer: null,
     speechDiv: null,
     enriched: {},
+    //
+    // Resets the explorer, rerunning methods not triggered by events.
+    //
+    Reset: function() {
+      Explorer.FlameEnriched();
+    },
     //
     // Registers new Maths and adds a key event if it is enriched.
     //
@@ -54,6 +61,39 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       return  MathJax.Extension.MathEvents.Event.False(event);
     },
+    //TODO: Make this work for multiple nodes!
+    //      Flaming for MathML background via alternating colors.
+    //
+    GetFlamer: function() {
+      Explorer.flamer = sre.HighlighterFactory.highlighter(
+        {color: Lab.background, alpha: .05},
+        {color: Lab.foreground, alpha: 1},
+        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+         mode: 'hover', browser: MathJax.Hub.Browser.name}
+      );
+    },
+    Flame: function(node) {
+      if (Lab.highlight === 'flame') {
+        Explorer.GetFlamer();
+        var nodes = Explorer.GetMactionNodes(node);
+        for (var i = 0, n; n = nodes[i]; i++) {
+          Explorer.flamer.highlight([n]);
+        }
+        return;
+      }
+      if (Explorer.flamer) {
+        nodes = Explorer.GetMactionNodes(node);
+        for (i = 0, l = nodes.length; i < l; i++) {
+          Explorer.flamer.unhighlight();
+        }
+        Explorer.flamer = null;
+      }
+    },
+    FlameEnriched: function() {
+      for (var key in Explorer.enriched) {
+        Explorer.Flame(Explorer.enriched[key].previousSibling);
+      }
+    },
     //TODO: Add counter to give up eventually.
     // 
     // 
@@ -67,13 +107,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var mactions = Explorer.GetMactionNodes(node);
       for (var i = 0, maction; maction = mactions[i]; i++) {
         switch (MathJax.Hub.outputJax['jax/mml'][0].id) {
-        case 'NativeMML':
         case 'HTML-CSS':
           maction.childNodes[0].onmouseover =
             maction.childNodes[1].onmouseover = Explorer.MouseOver;
           maction.childNodes[0].onmouseout =
             maction.childNodes[1].onmouseout = Explorer.MouseOut;
           break;
+        case 'NativeMML':
         case 'CommonHTML':
           maction.onmouseover = Explorer.MouseOver;
           maction.onmouseout = Explorer.MouseOut;

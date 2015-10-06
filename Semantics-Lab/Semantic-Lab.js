@@ -89,7 +89,10 @@ var Lab = {
   highlight: "none",
   setHighlight: function (type,skipUpdate) {
     this.highlight = type;
-    if (!skipUpdate) MathJax.Hub.Queue(["Rerender",this.jax[1]]);
+    if (!skipUpdate) {
+      MathJax.Extension.Explorer.Reset();
+      MathJax.Hub.Queue(["Rerender",this.jax[1]]);
+    }
   },
   //
   //  The collapse toggle

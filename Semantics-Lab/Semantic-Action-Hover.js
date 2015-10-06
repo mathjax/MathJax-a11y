@@ -34,9 +34,6 @@ var HIGHLIGHT = MathJax.Extension.Highlight = {
   },
   Toggle: function (span,frame,selection) {
     HIGHLIGHT.ToggleMethod.apply(this,arguments);
-    if (Lab.highlight === "flame") {
-      frame.style.backgroundColor = "blue"; frame.style.opacity = .05;
-    }
   },
   SetToggle: function () {
     var MML = MathJax.ElementJax.mml;
