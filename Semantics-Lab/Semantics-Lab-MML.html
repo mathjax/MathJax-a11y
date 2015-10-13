@@ -40,15 +40,22 @@ MathJax.Hub.Config({
 <input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
 <small>Scrolling overflow</small><br/>
 
+<small>Walker:</small>
+<select id="walker" onchange="Lab.setExplorerOption('walker', this.value)">
+<option value="dummy">Dummy</option>
+<option value="syntactic">Syntactic</option>
+<option value="semantic">Semantic</option>
+</select><br/>
+
 <small>Highlight:</small>
-<select id="highlight" onchange="Lab.setHighlight(this.value)">
+<select id="highlight" onchange="Lab.setExplorerOption('highlight', this.value)">
 <option value="none">None</option>
 <option value="hover">Hover</option>
 <option value="flame">Flame</option>
 </select><br/>
 
 <small>Background:</small>
-<select id="background" onchange="Lab.setBackground(this.value)">
+<select id="background" onchange="Lab.setExplorerOption('background', this.value)">
 <option value="blue">blue</option>
 <option value="red">red</option>
 <option value="green">green</option>
@@ -60,7 +67,7 @@ MathJax.Hub.Config({
 </select><br/>
 
 <small>Foreground:</small>
-<select id="foreground" onchange="Lab.setForeground(this.value)">
+<select id="foreground" onchange="Lab.setExplorerOption('foreground', this.value)">
 <option value="black">black</option>
 <option value="white">white</option>
 <option value="magenta">magenta</option>
