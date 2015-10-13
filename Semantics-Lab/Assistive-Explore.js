@@ -69,10 +69,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         {color: Lab.background, alpha: .05},
         {color: Lab.foreground, alpha: 1},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
-         mode: 'hover', browser: MathJax.Hub.Browser.name}
+         mode: 'flame', browser: MathJax.Hub.Browser.name}
       );
     },
     Flame: function(node) {
+      Explorer.UnFlame(node);
       if (Lab.highlight === 'flame') {
         Explorer.GetFlamer();
         var nodes = Explorer.GetMactionNodes(node);
@@ -81,8 +82,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
         return;
       }
+    },
+    UnFlame: function(node) {
       if (Explorer.flamer) {
-        nodes = Explorer.GetMactionNodes(node);
+        var nodes = Explorer.GetMactionNodes(node);
         for (i = 0, l = nodes.length; i < l; i++) {
           Explorer.flamer.unhighlight();
         }

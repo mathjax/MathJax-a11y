@@ -84,17 +84,6 @@ var Lab = {
     if (!skipHandler) MathJax.Extension.Collapse.resizeHandler({});
   },
   //
-  //  The highlight selection
-  //
-  highlight: "none",
-  setHighlight: function (type,skipUpdate) {
-    this.highlight = type;
-    if (!skipUpdate) {
-      MathJax.Extension.Explorer.Reset();
-      MathJax.Hub.Queue(["Rerender",this.jax[1]]);
-    }
-  },
-  //
   //  The collapse toggle
   //
   collapse: true,
@@ -127,18 +116,31 @@ var Lab = {
     }
   },
   //
+  //  The static highlight selection
+  //
+  highlight: "none",
+  setHighlight: function (type,skipUpdate) {
+    if (this.highlight === type) return;
+    this.highlight = type;
+    MathJax.Extension.Explorer.Reset();
+  },
+  //
   // Background color;
   //
   background: "blue",
   setBackground: function(value) {
-    Lab.background = value;
+    if (this.background === value) return;
+    this.background = value;
+    MathJax.Extension.Explorer.Reset();
   },
   //
   // Foreground color;
   //
-  foreground: "blue",
+  foreground: "black",
   setForeground: function(value) {
-    Lab.foreground = value;
+    if (this.foreground === value) return;
+    this.foreground = value;
+    MathJax.Extension.Explorer.Reset();
   },
   //
   //  Directly select a specific test equation
@@ -208,7 +210,7 @@ MathJax.Hub.Queue(function () {
   Lab.overflow = document.getElementById("overflow").checked = (defaults[4] === "true");
   Lab.setOverflow(Lab.overflow,true);
   Lab.highlight = document.getElementById("highlight").value = defaults[5];
-  Lab.setHighlight(Lab.highlight,true);
+  Lab.setHighlight(Lab.highlight);
   Lab.background = document.getElementById("background").value = defaults[6];
   Lab.background = defaults[6];
   Lab.foreground = document.getElementById("foreground").value = defaults[7];
