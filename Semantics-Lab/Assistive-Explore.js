@@ -97,9 +97,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.Flame(Explorer.enriched[key].previousSibling);
       }
     },
-    //TODO: Add counter to give up eventually.
-    // 
-    // 
     //
     // Adds mouse events to maction items in an enriched jax.
     //
@@ -140,6 +137,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         return [];
       }
      },
+    //TODO: Add counter to give up eventually.
     //
     // Adds a key event to an enriched jax.
     //
@@ -204,7 +202,19 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     ActivateWalker: function(math) {
       Explorer.AddSpeech(math);
       var speechGenerator = new sre.DirectSpeechGenerator();
-      Explorer.walker = new sre.SemanticWalker(math, speechGenerator);
+
+      switch (Lab.explorer.walker) {
+      case 'syntactic':
+        Explorer.walker = new sre.SyntaxWalker(math, speechGenerator);
+        break;
+      case 'semantic':
+        Explorer.walker = new sre.SemanticWalker(math, speechGenerator);
+        break;
+      case 'dummy':
+      default:
+        Explorer.walker = new sre.DummyWalker(math, speechGenerator);
+      }
+      
       Explorer.highlighter = sre.HighlighterFactory.highlighter(
           {color: Lab.explorer.background, alpha: .2},
           {color: Lab.explorer.foreground, alpha: 1},
