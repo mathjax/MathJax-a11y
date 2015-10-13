@@ -102,9 +102,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // 
     //
     // Adds mouse events to maction items in an enriched jax.
-    // 
-    // NOTE: Native MML does not work in Firefox due to MathML not implementing
-    // the GlobalEventHandlers Interface.
     //
     AddMouseEvents: function(node) {
       var mactions = Explorer.GetMactionNodes(node);
@@ -157,6 +154,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
         if (math) {
           math.onkeydown = Explorer.Keydown;
+          math.addEventListener(
+            MathJax.Hub.Browser.name === 'Firefox' ? 'blur' : 'focusout',
+            function(event) {
+              if (Explorer.walker) Explorer.DeactivateWalker();
+            });
           return;
         }
       }
@@ -196,7 +198,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     //TODO: REFACTOR NOTES
     // -- Walker factory wrt global config.
-    // -- Colour selector for highlighting with enum element.
     //
     // Activates the walker.
     //
