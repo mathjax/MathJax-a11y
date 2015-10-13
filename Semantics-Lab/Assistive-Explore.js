@@ -39,15 +39,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // 
     GetHoverer: function() {
       Explorer.hoverer = sre.HighlighterFactory.highlighter(
-        {color: Lab.background, alpha: .1},
-        {color: Lab.foreground, alpha: 1},
+        {color: Lab.explorer.background, alpha: .1},
+        {color: Lab.explorer.foreground, alpha: 1},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
          mode: 'hover', browser: MathJax.Hub.Browser.name}
       );
     },
     MouseOver: function(event) {
-      if (Lab.highlight === 'none') return;
-      if (Lab.highlight === 'hover') {
+      if (Lab.explorer.highlight === 'none') return;
+      if (Lab.explorer.highlight === 'hover') {
         var frame = event.currentTarget;
         Explorer.GetHoverer();
         Explorer.hoverer.highlight([frame]);
@@ -66,15 +66,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     GetFlamer: function() {
       Explorer.flamer = sre.HighlighterFactory.highlighter(
-        {color: Lab.background, alpha: .05},
-        {color: Lab.foreground, alpha: 1},
+        {color: Lab.explorer.background, alpha: .05},
+        {color: Lab.explorer.foreground, alpha: 1},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
          mode: 'flame', browser: MathJax.Hub.Browser.name}
       );
     },
     Flame: function(node) {
       Explorer.UnFlame(node);
-      if (Lab.highlight === 'flame') {
+      if (Lab.explorer.highlight === 'flame') {
         Explorer.GetFlamer();
         var nodes = Explorer.GetMactionNodes(node);
         for (var i = 0, n; n = nodes[i]; i++) {
@@ -205,8 +205,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var speechGenerator = new sre.DirectSpeechGenerator();
       Explorer.walker = new sre.SemanticWalker(math, speechGenerator);
       Explorer.highlighter = sre.HighlighterFactory.highlighter(
-          {color: Lab.background, alpha: .2},
-          {color: Lab.foreground, alpha: 1},
+          {color: Lab.explorer.background, alpha: .2},
+          {color: Lab.explorer.foreground, alpha: 1},
           {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
            mode: 'walk', browser: MathJax.Hub.Browser.name}
       );

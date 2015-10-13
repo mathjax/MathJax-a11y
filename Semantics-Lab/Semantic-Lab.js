@@ -7,9 +7,10 @@ var Lab = {
   //
   defaults: {
     collapse: true,
-    highlight: "none",
     width: 100,
     overflow: false,
+    walker: "dummy",
+    highlight: "none",
     background: "blue",
     foreground: "black"
   },
@@ -42,8 +43,8 @@ var Lab = {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
         +[this.example.value, this.width.value,
-          this.collapse, this.overflow, this.highlight,
-          this.background, this.foreground, ""].join(';')
+          this.collapse, this.overflow, this.explorer.walker, this.explorer.highlight,
+          this.explorer.background, this.explorer.foreground, ""].join(';')
         +escape(this.input.value);
   },
   //
@@ -118,28 +119,15 @@ var Lab = {
   //
   //  The static highlight selection
   //
-  highlight: "none",
-  setHighlight: function (type,skipUpdate) {
-    if (this.highlight === type) return;
-    this.highlight = type;
-    MathJax.Extension.Explorer.Reset();
-  },
-  //
-  // Background color;
-  //
-  background: "blue",
-  setBackground: function(value) {
-    if (this.background === value) return;
-    this.background = value;
-    MathJax.Extension.Explorer.Reset();
-  },
-  //
-  // Foreground color;
-  //
-  foreground: "black",
-  setForeground: function(value) {
-    if (this.foreground === value) return;
-    this.foreground = value;
+  explorer: {
+      walker: "dummy",
+      highlight: "none",
+      background: "blue",
+      foreground: "black"
+    },
+  setExplorerOption: function(key, value) {
+    if (this.explorer[key] === value) return;
+    this.explorer[key] = value;
     MathJax.Extension.Explorer.Reset();
   },
   //
@@ -185,6 +173,7 @@ MathJax.Hub.Queue(function () {
     String(Lab.defaults.width),
     String(Lab.defaults.collapse),
     String(Lab.defaults.overflow),
+    Lab.defaults.walker,
     Lab.defaults.highlight,
     Lab.defaults.background,
     Lab.defaults.foreground,
@@ -199,7 +188,8 @@ MathJax.Hub.Queue(function () {
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
   if (window.location.search.length > 1) 
-    defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
+    defaults = window.location.search.match(
+        /^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
   Lab.example.value = defaults[1];
   Lab.Current = parseInt(defaults[1]);
   Lab.width.value = defaults[2];
@@ -209,12 +199,10 @@ MathJax.Hub.Queue(function () {
   Lab.setCollapse(Lab.collapse,true);
   Lab.overflow = document.getElementById("overflow").checked = (defaults[4] === "true");
   Lab.setOverflow(Lab.overflow,true);
-  Lab.highlight = document.getElementById("highlight").value = defaults[5];
-  Lab.setHighlight(Lab.highlight);
-  Lab.background = document.getElementById("background").value = defaults[6];
-  Lab.background = defaults[6];
-  Lab.foreground = document.getElementById("foreground").value = defaults[7];
-  Lab.foreground = defaults[7];
-  Lab.input.value = unescape(defaults[8]);
+  Lab.setExplorerOption("walker", document.getElementById("walker").value = defaults[5]);
+  Lab.setExplorerOption("highlight", document.getElementById("highlight").value = defaults[6]);
+  Lab.setExplorerOption("background", document.getElementById("background").value = defaults[7]);
+  Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[8]);
+  Lab.input.value = unescape(defaults[9]);
   if (Lab.input.value !== "") Lab.Typeset();
 });
