@@ -117,6 +117,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             maction.childNodes[1].onmouseout = Explorer.MouseOut;
           break;
         case 'NativeMML':
+          if (MathJax.Hub.Browser.name === 'Firefox') {
+            maction.addEventListener('mouseover', Explorer.MouseOver);
+            maction.addEventListener('mouseout', Explorer.MouseOut);
+            break;
+          }
         case 'CommonHTML':
           maction.onmouseover = Explorer.MouseOver;
           maction.onmouseout = Explorer.MouseOut;
