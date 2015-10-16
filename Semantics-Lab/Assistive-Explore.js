@@ -59,7 +59,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.hoverer.unhighlight();
         Explorer.hoverer = null;
       }
-      return  MathJax.Extension.MathEvents.Event.False(event);
+      return MathJax.Extension.MathEvents.Event.False(event);
     },
     //TODO: Make this work for multiple nodes!
     //      Flaming for MathML background via alternating colors.
