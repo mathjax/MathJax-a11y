@@ -156,21 +156,6 @@ var Lab = {
   //
   Prev: function() {
     this.DirectSelect(this.Current - 1);
-  },
-  //
-  // Change positioning for highlighting of HTML-CSS
-  // 
-  // TODO: This might lead to performance issues in old IE browsers and possibly
-  //       affect stacking order.
-  //
-  AddStyleRule: function() {
-    if (MathJax.Hub.outputJax['jax/mml'][0].id !== 'HTML-CSS') return;
-    var cssRuleCode = document.all ? 'rules' : 'cssRules';
-    var length = document.styleSheets.length;
-    var cssSheet = document.styleSheets[length - 1][cssRuleCode];
-    var index = cssSheet ? cssSheet.length : 0;
-    document.styleSheets[length - 1].insertRule(
-      '.MathJax span { position: relative; }', index);
   }
 };
 
@@ -219,5 +204,4 @@ MathJax.Hub.Queue(function () {
   Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[8]);
   Lab.input.value = unescape(defaults[9]);
   if (Lab.input.value !== "") Lab.Typeset();
-  Lab.AddStyleRule();
 });
