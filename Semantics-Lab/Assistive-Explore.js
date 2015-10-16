@@ -196,7 +196,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     //TODO: REFACTOR NOTES
     // -- Walker factory wrt global config.
-    //
+    // -- General Explorer that holds:
+    //   -- events
+    //   -- highlighter
+    //   -- retrieval method for mactions.
+    // 
     // Activates the walker.
     //
     ActivateWalker: function(math) {
