@@ -159,6 +159,9 @@ var Lab = {
   },
   //
   // Change positioning for highlighting of HTML-CSS
+  // 
+  // TODO: This might lead to performance issues in old IE browsers and possibly
+  //       affect stacking order.
   //
   AddStyleRule: function() {
     if (MathJax.Hub.outputJax['jax/mml'][0].id !== 'HTML-CSS') return;
