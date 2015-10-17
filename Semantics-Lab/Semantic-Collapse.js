@@ -210,7 +210,7 @@
     //  the equation to be expanded or collapsed further.
     //
     collapseActions: function (SRE,state) {
-      var w = SRE.width ,m = w, M = 1000000;
+      var w = SRE.width, m = w, M = 1000000;
       for (var j = SRE.action.length-1; j >= 0; j--) {
         var action = SRE.action[j], selection = action.selection;
         if (w > SRE.cwidth) {
@@ -220,7 +220,11 @@
           action.selection = 2;
         }
         w = action.SREwidth;
-        if (action.selection !== selection) state.changed = true;
+        if (SRE.DOMupdate) {
+          document.getElementById(action.id).setAttribute("selection",action.selection);
+        } else if (action.selection !== selection) {
+          state.changed = true;
+        }
       }
       SRE.m = m; SRE.M = M;
     },
@@ -232,8 +236,8 @@
     //
     getActionWidths: function (jax,state) {
       if (!jax.root.SRE.actionWidths) {
-        MathJax.OutputJax["HTML-CSS"].getMetrics(jax);
-        try {this.computeActionWidths(jax.root)} catch (err) {
+        MathJax.OutputJax[jax.outputJax].getMetrics(jax);
+        try {this.computeActionWidths(jax)} catch (err) {
           if (!err.restart) throw err;
           return MathJax.Callback.After(["collapseState",this,state],err.restart);
         }
@@ -245,20 +249,18 @@
     //  Compute the action widths by collapsing each
     //  maction, and recording the width of the complete equation
     //
-    computeActionWidths: function (math) {
-      var html = math.data[0].HTMLspanElement(), box = html.parentNode;
-      math.SRE.width = box.bbox.w;
-      var actions = math.SRE.action, j;
+    computeActionWidths: function (jax) {
+      var SRE = jax.root.SRE, actions = SRE.action, j, state = {};
+      SRE.width = jax.sreGetRootWidth(state);
       for (j = actions.length-1; j >= 0; j--) actions[j].selection = 2;
       for (j = actions.length-1; j >= 0; j--) {
         var action = actions[j];
         if (action.SREwidth == null) {
           action.selection = 1;
-          html = math.data[0].toHTML(box);
-          action.SREwidth = html.bbox.w;
+          action.SREwidth = jax.sreGetActionWidth(state,action);
         }
       }
-      math.SRE.actionWidths = true;
+      SRE.actionWidths = true;
     },
 
     //
@@ -271,12 +273,11 @@
       var i, m, script, span = MathJax.HTML.Element("span",{style:{display:"block"}});
       var math = [], jax, root;
       for (i = 0, m = JAX.length; i < m; i++) {
-        jax = JAX[i], root = jax.root;
-        if (root.SRE && root.SRE.action.length) {
-          if (root.SRE.width == null) {
-            root.SRE.cwidth = jax.HTMLCSS.cwidth;
-            root.SRE.m = root.SRE.width = root.data[0].HTMLspanElement().parentNode.bbox.w;
-            root.SRE.M = 1000000;
+        jax = JAX[i], root = jax.root, SRE = root.SRE;
+        if (SRE && SRE.action.length) {
+          if (SRE.width == null) {
+            jax.sreGetMetrics();
+            SRE.m = SRE.width; SRE.M = 1000000;
           }
           script = jax.SourceElement();
           script.previousSibling.style.display = "none";
@@ -287,7 +288,7 @@
       for (i = 0, m = math.length; i < m; i++) {
         jax = math[i][0], script = math[i][1];
         if (script.previousSibling.offsetWidth)
-          jax.root.SRE.cwidth = script.previousSibling.offsetWidth / jax.HTMLCSS.em /jax.HTMLCSS.scale;
+          jax.root.SRE.cwidth = script.previousSibling.offsetWidth * jax.root.SRE.em;
       }
       for (i = 0, m = math.length; i < m; i++) {
         jax = math[i][0], script = math[i][1];
@@ -353,8 +354,9 @@
     //
     MakeAction: function (collapse,mml) {
       var maction = MML.maction(collapse).With({
-        actiontype:"toggle", complexity:collapse.getComplexity(), collapsible:true,
-        attrNames: ["actiontype","complexity"], attr: {}, selection:2
+        id:this.getActionID(), actiontype:"toggle",
+        complexity:collapse.getComplexity(), collapsible:true,
+        attrNames:["id","actiontype","complexity","selection"], attr:{}, selection:2
       });
       if (mml.type === "math") {
         var mrow = MML.mrow().With({
@@ -380,6 +382,9 @@
       }
       return maction;
     },
+    
+    actionID: 1,
+    getActionID: function () {return "MJX-Collapse-"+this.actionID++},
 
     /*****************************************************************/
     /*
@@ -395,7 +400,7 @@
     //  Get the complexity of the node, and collapse if appropriate
     //
     MakeMML: function (node) {
-      var cls = String(node.getAttribute("class")||""); // make sure CLASS is a string
+      var cls = String(node.getAttribute("class")||""); // make sure class is a string
       var type = node.nodeName.toLowerCase().replace(/^[a-z]+:/,"");
       var mml, match = (cls.match(/(^| )MJX-TeXAtom-([^ ]*)/));
       if (match) mml = this.TeXAtom(match[2]); else mml = MML[type]();
@@ -520,7 +525,7 @@
           return 1;
         }
       }
-      return 0
+      return 0;
     },
 
     /*****************************************************************/
@@ -656,9 +661,6 @@
         mml = this.MakeAction(this.Marker(this.MARKER.subsup),mml);
       return mml;
     }
-
-    /*****************************************************************/
-
   };
   
   //
@@ -679,6 +681,136 @@
   MathJax.Hub.postInputHooks.Add(["Filter",Collapse],100);
   
 })();
+
+/*****************************************************************/
+/*
+ *  Add methods to the ElementJax and OutputJax to get the
+ *  widths of the collapsed elements
+ */
+
+
+//
+//  Add SRE methods to ElementJax
+//
+MathJax.ElementJax.Augment({
+  sreGetMetrics: function () {
+    MathJax.OutputJax[this.outputJax].sreGetMetrics(this,this.root.SRE);
+  },
+  sreGetRootWidth: function (state) {
+    return MathJax.OutputJax[this.outputJax].sreGetRootWidth(this,state);
+  },
+  sreGetActionWidth: function (state,action) {
+    return MathJax.OutputJax[this.outputJax].sreGetActionWidth(this,state,action);
+  }
+});
+
+//
+//  Add default methods to base OutputJax class
+//
+MathJax.OutputJax.Augment({
+  getMetrics: function () {},  // make sure it is defined
+  sreGetMetrics: function (jax,SRE) {SRE.cwidth = 1000000; SRE.width = 0; SRE.em = 12},
+  sreGetRootWidth: function (jax,state) {return 0},
+  sreGetActionWidth: function (jax,state,action) {return 0}
+});
+
+//
+//  Specific implementations for HTML-CSS output
+//
+MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
+  MathJax.OutputJax["HTML-CSS"].Augment({
+    sreGetMetrics: function (jax,SRE) {
+      SRE.width = jax.root.data[0].HTMLspanElement().parentNode.bbox.w;
+      SRE.em = 1 / jax.HTMLCSS.em / jax.HTMLCSS.scale;
+    },
+    sreGetRootWidth: function (jax,state) {
+      var html = jax.root.data[0].HTMLspanElement();
+      state.box = html.parentNode;
+      return state.box.bbox.w;
+    },
+    sreGetActionWidth: function (jax,state,action) {
+      return jax.root.data[0].toHTML(state.box).bbox.w;
+    }
+  });
+});
+
+//
+//  Specific implementations for SVG output
+//
+MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
+  MathJax.OutputJax.SVG.Augment({
+    getMetrics: function (jax) {
+      this.em = MathJax.ElementJax.mml.mbase.prototype.em = jax.SVG.em; this.ex = jax.SVG.ex;
+      this.linebreakWidth = jax.SVG.lineWidth; this.cwidth = jax.SVG.cwidth;
+    },
+    sreGetMetrics: function (jax,SRE) {
+      SRE.width = jax.root.SVGdata.w/1000;
+      SRE.em = 1/jax.SVG.em;
+    },
+    sreGetRootWidth: function (jax,state) {
+      state.span = document.getElementById(jax.inputID+"-Frame");
+      return jax.root.SVGdata.w/1000;
+    },
+    sreGetActionWidth: function (jax,state,action) {
+      this.mathDiv = state.span;
+      state.span.appendChild(this.textSVG);
+      try {var svg = jax.root.data[0].toSVG()} catch(err) {var error = err}
+      state.span.removeChild(this.textSVG);
+      if (error) throw error;  // can happen when a restart is needed
+      return jax.root.data[0].SVGdata.w/1000;
+    }
+  });
+});
+
+//
+//  Specific implementations for CommonHTML output
+//
+MathJax.Hub.Register.StartupHook("CommonHTML Jax Ready",function () {
+  MathJax.OutputJax.CommonHTML.Augment({
+    sreGetMetrics: function (jax,SRE) {
+      SRE.width = jax.root.CHTML.w;
+      SRE.em = 1 / jax.CHTML.em / jax.CHTML.scale;
+    },
+    sreGetRootWidth: function (jax,state) {
+      state.span = document.getElementById(jax.inputID+"-Frame").firstChild;
+      state.tmp = document.createElement("span");
+      state.tmp.className = state.span.className;
+      return jax.root.CHTML.w / jax.CHTML.scale;
+    },
+    sreGetActionWidth: function (jax,state,action) {
+      state.span.parentNode.replaceChild(state.tmp,state.span);
+      MathJax.OutputJax.CommonHTML.CHTMLnode = state.tmp;
+      try {jax.root.data[0].toCommonHTML(state.tmp)} catch (err) {var error = err}
+      state.tmp.parentNode.replaceChild(state.span,state.tmp);
+      if (error) throw error;  // can happen when a restart is needed
+      return jax.root.data[0].CHTML.w / jax.CHTML.scale;
+    }
+  });
+});
+
+//
+//  Specific implementations for NativeMML output
+//
+MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
+  var dummyRestart = MathJax.Callback({}); dummyRestart();
+  MathJax.OutputJax.NativeMML.Augment({
+    sreGetMetrics: function (jax,SRE) {
+      var span = document.getElementById(jax.inputID+"-Frame");
+      SRE.width = span.offsetWidth;
+      SRE.em = 1; SRE.DOMupdate = true;
+    },
+    sreGetRootWidth: function (jax,state) {
+      state.span = document.getElementById(jax.inputID+"-Frame").firstChild;
+      return state.span.offsetWidth;
+    },
+    sreGetActionWidth: function (jax,state,action) {
+      var maction = document.getElementById(action.id);
+      maction.setAttribute("selection",1);
+      var w = state.span.offsetWidth;
+      return w;
+    }
+  });
+});
 
 
 /*****************************************************************/
