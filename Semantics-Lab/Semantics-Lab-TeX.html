@@ -3,7 +3,6 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Semantic Enrichment for Collapsing Equations (TeX input)</title>
-<script src="https://progressiveaccess.com/content/semantic.js"></script>
 <script type="text/x-mathjax-config">
 //
 //  Don't use the fast preview
@@ -13,13 +12,15 @@ MathJax.Hub.Config({
   MMLorHTML: {MSIE: "HTML"}
 });
 </script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://rawgit.com/mathjax/MathJax/develop/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://progressiveaccess.com/content/sre_mathjax.js"></script>
 <script src="InputHooks.js"></script>
 <script src="Semantic-MathML.js"></script>
 <script src="Semantic-Collapse.js"></script>
-<script src="Semantic-Action-Hover.js"></script>
 <script src="Semantic-Lab.js"></script>
 <script src="Semantic-Lab-Defaults.js"></script>
+<script src="Assistive-Explore.js"></script>
+<script src="Semantic-Action-Collapse-All.js"></script>
 <script>
 Lab.Examples = [
   "x = \\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}",
@@ -70,11 +71,42 @@ input[type="checkbox"] {margin-left: 0}
 <input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
 <small>Scrolling overflow</small><br/>
 
+<small>Walker:</small>
+<select id="walker" onchange="Lab.setExplorerOption('walker', this.value)">
+<option value="dummy">Dummy</option>
+<option value="syntactic">Syntactic</option>
+<option value="semantic">Semantic</option>
+</select><br/>
+
 <small>Highlight:</small>
-<select id="highlight" onchange="Lab.setHighlight(this.value)">
+<select id="highlight" onchange="Lab.setExplorerOption('highlight', this.value)">
 <option value="none">None</option>
 <option value="hover">Hover</option>
 <option value="flame">Flame</option>
+</select><br/>
+
+<small>Background:</small>
+<select id="background" onchange="Lab.setExplorerOption('background', this.value)">
+<option value="blue">blue</option>
+<option value="red">red</option>
+<option value="green">green</option>
+<option value="yellow">yellow</option>
+<option value="cyan">cyan</option>
+<option value="magenta">magenta</option>
+<option value="white">white</option>
+<option value="black">black</option>
+</select><br/>
+
+<small>Foreground:</small>
+<select id="foreground" onchange="Lab.setExplorerOption('foreground', this.value)">
+<option value="black">black</option>
+<option value="white">white</option>
+<option value="magenta">magenta</option>
+<option value="cyan">cyan</option>
+<option value="yellow">yellow</option>
+<option value="green">green</option>
+<option value="red">red</option>
+<option value="blue">blue</option>
 </select><br/>
 </div>
 
