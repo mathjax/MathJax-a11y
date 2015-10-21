@@ -34,67 +34,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
       }
     },
-    GetHighlighter: function(alpha) {
-      Explorer.highlighter = sre.HighlighterFactory.highlighter(
-        {color: Lab.explorer.background, alpha: alpha},
-        {color: Lab.explorer.foreground, alpha: 1},
-        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
-         browser: MathJax.Hub.Browser.name}
-      );
-    },
-    MouseOver: function(event) {
-      if (Lab.explorer.highlight === 'none') return;
-      if (Lab.explorer.highlight === 'hover') {
-        var frame = event.currentTarget;
-        Explorer.GetHighlighter(.1);
-        Explorer.highlighter.highlight([frame]);
-        Explorer.hoverer = true;
-      }
-      MathJax.Extension.MathEvents.Event.False(event);
-    },
-    MouseOut: function (event) {
-      if (Explorer.hoverer) {
-        Explorer.highlighter.unhighlight();
-        Explorer.hoverer = false;
-      }
-      return MathJax.Extension.MathEvents.Event.False(event);
-    },
-    //
-    // Activates Flaming
-    //
-    Flame: function(node) {
-      Explorer.UnFlame(node);
-      if (Lab.explorer.highlight === 'flame') {
-        Explorer.GetHighlighter(.05);
-        Explorer.highlighter.highlightAll(node);
-        Explorer.flamer = true;
-        return;
-      }
-    },
-    UnFlame: function(node) {
-      if (Explorer.flamer) {
-        Explorer.highlighter.unhighlightAll();
-        Explorer.flamer = null;
-      }
-    },
-    FlameEnriched: function() {
-      for (var key in Explorer.enriched) {
-        Explorer.Flame(Explorer.enriched[key].previousSibling);
-      }
-    },
-    //
-    // Adds mouse events to maction items in an enriched jax.
-    //
-    AddMouseEvents: function(node) {
-      sre.HighlighterFactory.addEvents(
-        node,
-        {'mouseover': Explorer.MouseOver,
-         'mouseout': Explorer.MouseOut},
-        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
-         browser: MathJax.Hub.Browser.name}
-      );
-    },
-    //TODO: Add counter to give up eventually.
     //
     // Adds a key event to an enriched jax.
     //
@@ -149,6 +88,66 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
         FALSE(event);
         return;
+      }
+    },
+    GetHighlighter: function(alpha) {
+      Explorer.highlighter = sre.HighlighterFactory.highlighter(
+        {color: Lab.explorer.background, alpha: alpha},
+        {color: Lab.explorer.foreground, alpha: 1},
+        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+         browser: MathJax.Hub.Browser.name}
+      );
+    },
+    //
+    // Adds mouse events to maction items in an enriched jax.
+    //
+    AddMouseEvents: function(node) {
+      sre.HighlighterFactory.addEvents(
+        node,
+        {'mouseover': Explorer.MouseOver,
+         'mouseout': Explorer.MouseOut},
+        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+         browser: MathJax.Hub.Browser.name}
+      );
+    },
+    MouseOver: function(event) {
+      if (Lab.explorer.highlight === 'none') return;
+      if (Lab.explorer.highlight === 'hover') {
+        var frame = event.currentTarget;
+        Explorer.GetHighlighter(.1);
+        Explorer.highlighter.highlight([frame]);
+        Explorer.hoverer = true;
+      }
+      MathJax.Extension.MathEvents.Event.False(event);
+    },
+    MouseOut: function (event) {
+      if (Explorer.hoverer) {
+        Explorer.highlighter.unhighlight();
+        Explorer.hoverer = false;
+      }
+      return MathJax.Extension.MathEvents.Event.False(event);
+    },
+    //
+    // Activates Flaming
+    //
+    Flame: function(node) {
+      Explorer.UnFlame(node);
+      if (Lab.explorer.highlight === 'flame') {
+        Explorer.GetHighlighter(.05);
+        Explorer.highlighter.highlightAll(node);
+        Explorer.flamer = true;
+        return;
+      }
+    },
+    UnFlame: function(node) {
+      if (Explorer.flamer) {
+        Explorer.highlighter.unhighlightAll();
+        Explorer.flamer = null;
+      }
+    },
+    FlameEnriched: function() {
+      for (var key in Explorer.enriched) {
+        Explorer.Flame(Explorer.enriched[key].previousSibling);
       }
     },
     // 
