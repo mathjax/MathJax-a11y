@@ -101,30 +101,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Adds mouse events to maction items in an enriched jax.
     //
     AddMouseEvents: function(node) {
-      var mactions = Explorer.GetMactionNodes(node);
-      for (var i = 0, maction; maction = mactions[i]; i++) {
-        switch (MathJax.Hub.outputJax['jax/mml'][0].id) {
-        case 'HTML-CSS':
-          maction.childNodes[0].onmouseover =
-            maction.childNodes[1].onmouseover = Explorer.MouseOver;
-          maction.childNodes[0].onmouseout =
-            maction.childNodes[1].onmouseout = Explorer.MouseOut;
-          break;
-        case 'NativeMML':
-          if (MathJax.Hub.Browser.name === 'Firefox') {
-            maction.addEventListener('mouseover', Explorer.MouseOver);
-            maction.addEventListener('mouseout', Explorer.MouseOut);
-            break;
-          }
-        case 'SVG':
-        case 'CommonHTML':
-          maction.onmouseover = Explorer.MouseOver;
-          maction.onmouseout = Explorer.MouseOut;
-          break;
-        default:
-          break;
-        }
-      }
+      sre.HighlighterFactory.addEvents(
+        node,
+        {'mouseover': Explorer.MouseOver,
+         'mouseout': Explorer.MouseOut},
+        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+         browser: MathJax.Hub.Browser.name}
+      );
     },
     GetMactionNodes: function(node) {
       switch (MathJax.Hub.outputJax['jax/mml'][0].id) {
