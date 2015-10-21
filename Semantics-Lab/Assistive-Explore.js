@@ -153,22 +153,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // 
     // Activates the walker.
     //
+    Walkers: {
+      'syntactic': sre.SyntaxWalker,
+      'semantic': sre.SemanticWalker,
+      'dummy': sre.DummyWalker
+    },
     ActivateWalker: function(math) {
       Explorer.AddSpeech(math);
       var speechGenerator = new sre.DirectSpeechGenerator();
-
-      switch (Lab.explorer.walker) {
-      case 'syntactic':
-        Explorer.walker = new sre.SyntaxWalker(math, speechGenerator);
-        break;
-      case 'semantic':
-        Explorer.walker = new sre.SemanticWalker(math, speechGenerator);
-        break;
-      case 'dummy':
-      default:
-        Explorer.walker = new sre.DummyWalker(math, speechGenerator);
-      }
-      
+      var constructor = Explorer.Walkers[Lab.explorer.walker] ||
+            Explorer.Walkers['dummy'];
+      Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
       Explorer.Speak(Explorer.walker.speech());
