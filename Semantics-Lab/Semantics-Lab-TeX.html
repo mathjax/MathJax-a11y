@@ -14,7 +14,6 @@ MathJax.Hub.Config({
 </script>
 <script src="https://rawgit.com/mathjax/MathJax/develop/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script src="https://progressiveaccess.com/content/sre_mathjax.js"></script>
-<script src="InputHooks.js"></script>
 <script src="Semantic-MathML.js"></script>
 <script src="Semantic-Collapse.js"></script>
 <script src="Semantic-Lab.js"></script>
@@ -23,6 +22,7 @@ MathJax.Hub.Config({
 <script src="Semantic-Action-Collapse-All.js"></script>
 <script>
 Lab.Examples = [
+  "",
   "x = \\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}",
   [
     "\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq",
@@ -118,15 +118,15 @@ input[type="checkbox"] {margin-left: 0}
 <tr>
 <td align="left">
   Examples: <select onchange="Lab.Select(this.value)" id="example">
-  <option value="?">(Select one)</option>
+  <option value="0">(Select one)</option>
   <option value="-">----------------</option>
-  <option value="0">Quadratic Formula</option>
-  <option value="1">Cauchy-Schwarz Inequality</option>
-  <option value="2">An Identity of Ramanujan</option>
-  <option value="3">A Rogers-Ramanujan Identity</option>
-  <option value="4">A Summation Formula</option>
-  <option value="5">Cauchy's Integral Formula</option>
-  <option value="6">Standard Deviation</option>
+  <option value="1">Quadratic Formula</option>
+  <option value="2">Cauchy-Schwarz Inequality</option>
+  <option value="3">An Identity of Ramanujan</option>
+  <option value="4">A Rogers-Ramanujan Identity</option>
+  <option value="5">A Summation Formula</option>
+  <option value="6">Cauchy's Integral Formula</option>
+  <option value="7">Standard Deviation</option>
   </select>
 </td>
 <td align="right">
