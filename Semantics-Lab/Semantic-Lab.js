@@ -18,6 +18,7 @@ var Lab = {
   //  The TeX code for the examples menu
   //
   Examples: [],
+
   //
   //  Typeset the math from the text area
   //
@@ -34,6 +35,7 @@ var Lab = {
       );
     }
   },
+
   //
   //  Encode the TeX and add it to the URL so that reloading the page
   //  keeps the same TeX in place (so when you edit the code, you don't
@@ -42,11 +44,12 @@ var Lab = {
   Keep: function () {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
-        +[this.example.value, this.width.value,
+        +[this.example.value, this.width.value, this.renderer.value,
           this.collapse, this.overflow, this.explorer.walker, this.explorer.highlight,
           this.explorer.background, this.explorer.foreground, ""].join(';')
         +escape(this.input.value);
   },
+
   //
   //  Select a specific example equation
   //
@@ -55,6 +58,7 @@ var Lab = {
     this.input.value = this.Examples[n];
     this.Typeset();
   },
+  
   //
   //  Show the enhanced MathML
   //
@@ -62,6 +66,7 @@ var Lab = {
     this.mathml.innerHTML = "";
     MathJax.HTML.addText(this.mathml,this.jax[1].root.toMathML().replace(/data-semantic-/g,""));
   },
+  
   //
   //  Check for RETURN with any meta key as an alternative to clicking
   //  the TYPESET button
@@ -76,6 +81,7 @@ var Lab = {
       this.Typeset();
     }
   },
+  
   //
   //  Set the width of the output div
   //
@@ -84,6 +90,7 @@ var Lab = {
     document.getElementById("range_output").innerHTML = width+"%";
     if (!skipHandler) MathJax.Extension.Collapse.resizeHandler({});
   },
+  
   //
   //  The collapse toggle
   //
@@ -99,6 +106,7 @@ var Lab = {
       );
     }
   },
+  
   //
   //  The overflow toggle
   //
@@ -116,20 +124,30 @@ var Lab = {
       div.style.minHeight = (div.offsetHeight+1) + "px"; // force height to be big enough
     }
   },
+  
+  //
+  //  The renderer selection
+  //
+  setRenderer: function (mode,skipUpdate) {
+    MathJax.Hub.Queue(["setRenderer",MathJax.Hub,mode,"jax/mml"]);
+    if (!skipUpdate) MathJax.Hub.Queue(["Rerender",MathJax.Hub]);
+  },
+  
   //
   //  The static highlight selection
   //
   explorer: {
-      walker: "dummy",
-      highlight: "none",
-      background: "blue",
-      foreground: "black"
-    },
+    walker: "dummy",
+    highlight: "none",
+    background: "blue",
+    foreground: "black"
+  },
   setExplorerOption: function(key, value) {
     if (this.explorer[key] === value) return;
     this.explorer[key] = value;
     MathJax.Extension.Explorer.Reset();
   },
+
   //
   //  Directly select a specific test equation
   //
@@ -165,11 +183,26 @@ var Lab = {
 MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 
 //
+//  Hook into menu renderer changes
+//
+MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
+  MathJax.Extension.MathMenu.signal.Interest(function (message) {
+    if (message[0] === "radio button") {
+      var renderer = message[1].value;
+      if (String(renderer).match(/^(HTML-CSS|CommonHTML|PreviewHTML|NativeMML|SVG)$/)) {
+        Lab.renderer.value = renderer;
+      }
+    }
+  });
+});
+
+//
 //  Initialize everything once MathJax has run the first time
 //
 MathJax.Hub.Queue(function () {
   var defaults = [null,"0",
     String(Lab.defaults.width),
+    Lab.defaults.renderer,
     String(Lab.defaults.collapse),
     String(Lab.defaults.overflow),
     Lab.defaults.walker,
@@ -186,22 +219,26 @@ MathJax.Hub.Queue(function () {
   Lab.mathml = document.getElementById("mathml");
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
+  Lab.renderer = document.getElementById("renderer");
   if (window.location.search.length > 1) 
     defaults = window.location.search.match(
-        /^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
+        /^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
   Lab.example.value = defaults[1];
   Lab.Current = parseInt(defaults[1]);
   Lab.width.value = defaults[2];
   Lab.enriched.style.width = defaults[2];
+  Lab.renderer.value = defaults[3];
+  Lab.setRenderer(Lab.renderer.value,true);
+  Lab.renderer.onchange = function () {Lab.setRenderer(this.value)};
   Lab.setWidth(Lab.width.value,true);
-  Lab.collapse = document.getElementById("collapse").checked = (defaults[3] === "true");
+  Lab.collapse = document.getElementById("collapse").checked = (defaults[4] === "true");
   Lab.setCollapse(Lab.collapse,true);
-  Lab.overflow = document.getElementById("overflow").checked = (defaults[4] === "true");
+  Lab.overflow = document.getElementById("overflow").checked = (defaults[5] === "true");
   Lab.setOverflow(Lab.overflow,true);
-  Lab.setExplorerOption("walker", document.getElementById("walker").value = defaults[5]);
-  Lab.setExplorerOption("highlight", document.getElementById("highlight").value = defaults[6]);
-  Lab.setExplorerOption("background", document.getElementById("background").value = defaults[7]);
-  Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[8]);
-  Lab.input.value = unescape(defaults[9]);
+  Lab.setExplorerOption("walker", document.getElementById("walker").value = defaults[6]);
+  Lab.setExplorerOption("highlight", document.getElementById("highlight").value = defaults[7]);
+  Lab.setExplorerOption("background", document.getElementById("background").value = defaults[8]);
+  Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[9]);
+  Lab.input.value = unescape(defaults[10]);
   if (Lab.input.value !== "") Lab.Typeset();
 });

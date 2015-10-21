@@ -33,27 +33,29 @@ MathJax.Hub.Config({
 <span style="background:white; padding:0 5px; font-size:95%;">Options</span>
 </div>
 
-<input id="collapse" type="checkbox" onchange="Lab.setCollapse(this.checked)" />
-<small>Collapse MathML</small><br/>
+<label><input id="collapse" type="checkbox" onchange="Lab.setCollapse(this.checked)" />
+<small>Collapse MathML</small></label><br/>
 
-<input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
-<small>Scrolling overflow</small><br/>
+<label><input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
+<small>Scrolling overflow</small></label><br/>
 
-<small>Walker:</small>
+<hr>
+
+<label><small>Walker:</small>
 <select id="walker" onchange="Lab.setExplorerOption('walker', this.value)">
 <option value="dummy">Dummy</option>
 <option value="syntactic">Syntactic</option>
 <option value="semantic">Semantic</option>
-</select><br/>
+</select></label><br/>
 
-<small>Highlight:</small>
+<label><small>Highlight:</small>
 <select id="highlight" onchange="Lab.setExplorerOption('highlight', this.value)">
 <option value="none">None</option>
 <option value="hover">Hover</option>
 <option value="flame">Flame</option>
-</select><br/>
+</select></label><br/>
 
-<small>Background:</small>
+<label><small>Background:</small>
 <select id="background" onchange="Lab.setExplorerOption('background', this.value)">
 <option value="blue">blue</option>
 <option value="red">red</option>
@@ -63,9 +65,9 @@ MathJax.Hub.Config({
 <option value="magenta">magenta</option>
 <option value="white">white</option>
 <option value="black">black</option>
-</select><br/>
+</select></label><br/>
 
-<small>Foreground:</small>
+<label><small>Foreground:</small>
 <select id="foreground" onchange="Lab.setExplorerOption('foreground', this.value)">
 <option value="black">black</option>
 <option value="white">white</option>
@@ -75,7 +77,19 @@ MathJax.Hub.Config({
 <option value="green">green</option>
 <option value="red">red</option>
 <option value="blue">blue</option>
-</select><br/>
+</select></label><br/>
+
+<hr>
+
+<label><small>Renderer:</small>
+<select id="renderer">
+<option value="HTML-CSS">HTML-CSS</option>
+<option value="CommonHTML">Common HTML</option>
+<option value="PreviewHTML">Preview HTML</option>
+<option value="NativeMML">Native MathML</option>
+<option value="SVG">SVG</option>
+</select></label><br/>
+
 </div>
 
 </div>
@@ -98,20 +112,20 @@ MathJax.Hub.Config({
 </table>
 </p>
 
+<br clear="all"/>
+
 <p>
 <div id="container" style="padding-right:8px; width:100%">
 Original Math:
 <div id="original" style="border:1px solid; padding:3px"><math></math></div>
-</p>
-<p>
+<br/>
 Enriched Math:
 <div id="enriched" style="border:1px solid; padding:3px"><math></math></div>
 </div>
 <input type="range" id="width" max="100" min="10" value="100"
  style="width:50%; margin-top:.5em" oninput="Lab.setWidth(this.value)"></input>
 <span id="range_output">100%</span>
-</p>
-<p>
+<br/><br/>
 Enriched MathML:
 <div style="border:1px solid; padding:3px">
 <pre id="mathml"></pre>
