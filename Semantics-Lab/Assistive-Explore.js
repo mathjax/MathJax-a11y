@@ -94,20 +94,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
          browser: MathJax.Hub.Browser.name}
       );
     },
-    GetMactionNodes: function(node) {
-      switch (MathJax.Hub.outputJax['jax/mml'][0].id) {
-      case 'NativeMML': 
-        return node.getElementsByTagName('maction');
-      case 'HTML-CSS':
-        return node.getElementsByClassName('maction');
-      case 'CommonHTML':
-        return node.getElementsByClassName('mjx-maction');
-      case 'SVG':
-        return node.getElementsByClassName('mjx-svg-maction');
-      default:
-        return [];
-      }
-     },
     //TODO: Add counter to give up eventually.
     //
     // Adds a key event to an enriched jax.
