@@ -8,7 +8,6 @@
 //
 (function () {
   var MML;
-  MathJax.Hub.Register.StartupHook("Sre Ready",function ()  {MML = MathJax.ElementJax.mml});
   
   var NOCOLLAPSE = 10000000; // really big complexity
 
@@ -114,6 +113,24 @@
     enrich: true,
     Enable: function () {this.enrich = true},
     Disable: function () {this.enrich = false},
+    
+    Startup: function () {
+      MML = MathJax.ElementJax.mml;
+      
+      //
+      //  Add a resize handler to check for math that needs
+      //  to be collapsed or expanded.
+      //
+      if (window.addEventListener) window.addEventListener("resize",Collapse.resizeHandler,false);
+      else if (window.attachEvent) window.attachEvent("onresize",Collapse.resizeHandler);
+      else window.onresize = Collapse.resizeHandler;
+
+      //
+      //  Add the filter into the post-input hooks (priority 100, so other
+      //  hooks run first, in particular, the enrichment hook).
+      //
+      MathJax.Hub.postInputHooks.Add(["Filter",Collapse],100);
+    },
     
     //
     //  The main filter (convert the enriched MathML to the
@@ -307,6 +324,7 @@
     timer: null,
     running: false,
     retry: false,
+    saved_delay: 0,
     
     resizeHandler: function (event) {
       if (Collapse.running) {Collapse.retry = true; return}
@@ -317,12 +335,20 @@
       Collapse.timer = null;
       Collapse.running = true;
       MathJax.Hub.Queue(
+        function () {
+          //
+          //  Prevent flicker between input and output phases
+          //
+          Collapse.saved_delay = MathJax.Hub.processSectionDelay;
+          MathJax.Hub.processSectionDelay = 0;
+        },
         ["CollapseWideMath",Collapse],
         ["resizeCheck",Collapse]
       );
     },
     resizeCheck: function () {
       Collapse.running = false;
+      MathJax.Hub.processSectionDelay = Collapse.saved_delay;
       if (Collapse.retry) {
         Collapse.retry = false;
         setTimeout(Collapse.resizeHandler,0);
@@ -663,23 +689,6 @@
     }
   };
   
-  //
-  //  Prevent flicker between input and output phases
-  //
-  MathJax.Hub.processSectionDelay = 0;
-
-  //
-  //  Add a resize handler to check for math that needs
-  //  to be collapsed or expanded.
-  //
-  window.addEventListener("resize",Collapse.resizeHandler);
-
-  //
-  //  Add the filter into the post-input hooks (priority 100, so other
-  //  hooks run first, in particular, the enrichment hook).
-  //
-  MathJax.Hub.postInputHooks.Add(["Filter",Collapse],100);
-  
 })();
 
 /*****************************************************************/
@@ -824,6 +833,8 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function () {
   var MML = MathJax.ElementJax.mml,
       Collapse = MathJax.Extension.Collapse,
       COMPLEXITY = Collapse.COMPLEXITY;
+      
+  Collapse.Startup(MML); // Initialize the collapsing process
 
   MML.mbase.Augment({
     //
