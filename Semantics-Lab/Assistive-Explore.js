@@ -116,6 +116,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             maction.addEventListener('mouseout', Explorer.MouseOut);
             break;
           }
+        case 'SVG':
         case 'CommonHTML':
           maction.onmouseover = Explorer.MouseOver;
           maction.onmouseout = Explorer.MouseOut;
@@ -133,6 +134,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         return node.getElementsByClassName('maction');
       case 'CommonHTML':
         return node.getElementsByClassName('mjx-maction');
+      case 'SVG':
+        return node.getElementsByClassName('mjx-svg-maction');
       default:
         return [];
       }
