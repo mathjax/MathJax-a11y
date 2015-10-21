@@ -34,61 +34,46 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
       }
     },
-    //TODO: Find the top-most elements (there can be multiple) and destroy
-    // highlighter on mouse out only.
-    // 
-    GetHoverer: function() {
-      Explorer.hoverer = sre.HighlighterFactory.highlighter(
-        {color: Lab.explorer.background, alpha: .1},
+    GetHighlighter: function(alpha) {
+      Explorer.highlighter = sre.HighlighterFactory.highlighter(
+        {color: Lab.explorer.background, alpha: alpha},
         {color: Lab.explorer.foreground, alpha: 1},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
-         mode: 'hover', browser: MathJax.Hub.Browser.name}
+         browser: MathJax.Hub.Browser.name}
       );
     },
     MouseOver: function(event) {
       if (Lab.explorer.highlight === 'none') return;
       if (Lab.explorer.highlight === 'hover') {
         var frame = event.currentTarget;
-        Explorer.GetHoverer();
-        Explorer.hoverer.highlight([frame]);
+        Explorer.GetHighlighter(.1);
+        Explorer.highlighter.highlight([frame]);
+        Explorer.hoverer = true;
       }
       MathJax.Extension.MathEvents.Event.False(event);
     },
     MouseOut: function (event) {
       if (Explorer.hoverer) {
-        Explorer.hoverer.unhighlight();
-        Explorer.hoverer = null;
+        Explorer.highlighter.unhighlight();
+        Explorer.hoverer = false;
       }
       return MathJax.Extension.MathEvents.Event.False(event);
     },
-    //TODO: Make this work for multiple nodes!
-    //      Flaming for MathML background via alternating colors.
     //
-    GetFlamer: function() {
-      Explorer.flamer = sre.HighlighterFactory.highlighter(
-        {color: Lab.explorer.background, alpha: .05},
-        {color: Lab.explorer.foreground, alpha: 1},
-        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
-         mode: 'flame', browser: MathJax.Hub.Browser.name}
-      );
-    },
+    // Activates Flaming
+    //
     Flame: function(node) {
       Explorer.UnFlame(node);
       if (Lab.explorer.highlight === 'flame') {
-        Explorer.GetFlamer();
-        var nodes = Explorer.GetMactionNodes(node);
-        for (var i = 0, n; n = nodes[i]; i++) {
-          Explorer.flamer.highlight([n]);
-        }
+        Explorer.GetHighlighter(.05);
+        Explorer.highlighter.highlightAll(node);
+        Explorer.flamer = true;
         return;
       }
     },
     UnFlame: function(node) {
       if (Explorer.flamer) {
-        var nodes = Explorer.GetMactionNodes(node);
-        for (i = 0, l = nodes.length; i < l; i++) {
-          Explorer.flamer.unhighlight();
-        }
+        Explorer.highlighter.unhighlightAll();
         Explorer.flamer = null;
       }
     },
@@ -180,12 +165,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         return;
       }
     },
-    //TODO: REFACTOR NOTES
-    // -- Walker factory wrt global config.
-    // -- General Explorer that holds:
-    //   -- events
-    //   -- highlighter
-    //   -- retrieval method for mactions.
     // 
     // Activates the walker.
     //
@@ -205,12 +184,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.walker = new sre.DummyWalker(math, speechGenerator);
       }
       
-      Explorer.highlighter = sre.HighlighterFactory.highlighter(
-          {color: Lab.explorer.background, alpha: .2},
-          {color: Lab.explorer.foreground, alpha: 1},
-          {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
-           mode: 'walk', browser: MathJax.Hub.Browser.name}
-      );
+      Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
       Explorer.Speak(Explorer.walker.speech());
       Explorer.Highlight();
