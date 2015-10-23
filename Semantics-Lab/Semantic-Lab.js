@@ -45,8 +45,12 @@ var Lab = {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
         +[this.example.value, this.width.value, this.renderer.value,
-          this.collapse, this.overflow, this.explorer.walker, this.explorer.highlight,
-          this.explorer.background, this.explorer.foreground, ""].join(';')
+          this.collapse, this.overflow,
+          MathJax.Extension.Explorer.config.walker,
+          MathJax.Extension.Explorer.config.highlight,
+          MathJax.Extension.Explorer.config.background,
+          MathJax.Extension.Explorer.config.foreground,
+          ""].join(';')
         +escape(this.input.value);
   },
 
@@ -136,16 +140,8 @@ var Lab = {
   //
   //  The static highlight selection
   //
-  explorer: {
-    walker: "dummy",
-    highlight: "none",
-    background: "blue",
-    foreground: "black"
-  },
   setExplorerOption: function(key, value) {
-    if (this.explorer[key] === value) return;
-    this.explorer[key] = value;
-    MathJax.Extension.Explorer.Reset();
+    MathJax.Extension.Explorer.setExplorerOption(key, value);
   },
 
   //
