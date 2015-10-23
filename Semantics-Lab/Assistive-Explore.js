@@ -16,6 +16,20 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     speechDiv: null,
     enriched: {},
     //
+    // Configurations.
+    //
+    config: {
+      walker: "dummy",
+      highlight: "none",
+      background: "blue",
+      foreground: "black"
+    },
+    setExplorerOption: function(key, value) {
+      if (Explorer.config[key] === value) return;
+      Explorer.config[key] = value;
+      Explorer.Reset();
+    },
+    //
     // Resets the explorer, rerunning methods not triggered by events.
     //
     Reset: function() {
@@ -92,8 +106,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     GetHighlighter: function(alpha) {
       Explorer.highlighter = sre.HighlighterFactory.highlighter(
-        {color: Lab.explorer.background, alpha: alpha},
-        {color: Lab.explorer.foreground, alpha: 1},
+        {color: Explorer.config.background, alpha: alpha},
+        {color: Explorer.config.foreground, alpha: 1},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
          browser: MathJax.Hub.Browser.name}
       );
@@ -111,8 +125,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       );
     },
     MouseOver: function(event) {
-      if (Lab.explorer.highlight === 'none') return;
-      if (Lab.explorer.highlight === 'hover') {
+      if (Explorer.config.highlight === 'none') return;
+      if (Explorer.config.highlight === 'hover') {
         var frame = event.currentTarget;
         Explorer.GetHighlighter(.1);
         Explorer.highlighter.highlight([frame]);
@@ -132,7 +146,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Flame: function(node) {
       Explorer.UnFlame(node);
-      if (Lab.explorer.highlight === 'flame') {
+      if (Explorer.config.highlight === 'flame') {
         Explorer.GetHighlighter(.05);
         Explorer.highlighter.highlightAll(node);
         Explorer.flamer = true;
@@ -161,7 +175,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     ActivateWalker: function(math) {
       Explorer.AddSpeech(math);
       var speechGenerator = new sre.DirectSpeechGenerator();
-      var constructor = Explorer.Walkers[Lab.explorer.walker] ||
+      var constructor = Explorer.Walkers[Explorer.config.walker] ||
             Explorer.Walkers['dummy'];
       Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
