@@ -20,8 +20,9 @@ MathJax.Hub.Config({
 <script>
 MathJax.Extension.SemanticMathML.Enable();
 MathJax.Hub.Queue(function () {
-MathJax.Extension.Lab.setExplorerOption({walker: "syntactic", highlight: "flame",
-background: "blue", foreground: "black"});
+MathJax.Extension.Explorer.config = {walker: "syntactic", highlight: "flame",
+background: "blue", foreground: "black"};
+MathJax.Extension.Explorer.Reset();
 return MathJax.Extension.Collapse.CollapseWideMath()});
 </script>
 
