@@ -11,13 +11,18 @@ MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'],['\\(','\\)']]}
 });
 </script>
-<SCRIPT SRC="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></SCRIPT>
-<script src="InputHooks.js"></script>
+<script src="https://rawgit.com/mathjax/MathJax/develop/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://progressiveaccess.com/content/sre_mathjax.js"></script>
 <script src="Semantic-MathML.js"></script>
 <script src="Semantic-Collapse.js"></script>
+<script src="Assistive-Explore.js"></script>
+<script src="Semantic-Action-Collapse-All.js"></script>
 <script>
 MathJax.Extension.SemanticMathML.Enable();
-MathJax.Hub.Queue(function () {return MathJax.Extension.Collapse.CollapseWideMath()});
+MathJax.Hub.Queue(function () {
+MathJax.Extension.Lab.setExplorerOption({walker: "syntactic", highlight: "flame",
+background: "blue", foreground: "black"});
+return MathJax.Extension.Collapse.CollapseWideMath()});
 </script>
 
 </HEAD>
