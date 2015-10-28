@@ -174,7 +174,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     ActivateWalker: function(math) {
       Explorer.AddSpeech(math);
-      console.log(Explorer.config.walker);
       var speechGenerator = new sre.DirectSpeechGenerator();
       var constructor = Explorer.Walkers[Explorer.config.walker] ||
             Explorer.Walkers['dummy'];
