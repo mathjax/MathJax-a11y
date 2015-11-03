@@ -141,7 +141,9 @@ var Lab = {
   //  The static highlight selection
   //
   setExplorerOption: function(key, value) {
-    MathJax.Extension.Explorer.setExplorerOption(key, value);
+    MathJax.Hub.Queue(["Sre Ready",
+                       MathJax.Extension.Explorer.setExplorerOption,
+                       key, value]);
   },
 
   //

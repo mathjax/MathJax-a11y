@@ -22,7 +22,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       walker: "dummy",
       highlight: "none",
       background: "blue",
-      foreground: "black"
+      foreground: "black",
+      speech: true
     },
     setExplorerOption: function(key, value) {
       if (Explorer.config[key] === value) return;
@@ -34,6 +35,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Reset: function() {
       Explorer.FlameEnriched();
+      sre.Engine.getInstance().mathmlSpeech = Explorer.config.speech;
     },
     //
     // Registers new Maths and adds a key event if it is enriched.
