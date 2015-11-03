@@ -18,9 +18,10 @@ MathJax.Hub.Config({
 <script src="Semantic-Action-Collapse-All.js"></script>
 <script>
 MathJax.Extension.SemanticMathML.Enable();
+MathJax.Extension.SemanticMathML.speech = false;
 MathJax.Hub.Queue(function () {
 MathJax.Extension.Explorer.config = {walker: "syntactic", highlight: "flame",
-background: "blue", foreground: "black"};
+background: "blue", foreground: "black", speech: false};
 MathJax.Extension.Explorer.Reset();
 return MathJax.Extension.Collapse.CollapseWideMath()});
 </script>
