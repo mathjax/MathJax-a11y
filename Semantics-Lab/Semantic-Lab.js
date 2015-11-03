@@ -7,14 +7,18 @@ var Lab = {
   //
   defaults: {
     collapse: true,
-    highlight: "none",
     width: 100,
-    overflow: false
+    overflow: false,
+    walker: "dummy",
+    highlight: "none",
+    background: "blue",
+    foreground: "black"
   },
   //
   //  The TeX code for the examples menu
   //
   Examples: [],
+
   //
   //  Typeset the math from the text area
   //
@@ -31,6 +35,7 @@ var Lab = {
       );
     }
   },
+
   //
   //  Encode the TeX and add it to the URL so that reloading the page
   //  keeps the same TeX in place (so when you edit the code, you don't
@@ -39,10 +44,16 @@ var Lab = {
   Keep: function () {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
-        +[this.example.value, this.width.value,
-          this.collapse, this.overflow, this.highlight,""].join(';')
+        +[this.example.value, this.width.value, this.renderer.value,
+          this.collapse, this.overflow,
+          MathJax.Extension.Explorer.config.walker,
+          MathJax.Extension.Explorer.config.highlight,
+          MathJax.Extension.Explorer.config.background,
+          MathJax.Extension.Explorer.config.foreground,
+          ""].join(';')
         +escape(this.input.value);
   },
+
   //
   //  Select a specific example equation
   //
@@ -51,6 +62,7 @@ var Lab = {
     this.input.value = this.Examples[n];
     this.Typeset();
   },
+  
   //
   //  Show the enhanced MathML
   //
@@ -58,6 +70,7 @@ var Lab = {
     this.mathml.innerHTML = "";
     MathJax.HTML.addText(this.mathml,this.jax[1].root.toMathML().replace(/data-semantic-/g,""));
   },
+  
   //
   //  Check for RETURN with any meta key as an alternative to clicking
   //  the TYPESET button
@@ -72,6 +85,7 @@ var Lab = {
       this.Typeset();
     }
   },
+  
   //
   //  Set the width of the output div
   //
@@ -80,14 +94,7 @@ var Lab = {
     document.getElementById("range_output").innerHTML = width+"%";
     if (!skipHandler) MathJax.Extension.Collapse.resizeHandler({});
   },
-  //
-  //  The highlight selection
-  //
-  highlight: "none",
-  setHighlight: function (type,skipUpdate) {
-    this.highlight = type;
-    if (!skipUpdate) MathJax.Hub.Queue(["Rerender",this.jax[1]]);
-  },
+  
   //
   //  The collapse toggle
   //
@@ -103,6 +110,7 @@ var Lab = {
       );
     }
   },
+  
   //
   //  The overflow toggle
   //
@@ -120,6 +128,24 @@ var Lab = {
       div.style.minHeight = (div.offsetHeight+1) + "px"; // force height to be big enough
     }
   },
+  
+  //
+  //  The renderer selection
+  //
+  setRenderer: function (mode,skipUpdate) {
+    MathJax.Hub.Queue(["setRenderer",MathJax.Hub,mode,"jax/mml"]);
+    if (!skipUpdate) MathJax.Hub.Queue(["Rerender",MathJax.Hub]);
+  },
+  
+  //
+  //  The static highlight selection
+  //
+  setExplorerOption: function(key, value) {
+    MathJax.Hub.Queue(["Sre Ready",
+                       MathJax.Extension.Explorer.setExplorerOption,
+                       key, value]);
+  },
+
   //
   //  Directly select a specific test equation
   //
@@ -147,25 +173,7 @@ var Lab = {
   Prev: function() {
     this.DirectSelect(this.Current - 1);
   }
-
 };
-//
-//  Hook into toggle action for highlighting
-//
-MathJax.Hub.Register.StartupHook("HTML-CSS maction Ready",function () {
-  var MML = MathJax.ElementJax.mml;
-  var TOGGLE = MML.maction.prototype.HTMLaction.toggle;
-  MML.maction.prototype.HTMLaction.toggle = function (span,frame,selection) {
-    TOGGLE.apply(this,arguments);
-    var child = span.childNodes[1];
-    if (Lab.highlight !== "hover") {
-      frame.onmouseover = frame.onmouseout = child.onmouseover = child.onmouseout = null;
-    }
-    if (Lab.highlight === "flame") {
-      frame.style.backgroundColor = "blue"; frame.style.opacity = .05;
-    }
-  };
-},20);
 
 //
 //  Hook into "New Math" signal to set overflow
@@ -173,15 +181,33 @@ MathJax.Hub.Register.StartupHook("HTML-CSS maction Ready",function () {
 MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 
 //
+//  Hook into menu renderer changes
+//
+MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
+  MathJax.Extension.MathMenu.signal.Interest(function (message) {
+    if (message[0] === "radio button") {
+      var renderer = message[1].value;
+      if (String(renderer).match(/^(HTML-CSS|CommonHTML|PreviewHTML|NativeMML|SVG)$/)) {
+        Lab.renderer.value = renderer;
+      }
+    }
+  });
+});
+
+//
 //  Initialize everything once MathJax has run the first time
 //
 MathJax.Hub.Queue(function () {
   var defaults = [null,"0",
     String(Lab.defaults.width),
+    Lab.defaults.renderer,
     String(Lab.defaults.collapse),
     String(Lab.defaults.overflow),
+    Lab.defaults.walker,
     Lab.defaults.highlight,
-    ""
+    Lab.defaults.background,
+    Lab.defaults.foreground,
+    "",
   ];
   Lab.SMML = MathJax.Extension.SemanticMathML;
   Lab.jax = MathJax.Hub.getAllJax();
@@ -191,19 +217,26 @@ MathJax.Hub.Queue(function () {
   Lab.mathml = document.getElementById("mathml");
   Lab.example = document.getElementById("example");
   Lab.width = document.getElementById("width");
+  Lab.renderer = document.getElementById("renderer");
   if (window.location.search.length > 1) 
-    defaults = window.location.search.match(/^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
+    defaults = window.location.search.match(
+        /^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
   Lab.example.value = defaults[1];
   Lab.Current = parseInt(defaults[1]);
   Lab.width.value = defaults[2];
   Lab.enriched.style.width = defaults[2];
+  Lab.renderer.value = defaults[3];
+  Lab.setRenderer(Lab.renderer.value,true);
+  Lab.renderer.onchange = function () {Lab.setRenderer(this.value)};
   Lab.setWidth(Lab.width.value,true);
-  Lab.collapse = document.getElementById("collapse").checked = (defaults[3] === "true");
+  Lab.collapse = document.getElementById("collapse").checked = (defaults[4] === "true");
   Lab.setCollapse(Lab.collapse,true);
-  Lab.overflow = document.getElementById("overflow").checked = (defaults[4] === "true");
+  Lab.overflow = document.getElementById("overflow").checked = (defaults[5] === "true");
   Lab.setOverflow(Lab.overflow,true);
-  Lab.highlight = document.getElementById("highlight").value = defaults[5];
-  Lab.setHighlight(Lab.highlight,true);
-  Lab.input.value = unescape(defaults[6]);
+  Lab.setExplorerOption("walker", document.getElementById("walker").value = defaults[6]);
+  Lab.setExplorerOption("highlight", document.getElementById("highlight").value = defaults[7]);
+  Lab.setExplorerOption("background", document.getElementById("background").value = defaults[8]);
+  Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[9]);
+  Lab.input.value = unescape(defaults[10]);
   if (Lab.input.value !== "") Lab.Typeset();
 });
