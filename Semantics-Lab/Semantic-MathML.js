@@ -5,6 +5,7 @@ MathJax.Extension.SemanticMathML = {
   version: "1.0",
   enrich: false,
   running: false,
+  speech: true,
   //
   //  Names of attributes to force if set by mstyle
   //  (so SRE doesn't have to look these up)
@@ -25,7 +26,10 @@ MathJax.Extension.SemanticMathML = {
   Filter: function (jax,id,script) {
     delete jax.enriched;
     this.running = true;
-    if (this.enrich) jax.enriched = sre.Enrich.semanticMathmlSync(jax.root.toMathML());
+    if (this.enrich) {
+      sre.Engine.getInstance().mathmlSpeech = this.speech;
+      jax.enriched = sre.Enrich.semanticMathmlSync(jax.root.toMathML());
+    }
     this.running = false;
   },
   Enable: function () {this.enrich = true},

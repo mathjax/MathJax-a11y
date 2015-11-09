@@ -5,19 +5,25 @@
 <META http-equiv="X-UA-Compatible" content="IE=edge" />
 <TITLE>MathJax:  Collapsing Differential Geometry Examples</TITLE>
 
-<script src="https://progressiveaccess.com/content/semantic.js"></script>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'],['\\(','\\)']]}
 });
 </script>
-<SCRIPT SRC="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></SCRIPT>
-<script src="InputHooks.js"></script>
+<script src="https://beta.mathjax.org/mathjax/develop/unpacked/MathJax.js?config=TeX-AMS_HTML-full"></script>
+<script src="https://progressiveaccess.com/content/sre_mathjax.js"></script>
 <script src="Semantic-MathML.js"></script>
 <script src="Semantic-Collapse.js"></script>
+<script src="Assistive-Explore.js"></script>
+<script src="Semantic-Action-Collapse-All.js"></script>
 <script>
 MathJax.Extension.SemanticMathML.Enable();
-MathJax.Hub.Queue(function () {return MathJax.Extension.Collapse.CollapseWideMath()});
+MathJax.Extension.SemanticMathML.speech = false;
+MathJax.Hub.Queue(function () {
+MathJax.Extension.Explorer.config = {walker: "syntactic", highlight: "flame",
+background: "blue", foreground: "black", speech: false};
+MathJax.Extension.Explorer.Reset();
+return MathJax.Extension.Collapse.CollapseWideMath()});
 </script>
 
 </HEAD>
@@ -80,7 +86,7 @@ $$
 Hence
 
 $$
-{d{\bf y}\over ds} = {\bf t}(1-a_1\kappa) + {\bf n}\left({da_1\over 
+{d{\bf y}\over ds} = {\bf t}(1-a_1\kappa) + {\bf n}\left({da_1\over
 ds}-\tau a_2\right) + {\bf b}\left({da_2\over ds}+\tau a_1\right)
 $$
 
@@ -110,7 +116,7 @@ $$
 
 The equation of the evolute is:
 $$
-{\bf y} = {\bf x} + R\left[{\bf n} + {\rm cot}\left(\int \tau\,ds + {\rm 
+{\bf y} = {\bf x} + R\left[{\bf n} + {\rm cot}\left(\int \tau\,ds + {\rm
 const}\right){\bf b}\right].
 $$
 
@@ -130,7 +136,7 @@ then according to Green's theorem and the expression in Chapter 2, Eq.
 
 $$
 \int_C P\,du + Q\, dv =
- \int\!\!\!\int_A \left({\partial Q\over \partial u} - {\partial P\over 
+ \int\!\!\!\int_A \left({\partial Q\over \partial u} - {\partial P\over
  \partial v}\right) {1\over \sqrt{EG-F^2}}\,dA,
 $$
 where $dA$ is the element of area of the region $R$ enclosed by the curve
@@ -145,7 +151,7 @@ point $P$ makes the angle $\theta$ with the coordinate curve $v = {\rm
 constant}$ and if the coordinate curves are orthogonal, then, according to
 Liouville's formula (1-13):
 $$
-\kappa_g\,ds = d\theta + \kappa_1(\cos\theta)\,ds + 
+\kappa_g\,ds = d\theta + \kappa_1(\cos\theta)\,ds +
 \kappa_2(\sin\theta)\,ds.
 $$
 
@@ -156,18 +162,18 @@ $$
 $$
 we find by application of Green's theorem:
 $$
-\int_C\kappa_g\,ds = \int_C d\theta + 
-\int\!\!\!\int_A\left({\partial\over\partial u} \left(\kappa_2\sqrt{G}\,\right) - 
+\int_C\kappa_g\,ds = \int_C d\theta +
+\int\!\!\!\int_A\left({\partial\over\partial u} \left(\kappa_2\sqrt{G}\,\right) -
 {\partial\over \partial v}\left(\kappa_1\sqrt{E}\,\right)\right)\,du\,dv.
 $$
 
 <p>
 The Gaussian curvature can be written, according to Chapter 3, Eq. (3-7),
 $$
-K = -{1\over 2\sqrt{EG}} \left[{\partial\over\partial u}{G_u\over 
+K = -{1\over 2\sqrt{EG}} \left[{\partial\over\partial u}{G_u\over
 \sqrt{EG}} + {\partial\over\partial v}{E_v\over\sqrt{EG}}\right]
 ={1\over\sqrt{EG}}\left[ -{\partial\over\partial u}
-\left(\kappa_2\sqrt{G}\,\right) + {\partial\over\partial v} 
+\left(\kappa_2\sqrt{G}\,\right) + {\partial\over\partial v}
 \left(\kappa_1\sqrt{E}\,\right)\right],
 $$
 so we obtain the formula
