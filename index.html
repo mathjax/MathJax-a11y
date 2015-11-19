@@ -1,7 +1,83 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+<head>
+    <title>Title Goes Here for Touchscreen</title>
+  
+	<meta charset="utf-8" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+            type="text/javascript">
+    </script>
+    <script>
+        var canvas;
+        var ctx;
+        var lastPt = null;
+
+        function init() {
+            var touchzone = document.getElementById("mycanvas");
+            touchzone.addEventListener("touchmove", draw, false);
+            touchzone.addEventListener("touchend", end, false);
+            ctx = touchzone.getContext("2d");
+        }
+
+        function draw(e) {
+            e.preventDefault();
+            if (lastPt != null) {
+                ctx.beginPath();
+                ctx.moveTo(lastPt.x, lastPt.y);
+                ctx.lineTo(e.touches[0].pageX, e.touches[0].pageY);
+                ctx.stroke();
+            }
+            lastPt = { x: e.touches[0].pageX, y: e.touches[0].pageY };
+        }
+
+        function end(e) {
+            e.preventDefault();
+            // Terminate touch path
+            lastPt = null;
+        }
+    </script>
+
+</head>
+
+<body onload="init()">
+    <p> When $a \ne 0$, there are two solutions to \(ax^2 + bx + c = 0\) and they are
+    $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+    &nbsp;</p>
+   
+ 
+    <p>
+        <h1>
+            Is this being reached
+            &nbsp;
+        </h1>
+        This is a basic web page existing to host some MathJax Formulae to add gesture implementation to.
+        These render differently: $\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}$ (inline) or $$\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}\tag{displayed}$$
+    </p>
+    <p>
+        \(\begin{equation}
+        \frac{1}{k}\log_2 c(f)\;\tfrac{1}{k}\log_2 c(f)\;
+        \end{equation}\)
+        &nbsp;</p>
+
+    <p>
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <mrow>
+                <mi>a</mi>
+                <mo>+</mo>
+                <mi>b</mi>
+            </mrow>
+        </math>
+        
+        </p>
+
+  <canvas id="mycanvas" width="500" height="500" style="border: 1px solid #000000;">
+      Canvas element not supported.
+    </canvas>
+
+
+
 </body>
 </html>
