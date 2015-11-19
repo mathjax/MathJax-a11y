@@ -747,6 +747,7 @@ MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
 //  Specific implementations for SVG output
 //
 MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
+  MathJax.Hub.Config({SVG: {addMMLclasses: true}});
   MathJax.OutputJax.SVG.Augment({
     getMetrics: function (jax) {
       this.em = MathJax.ElementJax.mml.mbase.prototype.em = jax.SVG.em; this.ex = jax.SVG.ex;
