@@ -59,6 +59,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (sibling) {
         var math = sibling.id !== id ? sibling.firstElementChild : sibling;
         Explorer.AddMouseEvents(math);
+        Explorer.AddTouchEvents(math);
         if (math.className === 'MathJax_MathML') {
           math = math.firstElementChild;
         }
@@ -114,6 +115,31 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
          browser: MathJax.Hub.Browser.name}
       );
     },
+    //
+    // Adds touch event to action items in an enriched jax.
+    //
+    AddTouchEvents: function(node) {
+      sre.HighlighterFactory.addEvents(
+        node,
+        {'touchstart': Explorer.TouchStart,
+         'touchend': Explorer.TouchEnd},
+        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+         browser: MathJax.Hub.Browser.name}
+      );
+    },
+    TouchStart: function(event){
+      event.preventDefault();
+
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        FALSE(event);
+        return;
+      }
+      Explorer.ActivateWalker(event.target);
+    },
+    TouchEnd: function(event){
+      event.preventDefault();
+    },
+
     //
     // Adds mouse events to maction items in an enriched jax.
     //
