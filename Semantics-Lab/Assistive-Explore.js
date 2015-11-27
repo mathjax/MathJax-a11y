@@ -182,7 +182,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
-      Explorer.Speak(Explorer.walker.speech());
+      setTimeout(function() {Explorer.Speak(Explorer.walker.speech());}
+                 , 100);
       Explorer.Highlight();
     },
     //
