@@ -241,4 +241,5 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   MathJax.Hub.Register.MessageHook(
       'New Math', ['Register', MathJax.Extension.Explorer]);
 
+  MathJax.Hub.Startup.signal.Post("Explorer Ready");
 });
