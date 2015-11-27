@@ -14,6 +14,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     hoverer: null,
     flamer: null,
     speechDiv: null,
+    audioElement: null,
     enriched: {},
     //
     // Configurations.
@@ -91,6 +92,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (move) {
           Explorer.Speak(Explorer.walker.speech());
           Explorer.Highlight();
+        } else {
+          Explorer.audioElement.play();
         }
         FALSE(event);
         return;
@@ -219,6 +222,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               style: {fontSize: '12px', color: '#000000'}}
             );
         Explorer.speechDiv.setAttribute('aria-live', 'assertive');
+        Explorer.audioElement = new Audio(
+          "https://progressiveaccess.com/content/invalid_keypress.ogg");
       }
     },
     //
@@ -229,6 +234,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.speechDiv.parentNode.removeChild(Explorer.speechDiv);
       }
       Explorer.speechDiv = null;
+      Explorer.audioElement = null;
     },
     //
     // Speaks a string by poking it into the speech div.
