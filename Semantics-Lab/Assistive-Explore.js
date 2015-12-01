@@ -15,6 +15,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     flamer: null,
     speechDiv: null,
     enriched: {},
+    focusEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
     //
     // Configurations.
     //
@@ -65,7 +66,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (math) {
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
-            MathJax.Hub.Browser.name === 'Firefox' ? 'blur' : 'focusout',
+            Explorer.focusEvent,
             function(event) {
               if (Explorer.walker) Explorer.DeactivateWalker();
             });
@@ -182,8 +183,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
-      setTimeout(function() {Explorer.Speak(Explorer.walker.speech());}
-                 , 100);
+      Explorer.Speak(Explorer.walker.speech());
       Explorer.Highlight();
     },
     //
@@ -234,7 +234,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Speaks a string by poking it into the speech div.
     //
-    Speak: function(speech) {
+    Speak: (MathJax.Hub.Browser.isPC && MathJax.Hub.Browser.isChrome) ?
+      function(speech) {
+        Explorer.speechDiv.textContent = ' ';
+        setTimeout(function() {Explorer.speechDiv.textContent = speech;}, 100);
+      } :
+    function(speech) {
       Explorer.speechDiv.textContent = speech;
     }
   };
