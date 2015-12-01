@@ -16,14 +16,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     speechDiv: null,
     audioElement: null,
     enriched: {},
+    earconFile: 'https://progressiveaccess.com/content/invalid_keypress' +
+      (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
+       '.ogg' : '.mp3'),
     //
     // Configurations.
     //
     config: {
-      walker: "dummy",
-      highlight: "none",
-      background: "blue",
-      foreground: "black",
+      walker: 'dummy',
+      highlight: 'none',
+      background: 'blue',
+      foreground: 'black',
       speech: true
     },
     setExplorerOption: function(key, value) {
@@ -93,7 +96,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           Explorer.Speak(Explorer.walker.speech());
           Explorer.Highlight();
         } else {
-          Explorer.audioElement.play();
+          Explorer.PlayEarcon();
         }
         FALSE(event);
         return;
@@ -222,8 +225,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               style: {fontSize: '12px', color: '#000000'}}
             );
         Explorer.speechDiv.setAttribute('aria-live', 'assertive');
-        Explorer.audioElement = new Audio(
-          "https://progressiveaccess.com/content/invalid_keypress.ogg");
       }
     },
     //
@@ -234,7 +235,16 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.speechDiv.parentNode.removeChild(Explorer.speechDiv);
       }
       Explorer.speechDiv = null;
-      Explorer.audioElement = null;
+    },
+    //
+    // Plays the earcon.
+    //
+    // Every time we make new Audio element, as some browsers do not allow to
+    // play audio elements more than once (e.g., Safari).
+    //
+    PlayEarcon: function() {
+      var audio = new Audio(Explorer.earconFile);
+      audio.play();
     },
     //
     // Speaks a string by poking it into the speech div.
