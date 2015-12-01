@@ -51,6 +51,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     },
     //
+    // Adds Aria attributes.
+    //
+    AddAria: function(math) {
+      math.setAttribute('role', 'application');
+      math.setAttribute('aria-label', 'Explore with shift space.');
+    },
+    //
     // Adds a key event to an enriched jax.
     //
     AddEvent: function(script) {
@@ -58,6 +65,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var sibling = script.previousSibling;
       if (sibling) {
         var math = sibling.id !== id ? sibling.firstElementChild : sibling;
+        Explorer.AddAria(math);
         Explorer.AddMouseEvents(math);
         if (math.className === 'MathJax_MathML') {
           math = math.firstElementChild;
