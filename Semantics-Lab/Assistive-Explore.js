@@ -88,6 +88,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       // If walker is active we redirect there.
       if (Explorer.walker && Explorer.walker.isActive()) {
         var move = Explorer.walker.move(event.keyCode);
+        console.log(event.keyCode);
         if (move === null) return;
         if (move) {
           Explorer.Speak(Explorer.walker.speech());
@@ -129,15 +130,21 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     TouchStart: function(event){
       event.preventDefault();
-
-      if (Explorer.walker && Explorer.walker.isActive()) {
-        FALSE(event);
-        return;
+      if (Explorer.hoverer) {
+        Explorer.highlighter.unhighlight();
+        Explorer.hoverer = false;
       }
-      Explorer.ActivateWalker(event.target);
+      if (Explorer.config.highlight === 'none') return;
+      if (Explorer.config.highlight === 'hover') {
+        var frame = event.currentTarget;
+        Explorer.GetHighlighter(.1);
+        Explorer.highlighter.highlight([frame]);
+        Explorer.hoverer = true;
+      }
+      MathJax.Extension.MathEvents.Event.False(event);
     },
     TouchEnd: function(event){
-      event.preventDefault();
+      //event.preventDefault();
     },
 
     //
