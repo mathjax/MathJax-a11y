@@ -8,6 +8,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
 
+  $.getScript('jgestures.js', function(){
+    alert('Load was performed.')
+  });
+
   var Explorer = MathJax.Extension.Explorer = {
     walker: null,
     highlighter: null,
@@ -53,6 +57,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Adds a key event to an enriched jax.
     //
+
+    $('#wrap').bind('swipeone swipeleft', function(){
+            alert("test");
+        });
+
     AddEvent: function(script) {
       var id = script.id + '-Frame';
       var sibling = script.previousSibling;
@@ -128,21 +137,36 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
          browser: MathJax.Hub.Browser.name}
       );
     },
+    //TouchStart: function(event){
+    //  event.preventDefault();
+    //  if (Explorer.hoverer) {
+    //    Explorer.highlighter.unhighlight();
+    //    Explorer.hoverer = false;
+    // }
+    //  if (Explorer.config.highlight === 'none') return;
+    //  if (Explorer.config.highlight === 'hover') {
+    //    var frame = event.currentTarget;
+    //   Explorer.GetHighlighter(.1);
+    //   Explorer.highlighter.highlight([frame]);
+    //    Explorer.hoverer = true;
+    //  }
+    //  MathJax.Extension.MathEvents.Event.False(event);
+
+
+    //},
+
     TouchStart: function(event){
       event.preventDefault();
-      if (Explorer.hoverer) {
-        Explorer.highlighter.unhighlight();
-        Explorer.hoverer = false;
-      }
-      if (Explorer.config.highlight === 'none') return;
-      if (Explorer.config.highlight === 'hover') {
-        var frame = event.currentTarget;
-        Explorer.GetHighlighter(.1);
-        Explorer.highlighter.highlight([frame]);
-        Explorer.hoverer = true;
-      }
-      MathJax.Extension.MathEvents.Event.False(event);
-    },
+
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        Explorer.DeactivateWalker();
+      };
+      var math = event.target;
+      Explorer.ActivateWalker(math);
+      console.log(math);
+      },
+
+
     TouchEnd: function(event){
       //event.preventDefault();
     },
