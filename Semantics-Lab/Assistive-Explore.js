@@ -58,9 +58,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Adds a key event to an enriched jax.
     //
 
-    $('#wrap').bind('swipeone swipeleft', function(){
-            alert("test");
-        });
 
     AddEvent: function(script) {
       var id = script.id + '-Frame';
