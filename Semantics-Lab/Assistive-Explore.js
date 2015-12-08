@@ -14,16 +14,20 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     hoverer: null,
     flamer: null,
     speechDiv: null,
+    audioElement: null,
     enriched: {},
+    earconFile: 'https://progressiveaccess.com/content/invalid_keypress' +
+      (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
+       '.ogg' : '.mp3'),
     focusEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
     //
     // Configurations.
     //
     config: {
-      walker: "dummy",
-      highlight: "none",
-      background: "blue",
-      foreground: "black",
+      walker: 'dummy',
+      highlight: 'none',
+      background: 'blue',
+      foreground: 'black',
       speech: true
     },
     setExplorerOption: function(key, value) {
@@ -92,6 +96,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (move) {
           Explorer.Speak(Explorer.walker.speech());
           Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
         }
         FALSE(event);
         return;
@@ -230,6 +236,16 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.speechDiv.parentNode.removeChild(Explorer.speechDiv);
       }
       Explorer.speechDiv = null;
+    },
+    //
+    // Plays the earcon.
+    //
+    // Every time we make new Audio element, as some browsers do not allow to
+    // play audio elements more than once (e.g., Safari).
+    //
+    PlayEarcon: function() {
+      var audio = new Audio(Explorer.earconFile);
+      audio.play();
     },
     //
     // Speaks a string by poking it into the speech div.
