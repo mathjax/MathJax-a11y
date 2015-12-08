@@ -19,6 +19,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     earconFile: 'https://progressiveaccess.com/content/invalid_keypress' +
       (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
        '.ogg' : '.mp3'),
+    focusEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
     //
     // Configurations.
     //
@@ -69,7 +70,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (math) {
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
-            MathJax.Hub.Browser.name === 'Firefox' ? 'blur' : 'focusout',
+            Explorer.focusEvent,
             function(event) {
               if (Explorer.walker) Explorer.DeactivateWalker();
             });
@@ -249,7 +250,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Speaks a string by poking it into the speech div.
     //
-    Speak: function(speech) {
+    Speak: (MathJax.Hub.Browser.isPC && MathJax.Hub.Browser.isChrome) ?
+      function(speech) {
+        Explorer.speechDiv.textContent = ' ';
+        setTimeout(function() {Explorer.speechDiv.textContent = speech;}, 100);
+      } :
+    function(speech) {
       Explorer.speechDiv.textContent = speech;
     }
   };
@@ -257,4 +263,5 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   MathJax.Hub.Register.MessageHook(
       'New Math', ['Register', MathJax.Extension.Explorer]);
 
+  MathJax.Hub.Startup.signal.Post("Explorer Ready");
 });
