@@ -55,7 +55,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     AddAria: function(math) {
       math.setAttribute('role', 'application');
-      math.setAttribute('aria-label', 'Explore with shift space.');
+      math.setAttribute('aria-label',
+                        'Navigatable Math. Explore with shift space.');
     },
     //
     // Adds a key event to an enriched jax.
