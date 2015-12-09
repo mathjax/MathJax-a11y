@@ -145,7 +145,8 @@ var Lab = {
   explorerOptions: [],
   executeExplorerOptions: function() {
     while (Lab.EXPLORER && Lab.explorerOptions.length > 0) {
-      Lab.EXPLORER.setExplorerOption.apply(Lab.explorerOptions.pop());
+      Lab.EXPLORER.setExplorerOption.apply(Lab.EXPLORER,
+                                           Lab.explorerOptions.pop());
     }
   },
   setExplorerOption: function(key, value) {
