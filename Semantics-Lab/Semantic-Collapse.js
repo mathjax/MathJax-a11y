@@ -13,6 +13,7 @@
 
   var Collapse = MathJax.Extension.Collapse = {
     version: "1.0",
+    enableCollapse: true,
 
     /*****************************************************************/
 
@@ -520,7 +521,7 @@
     //
     Collapse: function (node,mml) {
       var type = mml.attr["data-semantic-type"];
-      if (type) {
+      if (Collapse.enableCollapse && type) {
         if (this["Collapse_"+type]) mml = (this["Collapse_"+type])(node,mml);
         else if (this.COLLAPSE[type] && this.MARKER[type]) {
           var role = mml.attr["data-semantic-role"];

@@ -255,5 +255,6 @@ MathJax.Hub.Queue(function () {
   Lab.setExplorerOption("background", document.getElementById("background").value = defaults[8]);
   Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[9]);
   Lab.input.value = unescape(defaults[10]);
+  MathJax.Extension.Collapse.enableCollapse = Lab.defaults.enableCollapse;
   if (Lab.input.value !== "") Lab.Typeset();
 });
