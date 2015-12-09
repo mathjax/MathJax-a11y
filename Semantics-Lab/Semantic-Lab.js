@@ -14,6 +14,8 @@ var Lab = {
     background: "blue",
     foreground: "black"
   },
+  // The explorer extension
+  EXPLORER: null,
   //
   //  The TeX code for the examples menu
   //
@@ -46,10 +48,10 @@ var Lab = {
       String(window.location).replace(/\?.*/,"")+"?"
         +[this.example.value, this.width.value, this.renderer.value,
           this.collapse, this.overflow,
-          MathJax.Extension.Explorer.config.walker,
-          MathJax.Extension.Explorer.config.highlight,
-          MathJax.Extension.Explorer.config.background,
-          MathJax.Extension.Explorer.config.foreground,
+          Lab.EXPLORER.config.walker,
+          Lab.EXPLORER.config.highlight,
+          Lab.EXPLORER.config.background,
+          Lab.EXPLORER.config.foreground,
           ""].join(';')
         +escape(this.input.value);
   },
@@ -140,10 +142,15 @@ var Lab = {
   //
   //  The static highlight selection
   //
+  explorerOptions: [],
+  executeExplorerOptions: function() {
+    while (Lab.EXPLORER && Lab.explorerOptions.length > 0) {
+      Lab.EXPLORER.setExplorerOption.apply(Lab.explorerOptions.pop());
+    }
+  },
   setExplorerOption: function(key, value) {
-    MathJax.Hub.Queue(["Explorer Ready",
-                       MathJax.Extension.Explorer.setExplorerOption,
-                       key, value]);
+    Lab.explorerOptions.push([key, value]);
+    Lab.executeExplorerOptions();
   },
 
   //
@@ -179,6 +186,15 @@ var Lab = {
 //  Hook into "New Math" signal to set overflow
 //
 MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
+
+//
+// Wait for explorer to be ready and set its options
+//
+MathJax.Hub.Register.StartupHook("Explorer Ready",
+                                 function() {
+                                   Lab.EXPLORER = MathJax.Extension.Explorer;
+                                   Lab.executeExplorerOptions();
+                                 });
 
 //
 //  Hook into menu renderer changes
