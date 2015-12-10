@@ -182,7 +182,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       'dummy': sre.DummyWalker
     },
     ActivateWalker: function(math) {
-      Explorer.AddSpeech(math);
+      Explorer.AddSpeech();
       var speechGenerator = new sre.DirectSpeechGenerator();
       var constructor = Explorer.Walkers[Explorer.config.walker] ||
             Explorer.Walkers['dummy'];
@@ -196,7 +196,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Deactivates the walker.
     //
     DeactivateWalker: function() {
-      Explorer.RemoveSpeech();
+      Explorer.ClearSpeech();
       Explorer.Unhighlight();
       Explorer.currentHighlight = null;
       Explorer.walker.deactivate();
@@ -218,7 +218,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Adds the speech div.
     //
-    AddSpeech: function(math) {
+    AddSpeech: function() {
       if (!Explorer.speechDiv) {
         Explorer.speechDiv = MathJax.HTML.addElement(
             document.body, 'div', {className: 'MathJax_SpeechOutput',
@@ -226,6 +226,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               style: {fontSize: '12px', color: '#000000'}}
             );
         Explorer.speechDiv.setAttribute('aria-live', 'assertive');
+      }
+    },
+    //
+    // Clears the speech div.
+    //
+    ClearSpeech: function() {
+      if (Explorer.speechDiv) {
+        Explorer.Speak('');
       }
     },
     //
