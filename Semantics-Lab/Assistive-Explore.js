@@ -51,6 +51,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
           Explorer.enriched[script.id] = script;
+          Explorer.AddSpeech();
           Explorer.AddEvent(script);
         }
       }
@@ -182,7 +183,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       'dummy': sre.DummyWalker
     },
     ActivateWalker: function(math) {
-      Explorer.AddSpeech();
       var speechGenerator = new sre.DirectSpeechGenerator();
       var constructor = Explorer.Walkers[Explorer.config.walker] ||
             Explorer.Walkers['dummy'];
@@ -235,15 +235,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (Explorer.speechDiv) {
         Explorer.Speak('');
       }
-    },
-    //
-    // Removes the speech div.
-    //
-    RemoveSpeech: function() {
-      if (Explorer.speechDiv) {
-        Explorer.speechDiv.parentNode.removeChild(Explorer.speechDiv);
-      }
-      Explorer.speechDiv = null;
     },
     //
     // Plays the earcon.
