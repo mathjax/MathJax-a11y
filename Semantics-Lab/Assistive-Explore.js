@@ -51,6 +51,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
           Explorer.enriched[script.id] = script;
+          Explorer.AddSpeech();
           Explorer.AddEvent(script);
         }
       }
@@ -182,7 +183,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       'dummy': sre.DummyWalker
     },
     ActivateWalker: function(math) {
-      Explorer.AddSpeech(math);
       var speechGenerator = new sre.DirectSpeechGenerator();
       var constructor = Explorer.Walkers[Explorer.config.walker] ||
             Explorer.Walkers['dummy'];
@@ -196,7 +196,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Deactivates the walker.
     //
     DeactivateWalker: function() {
-      Explorer.RemoveSpeech();
+      Explorer.ClearSpeech();
       Explorer.Unhighlight();
       Explorer.currentHighlight = null;
       Explorer.walker.deactivate();
@@ -218,7 +218,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Adds the speech div.
     //
-    AddSpeech: function(math) {
+    AddSpeech: function() {
       if (!Explorer.speechDiv) {
         Explorer.speechDiv = MathJax.HTML.addElement(
             document.body, 'div', {className: 'MathJax_SpeechOutput',
@@ -229,13 +229,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     },
     //
-    // Removes the speech div.
+    // Clears the speech div.
     //
-    RemoveSpeech: function() {
+    ClearSpeech: function() {
       if (Explorer.speechDiv) {
-        Explorer.speechDiv.parentNode.removeChild(Explorer.speechDiv);
+        Explorer.Speak('');
       }
-      Explorer.speechDiv = null;
     },
     //
     // Plays the earcon.
