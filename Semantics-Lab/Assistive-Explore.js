@@ -14,7 +14,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     hoverer: null,
     flamer: null,
     speechDiv: null,
-    audioElement: null,
     enriched: {},
     earconFile: 'https://progressiveaccess.com/content/invalid_keypress' +
       (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
