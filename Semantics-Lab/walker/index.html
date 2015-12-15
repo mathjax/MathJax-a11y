@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MathJax Accessibility Tool</title>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ menuSettings: {CHTMLpreview: false, assistiveMML: false}, MMLorHTML: {MSIE: "HTML"}});
+  </script>
+  <script src="https://beta.mathjax.org/mathjax/develop/unpacked/MathJax.js?config=TeX-AMS_CHTML-full"></script>
+  <script src="https://progressiveaccess.com/content/sre_mathjax.js"></script>
+  <script src="../Semantic-MathML.js"></script>
+  <script src="../Semantic-Collapse.js"></script>
+  <script src="../Assistive-Explore.js"></script>
+  <script src="../Semantic-Lab.js"></script>
+  <script>
+  Lab.defaults.enableCollapse = false;
+  Lab.defaults.overflow = false;
+  Lab.defaults.highlight = "none";  // "none", "hover", or "flame"
+  Lab.defaults.width = 100;         // a percentage from 10 to 100
+  Lab.defaults.background = "blue";
+  Lab.defaults.foreground = "black";
+  Lab.defaults.renderer = "CommonHTML";
+  Lab.defaults.walker = "syntactic";
+</script>
+  <script src="../Semantic-Action-Collapse-All.js"></script>
+  <script>
+    Lab.Examples = [
+      "",
+      "x = \\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}", [
+        "\\left( \\sum_{k=1}^n a_k b_k \\right)^{\\!\\!2} \\leq",
+        "  \\left( \\sum_{k=1}^n a_k^2 \\right)",
+        "  \\left( \\sum_{k=1}^n b_k^2 \\right)"
+      ].join("\n"), [
+        "\\frac{1}{\\Bigl(\\sqrt{\\phi\\sqrt{5}}-\\phi\\Bigr)",
+        "  e^{\\frac25\\pi}} =",
+        "    1+\\frac{e^{-2\\pi}}",
+        "      {1+\\frac{e^{-4\\pi}}",
+        "        {1+\\frac{e^{-6\\pi}}",
+        "          {1+\\frac{e^{-8\\pi}}",
+        "            {1+\\ldots} } } }"
+      ].join("\n"), [
+        "1 + \\frac{q^2}{(1-q)}",
+        "  + \\frac{q^6}{(1-q)(1-q^2)} + \\cdots =",
+        "\\prod_{j=0}^{\\infty}",
+        "  \\frac{1}{(1-q^{5j+2})(1-q^{5j+3})},",
+        "     \\quad\\quad \\text{for $|q|<1$}."
+      ].join("\n"),
+      "\\sum_{n=1}^\\infty {1\\over n^2} = {\\pi^2\\over 6}",
+      "f(a) = \\oint_\\gamma \\frac{f(z)}{z-a}dz",
+      "\\sigma = \\sqrt{\\frac{1}{N}\\sum_{i=1}^N {(x_i-\\mu)}^2}"
+    ];
+  </script>
+  <style>
+    input[type="checkbox"] {
+      margin-left: 0
+    }
+  </style>
+</head>
+
+<body>
+
+    <div style="float:right;">
+
+      <!-- <a href="Semantics-Lab-MML.html"><button>MathML Lab</button></a> -->
+
+      <div style="margin-top:1.5em; border:1px solid #CCC; padding: 10px; text-align:left; position:relative">
+        <div style="text-align:center; line-height:0; height:0; width:85%; position:absolute; top:-1px">
+          <span style="background:white; padding:0 5px; font-size:95%;">Options</span>
+        </div>
+
+        <span style="display:none;">
+          <label>
+            <input id="collapse" type="checkbox" onchange="Lab.setCollapse(this.checked)" />
+            <small>Collapse MathML</small>
+          </label>
+          <br>
+
+
+          <label>
+            <input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
+            <small>Scrolling overflow</small>
+          </label>
+          <br>
+
+          <!-- <hr> -->
+        </span>
+        <label>
+          <small>Walker:</small>
+          <select id="walker" onchange="Lab.setExplorerOption('walker', this.value)">
+            <option value="syntactic">Syntactic</option>
+            <option value="semantic">Semantic</option>
+            <option value="dummy">Dummy</option>
+          </select>
+        </label>
+        <br>
+
+        <span style="display:none;">
+          <label>
+            <small>Highlight:</small>
+            <select id="highlight" onchange="Lab.setExplorerOption('highlight', this.value)">
+              <option value="none">None</option>
+              <option value="hover">Hover</option>
+              <option value="flame">Flame</option>
+            </select>
+          </label>
+          <br>
+        </span>
+        <label>
+          <small>Background:</small>
+          <select id="background" onchange="Lab.setExplorerOption('background', this.value)">
+            <option value="blue">blue</option>
+            <option value="red">red</option>
+            <option value="green">green</option>
+            <option value="yellow">yellow</option>
+            <option value="cyan">cyan</option>
+            <option value="magenta">magenta</option>
+            <option value="white">white</option>
+            <option value="black">black</option>
+          </select>
+        </label>
+        <br>
+
+        <label>
+          <small>Foreground:</small>
+          <select id="foreground" onchange="Lab.setExplorerOption('foreground', this.value)">
+            <option value="black">black</option>
+            <option value="white">white</option>
+            <option value="magenta">magenta</option>
+            <option value="cyan">cyan</option>
+            <option value="yellow">yellow</option>
+            <option value="green">green</option>
+            <option value="red">red</option>
+            <option value="blue">blue</option>
+          </select>
+        </label>
+        <br>
+
+        <hr>
+
+        <label>
+          <small>Renderer:</small>
+          <select id="renderer">
+            <option value="CommonHTML">Common HTML</option>
+            <option value="SVG">SVG</option>
+            <!-- <option value="PreviewHTML">Preview HTML</option> -->
+            <option value="HTML-CSS">HTML-CSS</option>
+            <!-- <option value="NativeMML">Native MathML</option> -->
+          </select>
+        </label>
+        <br>
+
+      </div>
+
+    </div>
+
+
+
+          <p style="float:left;">Enter TeX code here:
+            <br>
+            <textarea id="input" rows="10" cols="50" onkeypress="Lab.CheckKey(event)" style="font-size:110%"></textarea>
+            <br> Examples:
+            <select onchange="Lab.Select(this.value)" id="example">
+              <option value="0">(Select one)</option>
+              <option value="-">----------------</option>
+              <option value="1">Quadratic Formula</option>
+              <option value="2">Cauchy-Schwarz Inequality</option>
+              <option value="3">An Identity of Ramanujan</option>
+              <option value="4">A Rogers-Ramanujan Identity</option>
+              <option value="5">A Summation Formula</option>
+              <option value="6">Cauchy's Integral Formula</option>
+              <option value="7">Standard Deviation</option>
+            </select>
+            <input type="button" value="Keep" onclick="Lab.Keep()"/>
+            <input type="button" value="Typeset" onclick="Lab.Typeset()"/>
+          </p>
+
+<br>
+      <div id="container" style="clear:both; padding-right:8px; width:100%">
+        <!-- Original Math: -->
+        <div id="original" style="display:none;">\[\]</div>
+        <br> Enriched Math:
+        <div id="enriched" style="border:1px solid; padding:3px">\[\]</div>
+      </div>
+      <input type="range" id="width" max="100" min="10" value="100" style="display:none;" oninput="Lab.setWidth(this.value)"/>
+      <span style="display:none;" id="range_output">100%</span>
+      <br>
+      <!-- Enriched MathML: -->
+      <div style="display:none;">
+        <pre id="mathml"></pre>
+      </div>
+
+</body>
+
+</html>
