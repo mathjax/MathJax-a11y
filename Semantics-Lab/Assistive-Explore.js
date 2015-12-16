@@ -277,7 +277,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     PlayEarcon: function() {
       var audio = new Audio(Explorer.earconFile);
       audio.play();
-    },
+    }
   };
 
   MathJax.Hub.Register.MessageHook(
