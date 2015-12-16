@@ -8,7 +8,53 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
 
+
+  var LiveRegion = MathJax.Extension.LiveRegion = MathJax.Object.Subclass({
+    div: MathJax.HTML.Element(
+      'div', {className: 'MathJax_SpeechOutput',
+              // style: {fontSize: '1px', color: '#FFFFFF'}}
+              style: {fontSize: '12px', color: '#000000'}}),
+    added: false,
+    //
+    // Adds the speech div.
+    //
+    Add: function() {
+      if (this.added) return;
+      document.body.appendChild(this.div);
+      this.added = true;
+      setTimeout(this.Announce(), 100);
+    },
+    //
+    // Speaks the announce string.
+    //
+    Announce: function() {
+      this.div.setAttribute('aria-live', 'polite');
+      this.div.textContent = LiveRegion.ANNOUNCE;
+      this.div.setAttribute('aria-live', 'assertive');
+    },
+    //
+    // Clears the speech div.
+    //
+    Clear: function() {
+      this.Update('');
+    },
+    //
+    // Speaks a string by poking it into the speech div.
+    //
+    Update: (MathJax.Hub.Browser.isPC && MathJax.Hub.Browser.isChrome) ?
+      function(speech) {
+        this.div.textContent = ' ';
+        setTimeout(function() {this.div.textContent = speech;}, 100);
+      } : function(speech) {
+        this.div.textContent = speech;
+      }
+  }, {
+    ANNOUNCE: 'Navigatable Maths in page. Explore with shift space.'
+  });
+  
+  
   var Explorer = MathJax.Extension.Explorer = {
+    liveRegion: LiveRegion(),
     walker: null,
     highlighter: null,
     hoverer: null,
@@ -50,7 +96,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
           Explorer.enriched[script.id] = script;
-          Explorer.AddSpeech();
+          Explorer.liveRegion.Add();
           Explorer.AddEvent(script);
         }
       }
@@ -102,7 +148,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var move = Explorer.walker.move(event.keyCode);
         if (move === null) return;
         if (move) {
-          Explorer.Speak(Explorer.walker.speech());
+          Explorer.liveRegion.Update(Explorer.walker.speech());
           Explorer.Highlight();
         } else {
           Explorer.PlayEarcon();
@@ -196,14 +242,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
-      Explorer.Speak(Explorer.walker.speech());
+      Explorer.liveRegion.Update(Explorer.walker.speech());
       Explorer.Highlight();
     },
     //
     // Deactivates the walker.
     //
     DeactivateWalker: function() {
-      Explorer.ClearSpeech();
+      Explorer.liveRegion.Clear();
       Explorer.Unhighlight();
       Explorer.currentHighlight = null;
       Explorer.walker.deactivate();
@@ -223,27 +269,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.highlighter.unhighlight();
     },
     //
-    // Adds the speech div.
-    //
-    AddSpeech: function() {
-      if (!Explorer.speechDiv) {
-        Explorer.speechDiv = MathJax.HTML.addElement(
-            document.body, 'div', {className: 'MathJax_SpeechOutput',
-              // style: {fontSize: '1px', color: '#FFFFFF'}}
-              style: {fontSize: '12px', color: '#000000'}}
-            );
-        Explorer.speechDiv.setAttribute('aria-live', 'assertive');
-      }
-    },
-    //
-    // Clears the speech div.
-    //
-    ClearSpeech: function() {
-      if (Explorer.speechDiv) {
-        Explorer.Speak('');
-      }
-    },
-    //
     // Plays the earcon.
     //
     // Every time we make new Audio element, as some browsers do not allow to
@@ -253,17 +278,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var audio = new Audio(Explorer.earconFile);
       audio.play();
     },
-    //
-    // Speaks a string by poking it into the speech div.
-    //
-    Speak: (MathJax.Hub.Browser.isPC && MathJax.Hub.Browser.isChrome) ?
-      function(speech) {
-        Explorer.speechDiv.textContent = ' ';
-        setTimeout(function() {Explorer.speechDiv.textContent = speech;}, 100);
-      } :
-    function(speech) {
-      Explorer.speechDiv.textContent = speech;
-    }
   };
 
   MathJax.Hub.Register.MessageHook(
