@@ -10,27 +10,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
 
   var LiveRegion = MathJax.Extension.LiveRegion = MathJax.Object.Subclass({
-    div: MathJax.HTML.Element(
-      'div', {className: 'MathJax_SpeechOutput',
-              // style: {fontSize: '1px', color: '#FFFFFF'}}
-              style: {fontSize: '12px', color: '#000000'}}),
-    added: false,
+    div: null,
+    Init: function() {
+      this.div = LiveRegion.Create('assertive');
+    },
     //
     // Adds the speech div.
     //
     Add: function() {
-      if (this.added) return;
+      if (LiveRegion.announced) return;
       document.body.appendChild(this.div);
-      this.added = true;
-      setTimeout(this.Announce(), 100);
-    },
-    //
-    // Speaks the announce string.
-    //
-    Announce: function() {
-      this.div.setAttribute('aria-live', 'polite');
-      this.div.textContent = LiveRegion.ANNOUNCE;
-      this.div.setAttribute('aria-live', 'assertive');
+      LiveRegion.Announce();
     },
     //
     // Clears the speech div.
@@ -41,15 +31,43 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Speaks a string by poking it into the speech div.
     //
-    Update: (MathJax.Hub.Browser.isPC && MathJax.Hub.Browser.isChrome) ?
-      function(speech) {
-        this.div.textContent = ' ';
-        setTimeout(function() {this.div.textContent = speech;}, 100);
-      } : function(speech) {
-        this.div.textContent = speech;
-      }
+    Update: function(speech) {
+      LiveRegion.Update(this.div, speech);
+    }
   }, {
-    ANNOUNCE: 'Navigatable Maths in page. Explore with shift space.'
+    ANNOUNCE: 'Navigatable Math in page. Explore with shift space.',
+    announced: false,
+    //
+    // Creates a live region with a particular type and display style.
+    //
+    Create: function(type, style) {
+      var element = MathJax.HTML.Element(
+        'div', {className: 'MathJax_SpeechOutput', style: style});
+      element.setAttribute('aria-live', type);
+      return element;
+    },
+    //
+    // Updates a live region's text content.
+    //
+    Update: MathJax.Hub.Browser.isPC ?
+      function(div, speech) {
+        div.textContent = '';
+        setTimeout(function() {div.textContent = speech;}, 100);
+      } : function(div, speech) {
+        div.textContent = speech;
+      },
+    //
+    // Speaks the announce string.
+    //
+    Announce: function() {
+      if (LiveRegion.announced) return;
+      LiveRegion.announeced = true;
+      var div = LiveRegion.Create('polite',
+                                  {fontSize: '1px', color: '#FFFFFF'});
+      document.body.appendChild(div);
+      LiveRegion.Update(div, LiveRegion.ANNOUNCE);
+      setTimeout(function() {document.body.removeChild(div);}, 1000);
+    }
   });
   
   
