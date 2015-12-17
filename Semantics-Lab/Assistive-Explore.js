@@ -79,7 +79,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     flamer: null,
     speechDiv: null,
     enriched: {},
-    earconFile: 'https://progressiveaccess.com/content/invalid_keypress' +
+    earconFile: location.protocol +
+      '//progressiveaccess.com/content/invalid_keypress' +
       (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
        '.ogg' : '.mp3'),
     focusEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
