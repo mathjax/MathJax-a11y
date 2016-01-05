@@ -25,7 +25,7 @@ MathJax.Extension.SemanticMathML = {
   Filter: function (jax,id,script) {
     delete jax.enriched;
     this.running = true;
-    if (this.enrich) jax.enriched = sre.Semantic.enrichMathml(jax.root.toMathML());
+    if (this.enrich) jax.enriched = sre.Enrich.semanticMathmlSync(jax.root.toMathML());
     this.running = false;
   },
   Enable: function () {this.enrich = true},
