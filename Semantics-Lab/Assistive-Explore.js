@@ -8,12 +8,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
 
-<<<<<<< HEAD
-  $.getScript('jgestures.js', function(){
-    alert('Load was performed.')
-  });
 
-=======
 
   var LiveRegion = MathJax.Extension.LiveRegion = MathJax.Object.Subclass({
     div: null,
