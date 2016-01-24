@@ -6,9 +6,9 @@
   <title>MathJax Accessibility Tool</title>
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
-      menuSettings: {FastPreview: false},
       MMLorHTML: {MSIE: "HTML"},
-      "AssistiveMML": {disabled: true}
+      AssistiveMML: {diabled: true},
+      "fast-preview": {disabled: true}
     });
     MathJax.Ajax.config.path["RespEq"] = "../../extensions";
     MathJax.Hub.config.extensions.push(
