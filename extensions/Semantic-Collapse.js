@@ -121,14 +121,6 @@
       MML = MathJax.ElementJax.mml;
       
       //
-      //  Add a resize handler to check for math that needs
-      //  to be collapsed or expanded.
-      //
-      if (window.addEventListener) window.addEventListener("resize",Collapse.resizeHandler,false);
-      else if (window.attachEvent) window.attachEvent("onresize",Collapse.resizeHandler);
-      else window.onresize = Collapse.resizeHandler;
-
-      //
       //  Add the filter into the post-input hooks (priority 100, so other
       //  hooks run first, in particular, the enrichment hook).
       //
@@ -137,8 +129,16 @@
       //
       //  Add the auto-collapsing, if requested
       //
-      if (this.config.autoCollapse) HUB.Queue(function () {return Collapse.CollapseWideMath()});
-
+      if (this.config.autoCollapse) {
+        HUB.Queue(function () {return Collapse.CollapseWideMath()});
+        //
+        //  Add a resize handler to check for math that needs
+        //  to be collapsed or expanded.
+        //
+        if (window.addEventListener) window.addEventListener("resize",Collapse.resizeHandler,false);
+        else if (window.attachEvent) window.attachEvent("onresize",Collapse.resizeHandler);
+        else window.onresize = Collapse.resizeHandler;
+      }
     },
     
     //
