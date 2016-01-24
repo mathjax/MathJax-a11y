@@ -180,6 +180,17 @@ var Lab = {
   //
   Prev: function() {
     this.DirectSelect(this.Current - 1);
+  },
+  
+  //
+  //  Enable/Disable inputs
+  //
+  EnableInputs: function (enable) {
+    var INPUTS = ["input","select","textarea"];
+    for (var k = 0; k < INPUTS.length; k++) {
+      var inputs = document.getElementsByTagName(INPUTS[k]);
+      for (var i = 0, m = inputs.length; i < m; i++) inputs[i].disabled = !enable;
+    }
   }
 };
 
@@ -214,6 +225,7 @@ MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
 //
 //  Initialize everything once MathJax has run the first time
 //
+MathJax.Hub.Register.StartupHook("onLoad",[Lab.EnableInputs,false]);
 MathJax.Hub.Queue(function () {
   var defaults = [null,"0",
     String(Lab.defaults.width),
@@ -257,4 +269,5 @@ MathJax.Hub.Queue(function () {
   Lab.input.value = unescape(defaults[10]);
   MathJax.Extension.SemanticCollapse.config.disabled = !Lab.defaults.enableCollapse;
   if (Lab.input.value !== "") Lab.Typeset();
+  Lab.EnableInputs(true);
 });
