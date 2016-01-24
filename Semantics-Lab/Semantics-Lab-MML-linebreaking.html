@@ -10,178 +10,7 @@
     <h1>Test Semantic Enrichment of MathML for Display Accuracy (MathML input with line-breaking)</h1>
 <span>©2015 MathJax Consortium</span>
 
-<script src="https://progressiveaccess.com/content/semantic.js"></script>
 <script type="text/x-mathjax-config">
-
-//
-//  Patch MathJax processInput() to perform the postInputHooks
-//  (this is part of the semantic-enhance branch, but this file
-//   calls on the CDN rather than a local copy).
-//
-MathJax.Hub.postInputHooks = MathJax.Callback.Hooks(true);
-MathJax.Hub.processInput = function (state) {
-  var jax, STATE = MathJax.ElementJax.STATE;
-  var script, prev, m = state.scripts.length;
-  try {
-    //
-    //  Loop through the scripts
-    //
-    while (state.i < m) {
-      script = state.scripts[state.i]; if (!script) {state.i++; continue}
-      //
-      //  Remove previous error marker, if any
-      //
-      prev = script.previousSibling;
-      if (prev && prev.className === "MathJax_Error") {prev.parentNode.removeChild(prev)}
-      //
-      //  Check if already processed or needs processing
-      //
-      if (!script.MathJax || script.MathJax.state === STATE.PROCESSED) {state.i++; continue};
-      if (!script.MathJax.elementJax || script.MathJax.state === STATE.UPDATE) {
-        this.checkScriptSiblings(script);                 // remove preJax/postJax etc.
-        var type = script.type.replace(/ *;(.|\s)*/,"");  // the input jax type
-        var input = this.inputJax[type];                  // the input jax itself
-        jax = input.Process(script,state);                // run the input jax
-        if (typeof jax === 'function') {                  // if a callback was returned
-          if (jax.called) continue;                       //   go back and call Process() again
-          this.RestartAfter(jax);                         //   wait for the callback
-        }
-        jax = jax.Attach(script,input.id);                // register the jax on the script
-        this.saveScript(jax,state,script,STATE);          // add script to state
-        this.postInputHooks.Execute(jax,input.id,script); // run global jax filters
-      } else if (script.MathJax.state === STATE.OUTPUT) {
-        this.saveScript(script.MathJax.elementJax,state,script,STATE); // add script to state
-      }
-      //
-      //  Go on to the next script, and check if we need to update the processing message
-      //
-      state.i++; var now = new Date().getTime();
-      if (now - state.start > this.processUpdateTime && state.i < state.scripts.length)
-        {state.start = now; this.RestartAfter(MathJax.Callback.Delay(1))}
-    }
-  } catch (err) {return this.processError(err,state,"Input")}
-  //
-  //  Put up final message, reset the state and return
-  //
-  if (state.scripts.length && this.config.showProcessingMessages)
-    MathJax.Message.Set(["ProcessMath","Processing math: %1%%",100],0);
-  state.start = new Date().getTime(); state.i = state.j = 0;
-  return null;
-};
-
-//
-//  The semantic-enrichment filter
-//
-MathJax.Extension.SemanticMathML = {
-  version: "1.0",
-  enrich: false,
-  Filter: function (jax,id,script) {
-    delete jax.enriched;
-    if (this.enrich) jax.enriched = sre.Semantic.enrichMathml(jax.root.toMathML());
-  },
-  Enable: function () {this.enrich = true},
-  Disable: function () {this.enrich = false}
-};
-MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML]);
-
-//
-//  A filter to convert the enhanced MathML to MathJax internal format
-//  so we can display it.
-//
-//  (Most of the code is borrowed from the MathML input jax.)
-//
-MathJax.Hub.Register.StartupHook("mml Jax Ready",function () {
-  var MML = MathJax.ElementJax.mml;
-
-  MathJax.Extension.DisplaySMML = {
-    version: "1.0",
-
-    Filter: function (jax,id,script) {
-      if (!jax.enriched) return;
-      jax.root = this.MakeMML(jax.enriched);
-      jax.root.inputID = script.id;
-    },
-
-    MakeMML: function (node) {
-      var cls = String(node.getAttribute("class")||""); // make sure CLASS is a string
-      var type = node.nodeName.toLowerCase().replace(/^[a-z]+:/,"");
-      return this.MakeNode(node,type,cls);
-    },
-
-    MakeNode: function (node,type,cls) {
-      var mml, match = (cls.match(/(^| )MJX-TeXAtom-([^ ]*)/));
-      if (match) mml = this.TeXAtom(match[2]); else mml = MML[type]();
-      this.AddAttributes(mml,node); this.CheckClass(mml,mml["class"]);
-      this.AddChildren(mml,node);
-      return mml;
-    },
-
-    TeXAtom: function (mclass) {
-      var mml = MML.TeXAtom().With({texClass:MML.TEXCLASS[mclass]});
-      if (mml.texClass === MML.TEXCLASS.OP) mml.movesupsub = mml.movablelimits = true;
-      return mml;
-    },
-
-    CheckClass: function (mml,CLASS) {
-      CLASS = (CLASS||"").split(/ /); var NCLASS = [];
-      for (var i = 0, m = CLASS.length; i < m; i++) {
-        if (CLASS[i].substr(0,4) === "MJX-") {
-          if (CLASS[i] === "MJX-variant") mml.variantForm = true;
-          if (CLASS[i].substr(0,11) !== "MJX-TeXAtom") mml.mathvariant = CLASS[i].substr(3);
-        } else NCLASS.push(CLASS[i]);
-      }
-      if (NCLASS.length) mml["class"] = NCLASS.join(" "); else delete mml["class"];
-    },
-
-    AddAttributes: function (mml,node) {
-      mml.attr = {}; mml.attrNames = [];
-      for (var i = 0, m = node.attributes.length; i < m; i++) {
-        var name = node.attributes[i].name;
-        if (name == "xlink:href") name = "href";
-        if (name.match(/:/)) continue;
-        if (name.match(/^_moz-math-((column|row)(align|line)|font-style)$/)) continue;
-        var value = node.attributes[i].value;
-        var defaults = (mml.type === "mstyle" ? MML.math.prototype.defaults : mml.defaults);
-        if (value != null) {
-          if (value.toLowerCase() === "true") value = true;
-            else if (value.toLowerCase() === "false") value = false;
-          if (defaults[name] != null || MML.copyAttributes[name])
-            {mml[name] = value} else {mml.attr[name] = value}
-          mml.attrNames.push(name);
-        }
-      }
-    },
-
-    AddChildren: function (mml,node) {
-      for (var i = 0, m = node.childNodes.length; i < m; i++) {
-        var child = node.childNodes[i];
-        if (child.nodeName === "#comment") continue;
-        if (child.nodeName === "#text") {
-          if ((mml.isToken || mml.isChars) && !mml.mmlSelfClosing)
-            mml.Append(MML.chars(child.nodeValue));
-        } else if (mml.type === "annotation-xml") {
-          mml.Append(MML.xml(child));
-        } else {
-          var cmml = this.MakeMML(child); mml.Append(cmml);
-          if (cmml.mmlSelfClosing && cmml.data.length)
-            {mml.Append.apply(mml,cmml.data); cmml.data = []}
-        }
-      }
-      if (mml.type === "mrow" && mml.data.length >= 2) {
-        var first = mml.data[0], last = mml.data[mml.data.length-1];
-        if (first.type === "mo" && first.Get("fence") &&
-            last.type === "mo" && last.Get("fence")) {
-          if (first.data[0]) mml.open = first.data.join("");
-          if (last.data[0])  mml.close = last.data.join("");
-        }
-      }
-    }
-
-  };
-
-  MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.DisplaySMML],100);
-});
-
 //
 //  The code to drive the interactive page
 //
@@ -250,10 +79,15 @@ MathJax.Hub.Queue(function () {
 //  Don't use the fast preview
 //
 MathJax.Hub.Config({
-  menuSettings: {CHTMLpreview: false},
+  menuSettings: { FastPreview: false },
   "HTML-CSS": { linebreaks: { automatic: true } },
   SVG: { linebreaks: { automatic: true } }
 });
+MathJax.Ajax.config.path["RespEq"] = "../extensions";
+MathJax.Hub.config.extensions.push(
+  "[RespEq]/Assistive-Explore.js",
+  "[RespEq]/Semantic-Collapse.js"
+);
 
 (function() {
   window.addEventListener("resize", resizeThrottler, false);
@@ -270,7 +104,7 @@ MathJax.Hub.Config({
 
 }());
 </script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML-full"></script>
 
   <p>
 <table border="0" cellpadding="0" cellspacing="2">
