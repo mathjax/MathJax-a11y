@@ -3,7 +3,7 @@
 //
 MathJax.Extension.SemanticMathML = {
   version: "1.0",
-  enrich: false,
+  config: MathJax.Hub.CombineConfig("SemanticMathML",{disabled: false}),
   running: false,
   //
   //  Names of attributes to force if set by mstyle
@@ -25,13 +25,23 @@ MathJax.Extension.SemanticMathML = {
   Filter: function (jax,id,script) {
     delete jax.enriched;
     this.running = true;
-    if (this.enrich) jax.enriched = sre.Enrich.semanticMathmlSync(jax.root.toMathML());
+    if (!this.config.disabled) jax.enriched = sre.Enrich.semanticMathmlSync(jax.root.toMathML());
     this.running = false;
   },
-  Enable: function () {this.enrich = true},
-  Disable: function () {this.enrich = false}
+  Enable: function () {this.config.disabled = false},
+  Disable: function () {this.config.disabled = true}
 };
 MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML]);
+
+//
+//  Load SRE and use the signal to tell MathJax when it is loaded.
+//  Since SRE waits for the mml element jax, load that too.
+//
+if (!MathJax.Ajax.config.path.SRE) MathJax.Ajax.config.path.SRE = "https://progressiveaccess.com/content";
+MathJax.Ajax.Require("[MathJax]/jax/element/mml/jax.js");
+MathJax.Ajax.Load("[SRE]/sre_mathjax.js");
+MathJax.Hub.Register.StartupHook("Sre Ready",["loadComplete",MathJax.Ajax,"[SRE]/sre_mathjax.js"]);
+
 //
 //  Override toMathML's attribute function to include additional attributes
 //  inherited from mstyle (so SRE doesn't have to look them up).
@@ -98,4 +108,10 @@ MathJax.Hub.Register.StartupHook("Sre Ready",function () {
       return TEXCLASS.apply(this,arguments);
     }
   });
+
+  MathJax.Callback.Queue(
+    ["Post",MathJax.Hub.Startup.signal,"Semantic MathML Ready"],
+    ["loadComplete",MathJax.Ajax,"[RespEq]/Semantic-MathML.js"]
+  );
 });
+
