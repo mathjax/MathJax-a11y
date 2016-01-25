@@ -144,6 +144,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (math.className === 'MathJax_MathML') {
           math = math.firstElementChild;
         }
+        $math.bind('tapone', function(event){console.log("tapped!")})
         if (math) {
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
