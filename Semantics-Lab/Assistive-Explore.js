@@ -144,8 +144,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (math.className === 'MathJax_MathML') {
           math = math.firstElementChild;
         }
-        $math.bind('tapone', function(event){console.log("tapped!")})
+        //$math.bind('tapone', function(event){console.log("tapped!")})
         if (math) {
+          var mc = new Hammer(math);
+          mc.on("panleft panright tap press", function(ev) {
+            console.log(ev.type +" gesture detected.");
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
             Explorer.focusEvent,
