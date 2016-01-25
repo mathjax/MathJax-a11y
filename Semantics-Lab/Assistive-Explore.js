@@ -72,7 +72,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
   
   
->>>>>>> refs/remotes/mathjax/master
   var Explorer = MathJax.Extension.Explorer = {
     liveRegion: LiveRegion(),
     walker: null,
@@ -203,6 +202,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Adds touch event to action items in an enriched jax.
     //
+    
+    
     AddTouchEvents: function(node) {
       sre.HighlighterFactory.addEvents(
         node,
