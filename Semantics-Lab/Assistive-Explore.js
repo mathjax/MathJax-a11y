@@ -207,7 +207,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     AddTouchEvents: function(node) {
       sre.HighlighterFactory.addEvents(
         node,
-        {'jgesture.tapone' Explorer.TapOne,
+        {'jgesture.tapone': Explorer.TapOne,
           'touchstart': Explorer.TouchStart,
          'touchend': Explorer.TouchEnd},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
