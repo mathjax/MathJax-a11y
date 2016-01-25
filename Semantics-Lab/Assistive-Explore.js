@@ -233,7 +233,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //},
     TapOne: function(event){
       window.alert("TAPPED!");
-    }
+    },
 
     TouchStart: function(event){
       event.preventDefault();
