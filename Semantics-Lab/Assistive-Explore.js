@@ -149,6 +149,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           var mc = new Hammer(math);
           mc.on("panleft panright tap press", function(ev) {
             console.log(ev.type +" gesture detected.");
+          });
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
             Explorer.focusEvent,
