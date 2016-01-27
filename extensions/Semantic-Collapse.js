@@ -154,7 +154,7 @@
           math.appendChild(jax.enriched);
           jax.enriched = math;
         }
-        jax.root = (!this.config.disabled ? this : MathJax.InputJax.MathML.Parse.prototype).MakeMML(jax.enriched);
+        jax.root = this.MakeMML(jax.enriched);
         jax.root.inputID = script.id;
         jax.root.SRE = {action: this.Actions(jax.root)};
       }
@@ -441,8 +441,11 @@
       if (match) mml = this.TeXAtom(match[2]); else mml = MML[type]();
       this.AddAttributes(mml,node); this.CheckClass(mml,mml["class"]);
       this.AddChildren(mml,node);
-      mml.getComplexity();
-      return mml.Collapse(node);
+      if (!this.config.disabled) {
+        mml.getComplexity();
+        mml = mml.Collapse(node);
+      }
+      return mml;
     },
 
     //
