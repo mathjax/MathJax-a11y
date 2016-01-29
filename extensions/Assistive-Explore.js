@@ -14,7 +14,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     
     div: null,
     Init: function() {
-      this.div = LiveRegion.Create('assertive');
+      this.div = LiveRegion.Create('assertive',
+                                   {fontSize: '10px', color: '#000000'});
     },
     //
     // Adds the speech div.
@@ -63,11 +64,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Announce: function() {
       if (LiveRegion.announced) return;
-      LiveRegion.announeced = true;
+      LiveRegion.announced = true;
       var div = LiveRegion.Create('polite',
                                   {fontSize: '1px', color: '#FFFFFF'});
       document.body.appendChild(div);
-      LiveRegion.Update(div, LiveRegion.ANNOUNCE);
+      setTimeout(function() {
+        LiveRegion.Update(div, LiveRegion.ANNOUNCE);}, 100);
       setTimeout(function() {document.body.removeChild(div);}, 1000);
     }
   });
