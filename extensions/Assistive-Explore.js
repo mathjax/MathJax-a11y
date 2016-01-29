@@ -64,7 +64,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Announce: function() {
       if (LiveRegion.announced) return;
-      LiveRegion.announeced = true;
+      LiveRegion.announced = true;
       var div = LiveRegion.Create('polite',
                                   {fontSize: '1px', color: '#FFFFFF'});
       document.body.appendChild(div);
