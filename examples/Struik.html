@@ -1,38 +1,33 @@
 <!DOCTYPE html>
-<HTML>
-<HEAD>
+<html>
+<head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<META http-equiv="X-UA-Compatible" content="IE=edge" />
-<TITLE>MathJax:  Collapsing Differential Geometry Examples</TITLE>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>MathJax:  Collapsing Differential Geometry Examples</title>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
-  tex2jax: {inlineMath: [['$','$'],['\\(','\\)']]}
+  tex2jax: {inlineMath: [['$','$'],['\\(','\\)']]},
+  SemanticCollapse: {autoCollapse: true}
 });
+MathJax.Ajax.config.path["RespEq"] = "../extensions"
+MathJax.Hub.config.extensions.push("[RespEq]/Semantic-Collapse.js");
 </script>
-<SCRIPT SRC="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></SCRIPT>
-<script src="https://progressiveaccess.com/content/enrich.js"></script>
-<script src="Semantic-MathML.js"></script>
-<script src="Semantic-Collapse.js"></script>
-<script>
-MathJax.Extension.SemanticMathML.Enable();
-MathJax.Hub.Queue(function () {return MathJax.Extension.Collapse.CollapseWideMath()});
-</script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>
+</head>
+<body>
 
-</HEAD>
-<BODY>
+<blockquote>
 
-<BLOCKQUOTE>
-
-<H1>An example from Struik's <I>Lectures on Classical Differential Geometry</I></H1>
+<h1>An example from Struik's <i>Lectures on Classical Differential Geometry</i></h1>
 
 <!------------------------------------------------------------------------>
-<HR>
-<DIV ID="p23">
+<hr>
+<div id="p23">
 p. 23
 <p>
 
-<BLOCKQUOTE>
+<blockquote>
 
 <p>
 This procedure is simply a generalization of the method used in Sects.
@@ -47,28 +42,28 @@ f(u_1) = f(u_0) + hf'(u_0)+{h^2\over 2!}f''(u_0) + \cdots
 $$
 
 Here, $f(u_0)=0$ since $P$ lies on $\Sigma_2$, and $h$ is of order $AP$
-(see theorem Sec.  1-2); $f(u_1)$ is of order $AD$.  <I>Hence necessary and
+(see theorem Sec.  1-2); $f(u_1)$ is of order $AD$.  <i>Hence necessary and
 sufficient conditions that the surface has a contact of order $n$ at $P$
-with the curve are that at $P$ the relations hold:</I>
+with the curve are that at $P$ the relations hold:</i>
 
 $$
 f(u) = f'(u) = f''(u) = \cdots = f^{(n)}(u) = 0;\quad f^{(n+1)}(u) \ne 0.
 $$
 
-</BLOCKQUOTE>
+</blockquote>
 
 <!------------------------------------------------------------------------>
-<HR>
-<DIV ID="p40">
+<hr>
+<div id="p40">
 p. 40
 <p>
 
-<BLOCKQUOTE>
+<blockquote>
 
 The converse problem is somewhat more complicated: Find the curves which
 admit a given curve $C$ as involute.  Such curves are called
-<I>evolutes</I> of $C$ (German: <I>Evolute;</I> French:
-<I>d&eacute;velopp&eacute;es</I>).  Their tangents are normal to $C({\bf
+<i>evolutes</i> of $C$ (German: <i>Evolute;</i> French:
+<i>d&eacute;velopp&eacute;es</i>).  Their tangents are normal to $C({\bf
 x})$ and we can therefore write the equation of the evolute ${\bf y}$ (Fig.
 1-34):
 
@@ -113,15 +108,15 @@ $$
 const}\right){\bf b}\right].
 $$
 
-</BLOCKQUOTE>
+</blockquote>
 
 <!------------------------------------------------------------------------>
-<HR>
-<DIV ID="p154">
+<hr>
+<div id="p154">
 p. 154
 <p>
 
-<BLOCKQUOTE>
+<blockquote>
 
 If $P(u,v)$ and $Q(u,v)$ are two functions of $u$ and $v$ on a surface,
 then according to Green's theorem and the expression in Chapter 2, Eq.
@@ -174,18 +169,18 @@ $$
 \int_C\kappa_g\,ds = \int_C d\theta - \int\!\!\!\int_A K\,dA.
 $$
 
-The integral $\int\!\!\int_A K\,dA$ is known as the <I>total</I> or
-<I>integral curvature</I>, or <I>curvature integra</I>, of the region $R$,
+The integral $\int\!\!\int_A K\,dA$ is known as the <i>total</i> or
+<i>integral curvature</i>, or <i>curvature integra</i>, of the region $R$,
 the name by which Gauss introduced it.
 
-</BLOCKQUOTE>
+</blockquote>
 <p>
-</DIV>
+</div>
 
 
 <!------------------------------------------------------------------------>
 
-</BLOCKQUOTE>
+</blockquote>
 
-</BODY>
-</HTML>
+</body>
+</html>

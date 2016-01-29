@@ -10,6 +10,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
 
   var LiveRegion = MathJax.Extension.LiveRegion = MathJax.Object.Subclass({
+    version: "1.0",
+    
     div: null,
     Init: function() {
       this.div = LiveRegion.Create('assertive');
@@ -72,6 +74,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   
   
   var Explorer = MathJax.Extension.Explorer = {
+    version: "1.0",
+    
     liveRegion: LiveRegion(),
     walker: null,
     highlighter: null,
@@ -299,8 +303,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     }
   };
 
-  MathJax.Hub.Register.MessageHook(
-      'New Math', ['Register', MathJax.Extension.Explorer]);
+  MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Explorer]);
 
   MathJax.Hub.Startup.signal.Post("Explorer Ready");
 });
+
+MathJax.Ajax.loadComplete("[RespEq]/Assistive-Explore.js");
