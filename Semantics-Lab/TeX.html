@@ -8,18 +8,20 @@
 //  Don't use the fast preview
 //
 MathJax.Hub.Config({
-  menuSettings: {CHTMLpreview: false},
-  MMLorHTML: {MSIE: "HTML"}
+  MMLorHTML: {MSIE: "HTML"},
+  AssistiveMML: {diabled: true},
+  "fast-preview": {disabled: true}
 });
+MathJax.Ajax.config.path["RespEq"] = "../extensions";
+MathJax.Hub.config.extensions.push(
+  "[RespEq]/Assistive-Explore.js",
+  "[RespEq]/Semantic-Collapse.js"
+);
 </script>
-<script src="https://rawgit.com/mathjax/MathJax/develop/unpacked/MathJax.js?config=TeX-AMS_HTML-full"></script>
-<script src="https://progressiveaccess.com/content/sre_mathjax.js"></script>
-<script src="Semantic-MathML.js"></script>
-<script src="Semantic-Collapse.js"></script>
-<script src="Assistive-Explore.js"></script>
-<script src="Semantic-Lab.js"></script>
-<script src="Semantic-Lab-Defaults.js"></script>
-<script src="Semantic-Action-Collapse-All.js"></script>
+<!--<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>-->
+<script src="../../MathJax/MathJax.js?config=TeX-AMS_HTML-full"></script>
+<script src="Lab.js"></script>
+<script src="Lab-Defaults.js"></script>
 <script>
 Lab.Examples = [
   "",
@@ -58,7 +60,7 @@ input[type="checkbox"] {margin-left: 0}
 
 <p>
 <div style="float:right; text-align:center">
-<a href="Semantics-Lab-MML.html"><button>MathML Lab</button></a>
+<a href="MathML.html"><button>MathML Lab</button></a>
 
 <div style="margin-top:1.5em; border:1px solid #CCC; padding: 10px; text-align:left; position:relative">
 <div style="text-align:center; line-height:0; height:0; width:85%; position:absolute; top:-1px">

@@ -5,25 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MathJax Accessibility Tool</title>
   <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({ menuSettings: {CHTMLpreview: false, assistiveMML: false}, MMLorHTML: {MSIE: "HTML"}});
+    MathJax.Hub.Config({
+      MMLorHTML: {MSIE: "HTML"},
+      AssistiveMML: {diabled: true},
+      "fast-preview": {disabled: true}
+    });
+    MathJax.Ajax.config.path["RespEq"] = "../../extensions";
+    MathJax.Hub.config.extensions.push(
+      "[RespEq]/Assistive-Explore.js",
+      "[RespEq]/Semantic-Collapse.js"
+    );
   </script>
-  <script src="//beta.mathjax.org/mathjax/develop/unpacked/MathJax.js?config=TeX-AMS_CHTML-full"></script>
-  <script src="//progressiveaccess.com/content/sre_mathjax.js"></script>
-  <script src="../Semantic-MathML.js"></script>
-  <script src="../Semantic-Collapse.js"></script>
-  <script src="../Assistive-Explore.js"></script>
-  <script src="../Semantic-Lab.js"></script>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full"></script>
+  <script src="../Lab.js"></script>
+  <script src="../Lab-Defaults.js"></script>
   <script>
   Lab.defaults.enableCollapse = false;
-  Lab.defaults.overflow = false;
-  Lab.defaults.highlight = "none";  // "none", "hover", or "flame"
-  Lab.defaults.width = 100;         // a percentage from 10 to 100
-  Lab.defaults.background = "blue";
-  Lab.defaults.foreground = "black";
-  Lab.defaults.renderer = "CommonHTML";
-  Lab.defaults.walker = "syntactic";
-</script>
-  <script src="../Semantic-Action-Collapse-All.js"></script>
+  </script>
   <script>
     Lab.Examples = [
       "",
@@ -62,7 +60,7 @@
 
     <div style="float:right;">
 
-      <!-- <a href="Semantics-Lab-MML.html"><button>MathML Lab</button></a> -->
+      <!-- <a href="MathML.html"><button>MathML Lab</button></a> -->
 
       <div style="margin-top:1.5em; border:1px solid #CCC; padding: 10px; text-align:left; position:relative">
         <div style="text-align:center; line-height:0; height:0; width:85%; position:absolute; top:-1px">
