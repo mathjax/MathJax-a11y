@@ -181,7 +181,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var math = event.target;
       Explorer.ActivateWalker(math);
       console.log(math);
-      },
+      
     },
 
     HammerSwipeLeft: function(event){
@@ -221,11 +221,39 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
 
     HammerSwipeUp: function(event){
-
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.move(right);
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
     },
 
     HammerSwipeDown: function(event){
-
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.move(right);
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
     },
 
     Keydown: function(event) {
