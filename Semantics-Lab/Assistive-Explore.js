@@ -140,14 +140,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var math = sibling.id !== id ? sibling.firstElementChild : sibling;
         Explorer.AddAria(math);
         Explorer.AddMouseEvents(math);
+        Explorer.AddHammerGestures(math);
         //Explorer.AddTouchEvents(math);
         if (math.className === 'MathJax_MathML') {
           math = math.firstElementChild;
         }
         //$math.bind('tapone', function(event){console.log("tapped!")})
         if (math) {
-          Explorer.AddHammerGestures(math);
-         
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
             Explorer.focusEvent,
