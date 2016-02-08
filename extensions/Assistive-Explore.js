@@ -144,16 +144,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var math = sibling.id !== id ? sibling.firstElementChild : sibling;
         Explorer.AddAria(math);
         Explorer.AddMouseEvents(math);
-        Explorer.AddTouchEvents(math);
+        Explorer.AddHammerGestures(math);
+        //Explorer.AddTouchEvents(math);
         if (math.className === 'MathJax_MathML') {
           math = math.firstElementChild;
         }
         //$math.bind('tapone', function(event){console.log("tapped!")})
         if (math) {
-          var mc = new Hammer(math);
-          mc.on("panleft panright tap press", function(ev) {
-            console.log(ev.type +" gesture detected.");
-          });
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
             Explorer.focusEvent,
@@ -168,6 +165,100 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
+    AddHammerGestures: function(node) {
+      var mc = new Hammer(math);
+      mc.on("panleft panright tap press", function(ev) {
+        console.log(ev.type +" gesture detected.");
+      });
+      mc.on("tap", HammerTap(ev));
+      mc.on("panleft", HammerSwipeLeft(ev));
+      mc.on("panright", HammerSwipeRight(ev));
+      mc.on("panup", HammerSwipeUp(ev));
+      mc.on("pandown", HammerSwipeDown(ev));
+    },
+
+    HammerTap: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        //Explorer.DeactivateWalker();
+      };
+      var math = event.target;
+      Explorer.ActivateWalker(math);
+      console.log(math);
+      
+    },
+
+    HammerSwipeLeft: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.move(left);
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
+    HammerSwipeRight: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.move(right);
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
+    HammerSwipeUp: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.move(right);
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
+    HammerSwipeDown: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.move(right);
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
     Keydown: function(event) {
       if (event.keyCode === KEY.ESCAPE) {
         if (!Explorer.walker) return;
@@ -240,9 +331,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
 
     //},
-    TapOne: function(event){
-      window.alert("TAPPED!");
-    },
+    
 
     TouchStart: function(event){
       event.preventDefault();
