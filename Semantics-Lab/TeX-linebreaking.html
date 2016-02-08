@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>MathJax Semantic Enrichment Lab (TeX, with line-breaking))</title>
+  </head>
+
+  <body>
+
+    <h1>Test Semantic Enrichment of MathML for Display Accuracy (TeX input, with line-breaking))</h1>
+<span>©2015 MathJax Consortium</span>
+
+<script type="text/x-mathjax-config">
+//
+//  The code to drive the interactive page
+//
+var Lab = {
+  //
+  //  Typeset the math from the text area
+  //
+  Typeset: function () {
+    if (this.jax) {
+      var TeX = this.input.value;
+      MathJax.Hub.Queue(
+        ["Disable",this.SMML],
+        ["Text",this.jax[0],TeX],
+        ["Enable",this.SMML],
+        ["Text",this.jax[1],TeX],
+        ["ShowMathML",this]
+      );
+    }
+  },
+  //
+  //  Show the enhanced MathML
+  //
+  ShowMathML: function () {
+    this.mathml.innerHTML = "";
+    MathJax.HTML.addText(this.mathml,this.jax[1].root.toMathML().replace(/data-semantic-/g,""));
+  },
+  //
+  //  Check for RETURN with any meta key as an alternative to clicking
+  //  the TYPESET button
+  //
+  CheckKey: function (event) {
+    if (!event) event = window.event;
+    var code = event.which || event.keyCode;
+    if ((event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) &&
+        (code === 13 || code === 10)) {
+      if (event.preventDefault) event.preventDefault();
+      event.returnValue = false;
+      this.Typeset();
+    }
+  }
+};
+
+//
+//  Initialize everything once MathJax has run the first time
+//
+MathJax.Hub.Queue(function () {
+  Lab.jax = MathJax.Hub.getAllJax();
+  Lab.input = document.getElementById("input");
+  Lab.SMML = MathJax.Extension.SemanticMathML;
+  Lab.mathml = document.getElementById("mathml");
+  if (window.location.search) {
+    Lab.input.value = unescape(window.location.search.substr(1));
+    Lab.Typeset();
+  }
+});
+
+//
+//  Don't use the fast preview
+//
+MathJax.Hub.Config({
+  menuSettings: { FastPreview: false },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } }
+});
+MathJax.Ajax.config.path["RespEq"] = "../extensions";
+MathJax.Hub.config.extensions.push(
+  "[RespEq]/Assistive-Explore.js",
+  "[RespEq]/Semantic-Collapse.js"
+);
+
+(function() {
+  window.addEventListener("resize", resizeThrottler, false);
+  var resizeTimeout;
+  function resizeThrottler() {
+    // ignore resize events as long as an actualResizeHandler execution is in the queue
+    if ( !resizeTimeout ) {
+      resizeTimeout = setTimeout(function() {
+        resizeTimeout = null;
+        MathJax.Hub.Queue(["Rerender",MathJax.Hub]);
+      }, 300);
+    }
+  }
+
+}());</script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>
+</head>
+<body>
+
+<p>
+<table border="0" cellpadding="0" cellspacing="2">
+<tr><td align="left">Enter TeX code here:</td></tr>
+<tr><td><textarea id="input" rows="10" cols="60" onkeypress="Lab.CheckKey(event)" style="font-size:110%"></textarea></td></tr>
+<tr><td align="right">
+  <input type="button" value="Typeset" onclick="Lab.Typeset()"></input>
+</td></tr>
+</table>
+</p>
+
+<p>
+Original Math:
+<div style="border:1px solid; padding:3px">\[\]</div>
+</p>
+<p>
+Enriched Math:
+<div style="border:1px solid; padding:3px">\[\]</div>
+</p>
+<p>
+Enriched MathML:
+<div style="border:1px solid; padding:3px">
+<pre id="mathml"></pre>
+</div>
+</p>
+
+
+
+
+
+  </body>
+</html>
