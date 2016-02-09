@@ -166,15 +166,18 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
     AddHammerGestures: function(node) {
-      var mc = new Hammer(math);
+      console.log('Adding Hammer Horror');
+      var mc = new Hammer(node);
+      console.log('Still alive?');
+      console.log(mc);
       mc.on("panleft panright tap press", function(ev) {
         console.log(ev.type +" gesture detected.");
       });
-      mc.on("tap", HammerTap(ev));
-      mc.on("panleft", HammerSwipeLeft(ev));
-      mc.on("panright", HammerSwipeRight(ev));
-      mc.on("panup", HammerSwipeUp(ev));
-      mc.on("pandown", HammerSwipeDown(ev));
+      mc.on("tap", this.HammerTap);
+      mc.on("panleft", this.HammerSwipeLeft);
+      mc.on("panright", this.HammerSwipeRight);
+      mc.on("panup", this.HammerSwipeUp);
+      mc.on("pandown", this.HammerSwipeDown);
     },
 
     HammerTap: function(event){
