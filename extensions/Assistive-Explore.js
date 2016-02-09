@@ -192,7 +192,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
     HammerSwipeLeft: function(event){
       if (Explorer.walker && Explorer.walker.isActive()) {
-        var move = Explorer.walker.move(left);
+        var move = Explorer.walker.left();
         if (move === null) return;
         if (move) {
           Explorer.liveRegion.Update(Explorer.walker.speech());
@@ -210,7 +210,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
     HammerSwipeRight: function(event){
       if (Explorer.walker && Explorer.walker.isActive()) {
-        var move = Explorer.walker.move(right);
+        var move = Explorer.walker.right();
         if (move === null) return;
         if (move) {
           Explorer.liveRegion.Update(Explorer.walker.speech());
@@ -228,7 +228,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
     HammerSwipeUp: function(event){
       if (Explorer.walker && Explorer.walker.isActive()) {
-        var move = Explorer.walker.move(right);
+        var move = Explorer.walker.up();
         if (move === null) return;
         if (move) {
           Explorer.liveRegion.Update(Explorer.walker.speech());
@@ -246,7 +246,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
     HammerSwipeDown: function(event){
       if (Explorer.walker && Explorer.walker.isActive()) {
-        var move = Explorer.walker.move(right);
+        var move = Explorer.walker.down();
         if (move === null) return;
         if (move) {
           Explorer.liveRegion.Update(Explorer.walker.speech());
