@@ -9,6 +9,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
 
+
   var LiveRegion = MathJax.Extension.LiveRegion = MathJax.Object.Subclass({
     version: "1.0",
     
@@ -134,6 +135,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Adds a key event to an enriched jax.
     //
+
+
     AddEvent: function(script) {
       var id = script.id + '-Frame';
       var sibling = script.previousSibling;
@@ -141,9 +144,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var math = sibling.id !== id ? sibling.firstElementChild : sibling;
         Explorer.AddAria(math);
         Explorer.AddMouseEvents(math);
+        Explorer.AddHammerGestures(math);
+        //Explorer.AddTouchEvents(math);
         if (math.className === 'MathJax_MathML') {
           math = math.firstElementChild;
         }
+        //$math.bind('tapone', function(event){console.log("tapped!")})
         if (math) {
           math.onkeydown = Explorer.Keydown;
           math.addEventListener(
@@ -159,6 +165,103 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
+    AddHammerGestures: function(node) {
+      console.log('Adding Hammer Horror');
+      var mc = new Hammer(node);
+      console.log('Still alive?');
+      console.log(mc);
+      mc.on("panleft panright tap press", function(ev) {
+        console.log(ev.type +" gesture detected.");
+      });
+      mc.on("tap", this.HammerTap);
+      mc.on("panleft", this.HammerSwipeLeft);
+      mc.on("panright", this.HammerSwipeRight);
+      mc.on("panup", this.HammerSwipeUp);
+      mc.on("pandown", this.HammerSwipeDown);
+    },
+
+    HammerTap: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        //Explorer.DeactivateWalker();
+      };
+      var math = event.target;
+      Explorer.ActivateWalker(math);
+      console.log(math);
+      
+    },
+
+    HammerSwipeLeft: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.left();
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
+    HammerSwipeRight: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.right();
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
+    HammerSwipeUp: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.up();
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
+    HammerSwipeDown: function(event){
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        var move = Explorer.walker.down();
+        if (move === null) return;
+        if (move) {
+          Explorer.liveRegion.Update(Explorer.walker.speech());
+          Explorer.Highlight();
+        } else {
+          Explorer.PlayEarcon();
+        }
+        FALSE(event);
+        return;
+       } else {
+        console.log("Walker Not activated");
+          //HammerTap(event);
+       }
+    },
+
     Keydown: function(event) {
       if (event.keyCode === KEY.ESCAPE) {
         if (!Explorer.walker) return;
@@ -169,6 +272,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       // If walker is active we redirect there.
       if (Explorer.walker && Explorer.walker.isActive()) {
         var move = Explorer.walker.move(event.keyCode);
+        console.log(event.keyCode);
         if (move === null) return;
         if (move) {
           Explorer.liveRegion.Update(Explorer.walker.speech());
@@ -198,6 +302,56 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
          browser: MathJax.Hub.Browser.name}
       );
     },
+    //
+    // Adds touch event to action items in an enriched jax.
+    //
+    
+    
+    AddTouchEvents: function(node) {
+      sre.HighlighterFactory.addEvents(
+        node,
+        {'jgesture.tapone': Explorer.TapOne,
+          'touchstart': Explorer.TouchStart,
+         'touchend': Explorer.TouchEnd},
+        {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
+         browser: MathJax.Hub.Browser.name}
+      );
+    },
+    //TouchStart: function(event){
+    //  event.preventDefault();
+    //  if (Explorer.hoverer) {
+    //    Explorer.highlighter.unhighlight();
+    //    Explorer.hoverer = false;
+    // }
+    //  if (Explorer.config.highlight === 'none') return;
+    //  if (Explorer.config.highlight === 'hover') {
+    //    var frame = event.currentTarget;
+    //   Explorer.GetHighlighter(.1);
+    //   Explorer.highlighter.highlight([frame]);
+    //    Explorer.hoverer = true;
+    //  }
+    //  MathJax.Extension.MathEvents.Event.False(event);
+
+
+    //},
+    
+
+    TouchStart: function(event){
+      event.preventDefault();
+
+      if (Explorer.walker && Explorer.walker.isActive()) {
+        Explorer.DeactivateWalker();
+      };
+      var math = event.target;
+      Explorer.ActivateWalker(math);
+      console.log(math);
+      },
+
+
+    TouchEnd: function(event){
+      //event.preventDefault();
+    },
+
     //
     // Adds mouse events to maction items in an enriched jax.
     //
