@@ -8,7 +8,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
 
-
   var LiveRegion = MathJax.Extension.LiveRegion = MathJax.Object.Subclass({
     version: "1.0",
     
@@ -39,6 +38,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   }, {
     ANNOUNCE: 'Navigatable Math in page. Explore with shift space.',
     announced: false,
+    hidden: {position: 'absolute', top:'0', height: '1px', width: '1px',
+             padding: '1px', overflow: 'hidden'},
+
     //
     // Creates a live region with a particular type and display style.
     //
@@ -64,8 +66,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     Announce: function() {
       if (LiveRegion.announced) return;
       LiveRegion.announced = true;
-      var div = LiveRegion.Create('polite',
-                                  {fontSize: '1px', color: '#FFFFFF'});
+      var div = LiveRegion.Create('polite', LiveRegion.hidden);
       document.body.appendChild(div);
       LiveRegion.Update(div, LiveRegion.ANNOUNCE);
       setTimeout(function() {document.body.removeChild(div);}, 1000);
@@ -98,6 +99,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       foreground: 'black',
       speech: true
     },
+
     setExplorerOption: function(key, value) {
       if (Explorer.config[key] === value) return;
       Explorer.config[key] = value;
