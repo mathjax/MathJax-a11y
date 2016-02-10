@@ -6,14 +6,17 @@
 //
 //  The parameters controlling the complexity measure still need work.
 //
-(function () {
+(function (HUB) {
   var MML;
   
   var NOCOLLAPSE = 10000000; // really big complexity
 
-  var Collapse = MathJax.Extension.Collapse = {
+  var Collapse = MathJax.Extension.SemanticCollapse = {
     version: "1.0",
-    enableCollapse: true,
+    config: HUB.CombineConfig("SemanticCollapse",{
+      disabled: false,
+      autoCollapse: false
+    }),
 
     /*****************************************************************/
 
@@ -111,26 +114,31 @@
 
     /*****************************************************************/
 
-    enrich: true,
-    Enable: function () {this.enrich = true},
-    Disable: function () {this.enrich = false},
+    Enable: function () {this.config.disabled = false},
+    Disable: function () {this.config.disabled = true},
     
     Startup: function () {
       MML = MathJax.ElementJax.mml;
       
       //
-      //  Add a resize handler to check for math that needs
-      //  to be collapsed or expanded.
-      //
-      if (window.addEventListener) window.addEventListener("resize",Collapse.resizeHandler,false);
-      else if (window.attachEvent) window.attachEvent("onresize",Collapse.resizeHandler);
-      else window.onresize = Collapse.resizeHandler;
-
-      //
       //  Add the filter into the post-input hooks (priority 100, so other
       //  hooks run first, in particular, the enrichment hook).
       //
-      MathJax.Hub.postInputHooks.Add(["Filter",Collapse],100);
+      HUB.postInputHooks.Add(["Filter",Collapse],100);
+      
+      //
+      //  Add the auto-collapsing, if requested
+      //
+      if (this.config.autoCollapse) {
+        HUB.Queue(function () {return Collapse.CollapseWideMath()});
+        //
+        //  Add a resize handler to check for math that needs
+        //  to be collapsed or expanded.
+        //
+        if (window.addEventListener) window.addEventListener("resize",Collapse.resizeHandler,false);
+        else if (window.attachEvent) window.attachEvent("onresize",Collapse.resizeHandler);
+        else window.onresize = Collapse.resizeHandler;
+      }
     },
     
     //
@@ -146,7 +154,7 @@
           math.appendChild(jax.enriched);
           jax.enriched = math;
         }
-        jax.root = (this.enrich ? this : MathJax.InputJax.MathML.Parse.prototype).MakeMML(jax.enriched);
+        jax.root = this.MakeMML(jax.enriched);
         jax.root.inputID = script.id;
         jax.root.SRE = {action: this.Actions(jax.root)};
       }
@@ -198,9 +206,9 @@
     //  Find math that is too wide and collapse it
     //
     CollapseWideMath: function (element) {
-      if (!this.enrich) return;
+      if (this.config.disabled) return;
       this.GetContainerWidths(element);
-      var jax = MathJax.Hub.getAllJax(element);
+      var jax = HUB.getAllJax(element);
       var state = {collapse: [], jax: jax, m: jax.length, i: 0, changed:false};
       return this.collapseState(state);
     },
@@ -219,7 +227,7 @@
       }
       if (collapse.length === 0) return;
       if (collapse.length === 1) collapse = collapse[0];
-      return MathJax.Hub.Rerender(collapse);
+      return HUB.Rerender(collapse);
     },
     
     //
@@ -287,7 +295,7 @@
     //  collapsed).  Do this in a way that only causes two reflows.
     //
     GetContainerWidths: function (element) {
-      var JAX = MathJax.Hub.getAllJax(element);
+      var JAX = HUB.getAllJax(element);
       var i, m, script, span = MathJax.HTML.Element("span",{style:{display:"block"}});
       var math = [], jax, root;
       for (i = 0, m = JAX.length; i < m; i++) {
@@ -335,13 +343,13 @@
     resizeAction: function () {
       Collapse.timer = null;
       Collapse.running = true;
-      MathJax.Hub.Queue(
+      HUB.Queue(
         function () {
           //
           //  Prevent flicker between input and output phases
           //
-          Collapse.saved_delay = MathJax.Hub.processSectionDelay;
-          MathJax.Hub.processSectionDelay = 0;
+          Collapse.saved_delay = HUB.processSectionDelay;
+          HUB.processSectionDelay = 0;
         },
         ["CollapseWideMath",Collapse],
         ["resizeCheck",Collapse]
@@ -349,7 +357,7 @@
     },
     resizeCheck: function () {
       Collapse.running = false;
-      MathJax.Hub.processSectionDelay = Collapse.saved_delay;
+      HUB.processSectionDelay = Collapse.saved_delay;
       if (Collapse.retry) {
         Collapse.retry = false;
         setTimeout(Collapse.resizeHandler,0);
@@ -433,8 +441,11 @@
       if (match) mml = this.TeXAtom(match[2]); else mml = MML[type]();
       this.AddAttributes(mml,node); this.CheckClass(mml,mml["class"]);
       this.AddChildren(mml,node);
-      mml.getComplexity();
-      return mml.Collapse(node);
+      if (!this.config.disabled) {
+        mml.getComplexity();
+        mml = mml.Collapse(node);
+      }
+      return mml;
     },
 
     //
@@ -521,7 +532,7 @@
     //
     Collapse: function (node,mml) {
       var type = mml.attr["data-semantic-type"];
-      if (Collapse.enableCollapse && type) {
+      if (!Collapse.config.disabled && type) {
         if (this["Collapse_"+type]) mml = (this["Collapse_"+type])(node,mml);
         else if (this.COLLAPSE[type] && this.MARKER[type]) {
           var role = mml.attr["data-semantic-role"];
@@ -690,7 +701,7 @@
     }
   };
   
-})();
+})(MathJax.Hub);
 
 /*****************************************************************/
 /*
@@ -831,9 +842,10 @@ MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
  *  special handling.
  */
 
-MathJax.Hub.Register.StartupHook("Sre Ready", function () {
+MathJax.Ajax.Require("[RespEq]/Semantic-MathML.js");
+MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   var MML = MathJax.ElementJax.mml,
-      Collapse = MathJax.Extension.Collapse,
+      Collapse = MathJax.Extension.SemanticCollapse,
       COMPLEXITY = Collapse.COMPLEXITY;
       
   Collapse.Startup(MML); // Initialize the collapsing process
@@ -1040,5 +1052,9 @@ MathJax.Hub.Register.StartupHook("Sre Ready", function () {
     }
   });
 
+  MathJax.Callback.Queue(
+    ["Post",MathJax.Hub.Startup.signal,"Semantic Collapse Ready"],
+    ["loadComplete",MathJax.Ajax,"[RespEq]/Semantic-Collapse.js"]
+  );
 });
 

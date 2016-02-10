@@ -33,7 +33,7 @@ var Lab = {
         ["Enable",this.SMML],
         ["Text",this.jax[1],math],
         ["ShowMathML",this],
-        ["CollapseWideMath",MathJax.Extension.Collapse]
+        ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
       );
     }
   },
@@ -94,7 +94,7 @@ var Lab = {
   setWidth: function (width,skipHandler) {
     this.container.style.width = width+"%";
     document.getElementById("range_output").innerHTML = width+"%";
-    if (!skipHandler) MathJax.Extension.Collapse.resizeHandler({});
+    if (!skipHandler) MathJax.Extension.SemanticCollapse.resizeHandler({});
   },
   
   //
@@ -103,12 +103,12 @@ var Lab = {
   collapse: true,
   setCollapse: function (type,skipUpdate) {
     this.collapse = type;
-    MathJax.Extension.Collapse[type ? "Enable" : "Disable"]();
+    MathJax.Extension.SemanticCollapse[type ? "Enable" : "Disable"]();
     if (!skipUpdate) {
       MathJax.Hub.Queue(
         ["Reprocess",this.jax[1]],
         ["ShowMathML",this],
-        ["CollapseWideMath",MathJax.Extension.Collapse]
+        ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
       );
     }
   },
@@ -180,6 +180,17 @@ var Lab = {
   //
   Prev: function() {
     this.DirectSelect(this.Current - 1);
+  },
+  
+  //
+  //  Enable/Disable inputs
+  //
+  EnableInputs: function (enable) {
+    var INPUTS = ["input","select","textarea"];
+    for (var k = 0; k < INPUTS.length; k++) {
+      var inputs = document.getElementsByTagName(INPUTS[k]);
+      for (var i = 0, m = inputs.length; i < m; i++) inputs[i].disabled = !enable;
+    }
   }
 };
 
@@ -214,6 +225,7 @@ MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
 //
 //  Initialize everything once MathJax has run the first time
 //
+MathJax.Hub.Register.StartupHook("onLoad",[Lab.EnableInputs,false]);
 MathJax.Hub.Queue(function () {
   var defaults = [null,"0",
     String(Lab.defaults.width),
@@ -255,6 +267,7 @@ MathJax.Hub.Queue(function () {
   Lab.setExplorerOption("background", document.getElementById("background").value = defaults[8]);
   Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[9]);
   Lab.input.value = unescape(defaults[10]);
-  MathJax.Extension.Collapse.enableCollapse = Lab.defaults.enableCollapse;
+  MathJax.Extension.SemanticCollapse.config.disabled = !Lab.defaults.enableCollapse;
   if (Lab.input.value !== "") Lab.Typeset();
+  Lab.EnableInputs(true);
 });
