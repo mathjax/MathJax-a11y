@@ -8,12 +8,34 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
 
-  var LiveRegion = MathJax.Extension.LiveRegion = MathJax.Object.Subclass({
+  var Assistive = MathJax.Extension.Assistive = {
+    //
+    // Configurations.
+    //
+    config: {
+      walker: 'dummy',
+      highlight: 'none',
+      background: 'blue',
+      foreground: 'black',
+      speech: true,
+      subtitle: true
+    },
+
+    setOption: function(key, value) {
+      if (Assistive.config[key] === value) return;
+      Assistive.config[key] = value;
+      Explorer.Reset();
+    }
+  };
+  
+  var LiveRegion = MathJax.Object.Subclass({
     version: "1.0",
     
     div: null,
     Init: function() {
-      this.div = LiveRegion.Create('assertive');
+      this.div = LiveRegion.Create(
+          'assertive', Assistive.config.subtitle ? LiveRegion.subtitle :
+          LiveRegion.hidden);
     },
     //
     // Adds the speech div.
@@ -24,10 +46,24 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       LiveRegion.Announce();
     },
     //
+    // Adjusts the position of the live region.
+    //
+    Adjust: function(node) {
+      console.log(node.getBoundingClientRect().top);
+      var rect = node.getBoundingClientRect();
+      var bot = rect.bottom + 10 + window.pageYOffset;
+      var left = rect.left + window.pageXOffset;
+      this.div.style.top = bot + 'px';
+      this.div.style.left = left + 'px';
+      this.div.style.backgroundColor = 'white';
+    },
+    //
     // Clears the speech div.
     //
     Clear: function() {
       this.Update('');
+      this.div.style.top = '';
+      this.div.style.backgroundColor = '';
     },
     //
     // Speaks a string by poking it into the speech div.
@@ -40,6 +76,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     announced: false,
     hidden: {position: 'absolute', top:'0', height: '1px', width: '1px',
              padding: '1px', overflow: 'hidden'},
+    subtitle: {position: 'absolute', color:"blue",
+               width: 'auto', height: 'auto',
+               padding: '5px 0px', opacity: .9, 'z-index': '202',
+               left: 0, right: 0, 'margin': '0 auto'
+              },
 
     //
     // Creates a live region with a particular type and display style.
@@ -72,9 +113,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       setTimeout(function() {document.body.removeChild(div);}, 1000);
     }
   });
+  MathJax.Extension.Assistive.LiveRegion = LiveRegion;
   
-  
-  var Explorer = MathJax.Extension.Explorer = {
+  var Explorer = MathJax.Extension.Assistive.Explorer = {
     version: "1.0",
     
     liveRegion: LiveRegion(),
@@ -90,27 +131,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
        '.ogg' : '.mp3'),
     focusEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
     //
-    // Configurations.
-    //
-    config: {
-      walker: 'dummy',
-      highlight: 'none',
-      background: 'blue',
-      foreground: 'black',
-      speech: true
-    },
-
-    setExplorerOption: function(key, value) {
-      if (Explorer.config[key] === value) return;
-      Explorer.config[key] = value;
-      Explorer.Reset();
-    },
-    //
     // Resets the explorer, rerunning methods not triggered by events.
     //
     Reset: function() {
       Explorer.FlameEnriched();
-      sre.Engine.getInstance().mathmlSpeech = Explorer.config.speech;
+      sre.Engine.getInstance().mathmlSpeech = Assistive.config.speech;
     },
     //
     // Registers new Maths and adds a key event if it is enriched.
@@ -194,8 +219,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     GetHighlighter: function(alpha) {
       Explorer.highlighter = sre.HighlighterFactory.highlighter(
-        {color: Explorer.config.background, alpha: alpha},
-        {color: Explorer.config.foreground, alpha: 1},
+        {color: Assistive.config.background, alpha: alpha},
+        {color: Assistive.config.foreground, alpha: 1},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
          browser: MathJax.Hub.Browser.name}
       );
@@ -213,8 +238,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       );
     },
     MouseOver: function(event) {
-      if (Explorer.config.highlight === 'none') return;
-      if (Explorer.config.highlight === 'hover') {
+      if (Assistive.config.highlight === 'none') return;
+      if (Assistive.config.highlight === 'hover') {
         var frame = event.currentTarget;
         Explorer.GetHighlighter(.1);
         Explorer.highlighter.highlight([frame]);
@@ -234,7 +259,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Flame: function(node) {
       Explorer.UnFlame(node);
-      if (Explorer.config.highlight === 'flame') {
+      if (Assistive.config.highlight === 'flame') {
         Explorer.GetHighlighter(.05);
         Explorer.highlighter.highlightAll(node);
         Explorer.flamer = true;
@@ -262,11 +287,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     ActivateWalker: function(math) {
       var speechGenerator = new sre.DirectSpeechGenerator();
-      var constructor = Explorer.Walkers[Explorer.config.walker] ||
+      var constructor = Explorer.Walkers[Assistive.config.walker] ||
             Explorer.Walkers['dummy'];
       Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
+      Explorer.liveRegion.Adjust(math);
       Explorer.liveRegion.Update(Explorer.walker.speech());
       Explorer.Highlight();
     },
@@ -305,7 +331,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     }
   };
 
-  MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Explorer]);
+  MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
 
   MathJax.Hub.Startup.signal.Post("Explorer Ready");
 });

@@ -14,8 +14,8 @@ var Lab = {
     background: "blue",
     foreground: "black"
   },
-  // The explorer extension
-  EXPLORER: null,
+  // The assistive extension
+  ASSISTIVE: null,
   //
   //  The TeX code for the examples menu
   //
@@ -48,10 +48,10 @@ var Lab = {
       String(window.location).replace(/\?.*/,"")+"?"
         +[this.example.value, this.width.value, this.renderer.value,
           this.collapse, this.overflow,
-          Lab.EXPLORER.config.walker,
-          Lab.EXPLORER.config.highlight,
-          Lab.EXPLORER.config.background,
-          Lab.EXPLORER.config.foreground,
+          Lab.ASSISTIVE.config.walker,
+          Lab.ASSISTIVE.config.highlight,
+          Lab.ASSISTIVE.config.background,
+          Lab.ASSISTIVE.config.foreground,
           ""].join(';')
         +escape(this.input.value);
   },
@@ -144,9 +144,9 @@ var Lab = {
   //
   explorerOptions: [],
   executeExplorerOptions: function() {
-    while (Lab.EXPLORER && Lab.explorerOptions.length > 0) {
-      Lab.EXPLORER.setExplorerOption.apply(Lab.EXPLORER,
-                                           Lab.explorerOptions.pop());
+    while (Lab.ASSISTIVE && Lab.explorerOptions.length > 0) {
+      Lab.ASSISTIVE.setOption.apply(Lab.ASSISTIVE,
+                                    Lab.explorerOptions.pop());
     }
   },
   setExplorerOption: function(key, value) {
@@ -204,7 +204,7 @@ MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 //
 MathJax.Hub.Register.StartupHook("Explorer Ready",
                                  function() {
-                                   Lab.EXPLORER = MathJax.Extension.Explorer;
+                                   Lab.ASSISTIVE = MathJax.Extension.Assistive;
                                    Lab.executeExplorerOptions();
                                  });
 
