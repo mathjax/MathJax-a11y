@@ -3,6 +3,8 @@
 //
 MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   var FALSE, KEY;
+  var SETTINGS = MathJax.Hub.config.menuSettings;
+
   MathJax.Hub.Register.StartupHook('MathEvents Ready', function() {
     FALSE = MathJax.Extension.MathEvents.Event.False;
     KEY = MathJax.Extension.MathEvents.Event.KEY;
@@ -10,9 +12,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
   var Assistive = MathJax.Extension.Assistive = {
     //
-    // Configurations.
+    // Default configurations.
     //
-    config: {
+    default: {
       walker: 'dummy',
       highlight: 'none',
       background: 'blue',
@@ -20,27 +22,27 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       speech: true,
       subtitle: true
     },
-
+    prefix: 'Assistive-',
+    
     addMenuOption: function(key, value) {
-      MathJax.Hub.config.menuSettings['Assistive-' + key] = value;      
+      SETTINGS[Assistive.prefix + key] = value;      
     },
 
-    addMenuOptions: function() {
-      for (var key in Assistive.config) {
-        Assistive.addMenuOption(key, Assistive.config[key]);
+    addDefaults: function() {
+      for (var key in Assistive.default) {
+        Assistive.addMenuOption(key, Assistive.default[key]);
       }
+      Explorer.Reset();
     },
 
     setOption: function(key, value) {
-      if (Assistive.config[key] === value) return;
-      Assistive.config[key] = value;
+      if (SETTINGS[Assistive.prefix + key] === value) return;
       Assistive.addMenuOption(key, value);
       Explorer.Reset();
     },
 
     getOption: function(key) {
-      var value = MathJax.Hub.config.menuSettings['Assistive-' + key];
-      return (typeof(value) !== 'undefined') ? value : Assistive.config[key]; 
+      return SETTINGS[Assistive.prefix + key];
     }
     
   };
@@ -365,9 +367,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     }
   };
 
+  MathJax.Extension.Assistive.addDefaults();
+
   MathJax.Hub.Register.StartupHook('MathMenu Ready', function() {
     var ITEM = MathJax.Menu.ITEM;
-    MathJax.Extension.Assistive.addMenuOptions();
     var accessibiltyMenu =
           ITEM.SUBMENU(['Accessibility', 'Accessibilty'],
               ITEM.SUBMENU(['Walker', 'Walker'],
@@ -406,7 +409,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                       );
     MathJax.Menu.menu.items.push(ITEM.RULE());
     MathJax.Menu.menu.items.push(accessibiltyMenu);
-    Explorer.Reset();
   });
 
   MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
