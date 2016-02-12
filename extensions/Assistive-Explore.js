@@ -411,8 +411,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               ITEM.CHECKBOX(['Speech', 'Speech Output'], 'Assistive-speech'),
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle')
                       );
-    MathJax.Menu.menu.items.push(ITEM.RULE());
-    MathJax.Menu.menu.items.push(accessibiltyMenu);
+    // Attaches the menu;
+    var about = MathJax.Menu.menu.IndexOfId('About');
+    if (about === null) {
+      MathJax.Menu.menu.items.push(ITEM.RULE());
+      MathJax.Menu.menu.items.push(accessibiltyMenu);
+      return;
+    }
+    MathJax.Menu.menu.items.splice(about, 0, ITEM.RULE());
+    MathJax.Menu.menu.items.splice(about, 0, accessibiltyMenu);
   });
 
   MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
