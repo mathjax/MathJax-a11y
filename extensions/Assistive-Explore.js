@@ -20,7 +20,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       background: 'blue',
       foreground: 'black',
       speech: true,
-      subtitle: true,
+      subtitle: false,
       // Configuration option only.
       generateSpeech: true
     },
