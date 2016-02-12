@@ -214,9 +214,18 @@ MathJax.Hub.Register.StartupHook("Explorer Ready",
 MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
   MathJax.Extension.MathMenu.signal.Interest(function (message) {
     if (message[0] === "radio button") {
-      var renderer = message[1].value;
-      if (String(renderer).match(/^(HTML-CSS|CommonHTML|PreviewHTML|NativeMML|SVG)$/)) {
-        Lab.renderer.value = renderer;
+      var value = message[1].value;
+      if (String(value).match(/^(HTML-CSS|CommonHTML|PreviewHTML|NativeMML|SVG)$/)) {
+        Lab.renderer.value = value;
+        return;
+      }
+      var variable = message[1].variable;
+      if (String(variable).match(/^Assistive-/)) {
+        var key = String(variable).replace('Assistive-', '');
+        var element = document.getElementById(key);
+        if (element) {
+          element.value = value;
+        }
       }
     }
   });
