@@ -378,13 +378,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     var accessibiltyMenu =
           ITEM.SUBMENU(['Accessibility', 'Accessibilty'],
               ITEM.SUBMENU(['Walker', 'Walker'],
-                  ITEM.RADIO(['dummy', 'Dummy walker'], 'Assistive-walker', {action: Explorer.Reset}),
-                  ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker', {action: Explorer.Reset}),
-                  ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker', {action: Explorer.Reset})
+                  ITEM.RADIO(['dummy', 'Dummy walker'], 'Assistive-walker'),
+                  ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
+                  ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
                           ),
               ITEM.SUBMENU(['Highlight', 'Highlight'],
-                           ITEM.RADIO(['none', 'None'], 'Assistive-highlight', {action: Explorer.Reset}),
-                           ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', {action: Explorer.Reset}),
+                           ITEM.RADIO(['none', 'None'], 'Assistive-highlight'),
+                           ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight'),
                            ITEM.RADIO(['flame','Flame'], 'Assistive-highlight', {action: Explorer.Reset})
                           ),
               ITEM.SUBMENU(['Background', 'Background'],
@@ -408,8 +408,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                            ITEM.RADIO(['blue','Blue'], 'Assistive-foreground', {action: Explorer.Reset})
                           ),
               ITEM.RULE(),
-              ITEM.CHECKBOX(['Speech', 'Speech Output'], 'Assistive-speech', {action: Explorer.Reset}),
-              ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle', {action: Explorer.Reset})
+              ITEM.CHECKBOX(['Speech', 'Speech Output'], 'Assistive-speech'),
+              ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle')
                       );
     MathJax.Menu.menu.items.push(ITEM.RULE());
     MathJax.Menu.menu.items.push(accessibiltyMenu);
