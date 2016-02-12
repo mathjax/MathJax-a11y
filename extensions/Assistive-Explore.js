@@ -21,21 +21,38 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       subtitle: true
     },
 
+    addMenuOption: function(key, value) {
+      MathJax.Hub.config.menuSettings['Assistive-' + key] = value;      
+    },
+
+    addMenuOptions: function() {
+      for (var key in Assistive.config) {
+        Assistive.addMenuOption(key, Assistive.config[key]);
+      }
+    },
+
     setOption: function(key, value) {
       if (Assistive.config[key] === value) return;
       Assistive.config[key] = value;
+      Assistive.addMenuOption(key, value);
       Explorer.Reset();
+    },
+
+    getOption: function(key) {
+      var value = MathJax.Hub.config.menuSettings['Assistive-' + key];
+      return (typeof(value) !== 'undefined') ? value : Assistive.config[key]; 
     }
+    
   };
   
   var LiveRegion = MathJax.Object.Subclass({
     version: "1.0",
     
     div: null,
+    inner: null,
     Init: function() {
-      this.div = LiveRegion.Create(
-          'assertive', Assistive.config.subtitle ? LiveRegion.subtitle :
-          LiveRegion.hidden);
+      this.div = LiveRegion.Create('assertive', LiveRegion.hidden);
+      this.inner = MathJax.HTML.addElement(this.div,'div');
     },
     //
     // Adds the speech div.
@@ -46,40 +63,54 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       LiveRegion.Announce();
     },
     //
-    // Adjusts the position of the live region.
+    // Shows the live region as a subtitle of a node.
     //
-    Adjust: function(node) {
-      console.log(node.getBoundingClientRect().top);
+    Show: function(node, highlighter) {
+      for (var key in LiveRegion.subtitle) {
+        this.div.style[key] = LiveRegion.subtitle[key];
+      }
       var rect = node.getBoundingClientRect();
       var bot = rect.bottom + 10 + window.pageYOffset;
       var left = rect.left + window.pageXOffset;
       this.div.style.top = bot + 'px';
       this.div.style.left = left + 'px';
-      this.div.style.backgroundColor = 'white';
+      var color = highlighter.colorString();
+      this.inner.style.backgroundColor = color.background;
+      this.inner.style.color = color.foreground;
+    },
+    //
+    // Takes the live region out of the page flow.
+    //
+    Hide: function(node) {
+      for (var key in LiveRegion.hidden) {
+        this.div.style[key] = LiveRegion.hidden[key];
+      }
     },
     //
     // Clears the speech div.
     //
     Clear: function() {
       this.Update('');
-      this.div.style.top = '';
-      this.div.style.backgroundColor = '';
+      this.inner.style.top = '';
+      this.inner.style.backgroundColor = '';
     },
     //
     // Speaks a string by poking it into the speech div.
     //
     Update: function(speech) {
-      LiveRegion.Update(this.div, speech);
+      if (Assistive.getOption('speech')) {
+        LiveRegion.Update(this.inner, speech);
+      }
     }
   }, {
     ANNOUNCE: 'Navigatable Math in page. Explore with shift space.',
     announced: false,
     hidden: {position: 'absolute', top:'0', height: '1px', width: '1px',
              padding: '1px', overflow: 'hidden'},
-    subtitle: {position: 'absolute', color:"blue",
-               width: 'auto', height: 'auto',
-               padding: '5px 0px', opacity: .9, 'z-index': '202',
-               left: 0, right: 0, 'margin': '0 auto'
+    subtitle: {position: 'absolute', width: 'auto', height: 'auto',
+               padding: '5px 0px', opacity: 1, 'z-index': '202',
+               left: 0, right: 0, 'margin': '0 auto',
+               backgroundColor: 'white'
               },
 
     //
@@ -135,7 +166,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Reset: function() {
       Explorer.FlameEnriched();
-      sre.Engine.getInstance().mathmlSpeech = Assistive.config.speech;
+      sre.Engine.getInstance().speech = Assistive.getOption('speech');
     },
     //
     // Registers new Maths and adds a key event if it is enriched.
@@ -219,8 +250,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     GetHighlighter: function(alpha) {
       Explorer.highlighter = sre.HighlighterFactory.highlighter(
-        {color: Assistive.config.background, alpha: alpha},
-        {color: Assistive.config.foreground, alpha: 1},
+        {color: Assistive.getOption('background'), alpha: alpha},
+        {color: Assistive.getOption('foreground'), alpha: 1},
         {renderer: MathJax.Hub.outputJax['jax/mml'][0].id,
          browser: MathJax.Hub.Browser.name}
       );
@@ -238,8 +269,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       );
     },
     MouseOver: function(event) {
-      if (Assistive.config.highlight === 'none') return;
-      if (Assistive.config.highlight === 'hover') {
+      if (Assistive.getOption('highlight') === 'none') return;
+      if (Assistive.getOption('highlight') === 'hover') {
         var frame = event.currentTarget;
         Explorer.GetHighlighter(.1);
         Explorer.highlighter.highlight([frame]);
@@ -259,7 +290,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Flame: function(node) {
       Explorer.UnFlame(node);
-      if (Assistive.config.highlight === 'flame') {
+      if (Assistive.getOption('highlight') === 'flame') {
         Explorer.GetHighlighter(.05);
         Explorer.highlighter.highlightAll(node);
         Explorer.flamer = true;
@@ -287,12 +318,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     ActivateWalker: function(math) {
       var speechGenerator = new sre.DirectSpeechGenerator();
-      var constructor = Explorer.Walkers[Assistive.config.walker] ||
+      var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
       Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
-      Explorer.liveRegion.Adjust(math);
+      if (Assistive.getOption('subtitle')) {
+        Explorer.liveRegion.Show(math, Explorer.highlighter);
+      }
       Explorer.liveRegion.Update(Explorer.walker.speech());
       Explorer.Highlight();
     },
@@ -301,6 +334,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     DeactivateWalker: function() {
       Explorer.liveRegion.Clear();
+      Explorer.liveRegion.Hide();
       Explorer.Unhighlight();
       Explorer.currentHighlight = null;
       Explorer.walker.deactivate();
@@ -330,6 +364,50 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       audio.play();
     }
   };
+
+  MathJax.Hub.Register.StartupHook('MathMenu Ready', function() {
+    var ITEM = MathJax.Menu.ITEM;
+    MathJax.Extension.Assistive.addMenuOptions();
+    var accessibiltyMenu =
+          ITEM.SUBMENU(['Accessibility', 'Accessibilty'],
+              ITEM.SUBMENU(['Walker', 'Walker'],
+                  ITEM.RADIO(['dummy', 'Dummy walker'], 'Assistive-walker', {action: Explorer.Reset}),
+                  ITEM.RADIO(['syntax', 'Syntax walker'], 'Assistive-walker', {action: Explorer.Reset}),
+                  ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker', {action: Explorer.Reset})
+                          ),
+              ITEM.SUBMENU(['Highlight', 'Highlight'],
+                           ITEM.RADIO(['none', 'None'], 'Assistive-highlight', {action: Explorer.Reset}),
+                           ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', {action: Explorer.Reset}),
+                           ITEM.RADIO(['flame','Flame'], 'Assistive-highlight', {action: Explorer.Reset})
+                          ),
+              ITEM.SUBMENU(['Background', 'Background'],
+                           ITEM.RADIO(['blue','Blue'], 'Assistive-background', {action: Explorer.Reset}),
+                           ITEM.RADIO(['red','Red'], 'Assistive-background', {action: Explorer.Reset}),
+                           ITEM.RADIO(['green','Green'], 'Assistive-background', {action: Explorer.Reset}),
+                           ITEM.RADIO(['yellow','Yellow'], 'Assistive-background', {action: Explorer.Reset}),
+                           ITEM.RADIO(['cyan','Cyan'], 'Assistive-background', {action: Explorer.Reset}),
+                           ITEM.RADIO(['magenta','Magenta'], 'Assistive-background', {action: Explorer.Reset}),
+                           ITEM.RADIO(['white','White'], 'Assistive-background', {action: Explorer.Reset}),
+                           ITEM.RADIO(['black','Black'], 'Assistive-background', {action: Explorer.Reset})
+                          ),
+              ITEM.SUBMENU(['Foreground', 'Foreground'],
+                           ITEM.RADIO(['black','Black'], 'Assistive-foreground', {action: Explorer.Reset}),
+                           ITEM.RADIO(['white','White'], 'Assistive-foreground', {action: Explorer.Reset}),
+                           ITEM.RADIO(['magenta','Magenta'], 'Assistive-foreground', {action: Explorer.Reset}),
+                           ITEM.RADIO(['cyan','Cyan'], 'Assistive-foreground', {action: Explorer.Reset}),
+                           ITEM.RADIO(['yellow','Yellow'], 'Assistive-foreground', {action: Explorer.Reset}),
+                           ITEM.RADIO(['green','Green'], 'Assistive-foreground', {action: Explorer.Reset}),
+                           ITEM.RADIO(['red','Red'], 'Assistive-foreground', {action: Explorer.Reset}),
+                           ITEM.RADIO(['blue','Blue'], 'Assistive-foreground', {action: Explorer.Reset})
+                          ),
+              ITEM.RULE(),
+              ITEM.CHECKBOX(['Speech', 'Speech Output'], 'Assistive-speech', {action: Explorer.Reset}),
+              ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle', {action: Explorer.Reset})
+                      );
+    MathJax.Menu.menu.items.push(ITEM.RULE());
+    MathJax.Menu.menu.items.push(accessibiltyMenu);
+    Explorer.Reset();
+  });
 
   MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
 
