@@ -20,7 +20,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       background: 'blue',
       foreground: 'black',
       speech: true,
-      subtitle: true
+      subtitle: true,
+      // Configuration option only.
+      generateSpeech: true
     },
     prefix: 'Assistive-',
     
@@ -30,7 +32,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
     addDefaults: function() {
       for (var key in Assistive.default) {
-        Assistive.addMenuOption(key, Assistive.default[key]);
+        if (typeof(SETTINGS[Assistive.prefix + key]) === 'undefined') {
+          Assistive.addMenuOption(key, Assistive.default[key]);
+        }
       }
       Explorer.Reset();
     },
@@ -168,7 +172,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Reset: function() {
       Explorer.FlameEnriched();
-      sre.Engine.getInstance().speech = Assistive.getOption('speech');
+      sre.Engine.getInstance().speech = Assistive.getOption('generateSpeech');
     },
     //
     // Registers new Maths and adds a key event if it is enriched.
@@ -375,7 +379,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           ITEM.SUBMENU(['Accessibility', 'Accessibilty'],
               ITEM.SUBMENU(['Walker', 'Walker'],
                   ITEM.RADIO(['dummy', 'Dummy walker'], 'Assistive-walker', {action: Explorer.Reset}),
-                  ITEM.RADIO(['syntax', 'Syntax walker'], 'Assistive-walker', {action: Explorer.Reset}),
+                  ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker', {action: Explorer.Reset}),
                   ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker', {action: Explorer.Reset})
                           ),
               ITEM.SUBMENU(['Highlight', 'Highlight'],
