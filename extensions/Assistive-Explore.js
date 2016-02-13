@@ -11,6 +11,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   var Assistive = MathJax.Extension.Assistive = {
+    version: "1.0",
     //
     // Default configurations.
     //
@@ -52,8 +53,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   };
   
   var LiveRegion = MathJax.Object.Subclass({
-    version: "1.0",
-    
     div: null,
     inner: null,
     Init: function() {
@@ -153,8 +152,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   MathJax.Extension.Assistive.LiveRegion = LiveRegion;
   
   var Explorer = MathJax.Extension.Assistive.Explorer = {
-    version: "1.0",
-    
     liveRegion: LiveRegion(),
     walker: null,
     highlighter: null,
