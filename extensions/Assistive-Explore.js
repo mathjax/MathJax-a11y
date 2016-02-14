@@ -159,10 +159,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     flamer: null,
     speechDiv: null,
     enriched: {},
-    earconFile: location.protocol +
-      '//progressiveaccess.com/content/invalid_keypress' +
-      (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
-       '.ogg' : '.mp3'),
+    earconFile: MathJax.Ajax.config.path.SRE + '/content/invalid_keypress' +
+                  (MathJax.Hub.Browser.isMSIE ? '.ogg' : '.mp3'),
     focusEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
     //
     // Resets the explorer, rerunning methods not triggered by events.
@@ -207,15 +205,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
         if (math) {
           math.onkeydown = Explorer.Keydown;
-          math.addEventListener(
-            Explorer.focusEvent,
-            function(event) {
-              if (Explorer.walker) Explorer.DeactivateWalker();
-            });
+          math.addEventListener(Explorer.focusEvent, Explorer.focusHandler);
           return;
         }
       }
       MathJax.Hub.Queue(['AddEvent', Explorer, script]);
+    },
+    focusHandler: function (event) {
+      if (Explorer.walker) Explorer.DeactivateWalker();
     },
     //
     // Event execution on keydown. Subsumes the same method of MathEvents.
@@ -224,8 +221,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (event.keyCode === KEY.ESCAPE) {
         if (!Explorer.walker) return;
         Explorer.DeactivateWalker();
-        FALSE(event);
-        return;
+        return FALSE(event);
       }
       // If walker is active we redirect there.
       if (Explorer.walker && Explorer.walker.isActive()) {
@@ -237,8 +233,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         } else {
           Explorer.PlayEarcon();
         }
-        FALSE(event);
-        return;
+        return FALSE(event);
       }
       var math = event.target;
       if (event.keyCode === KEY.SPACE) {
@@ -247,8 +242,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         } else {
           MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
         }
-        FALSE(event);
-        return;
+        return FALSE(event);
       }
     },
     GetHighlighter: function(alpha) {
@@ -279,14 +273,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.highlighter.highlight([frame]);
         Explorer.hoverer = true;
       }
-      MathJax.Extension.MathEvents.Event.False(event);
+      return FALSE(event);
     },
     MouseOut: function (event) {
       if (Explorer.hoverer) {
         Explorer.highlighter.unhighlight();
         Explorer.hoverer = false;
       }
-      return MathJax.Extension.MathEvents.Event.False(event);
+      return FALSE(event);
     },
     //
     // Activates Flaming
@@ -297,7 +291,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.GetHighlighter(.05);
         Explorer.highlighter.highlightAll(node);
         Explorer.flamer = true;
-        return;
       }
     },
     UnFlame: function(node) {
