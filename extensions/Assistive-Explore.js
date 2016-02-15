@@ -32,7 +32,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
 
     addDefaults: function() {
-      for (var key in Assistive.default) {
+      for (var key in Object.keys(Assistive.default)) {
         if (typeof(SETTINGS[Assistive.prefix + key]) === 'undefined') {
           Assistive.addMenuOption(key, Assistive.default[key]);
         }
@@ -328,10 +328,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(math, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
-      if (Assistive.getOption('subtitle')) {
-        Explorer.liveRegion.Show(math, Explorer.highlighter);
+      if (Assistive.getOption('generateSpeech') &&
+          Assistive.getOption('speech')) {
+        if (Assistive.getOption('subtitle')) {
+          Explorer.liveRegion.Show(math, Explorer.highlighter);
+        }
+        Explorer.liveRegion.Update(Explorer.walker.speech());
       }
-      Explorer.liveRegion.Update(Explorer.walker.speech());
       Explorer.Highlight();
     },
     //
@@ -367,6 +370,25 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     PlayEarcon: function() {
       var audio = new Audio(Explorer.earconFile);
       audio.play();
+    },
+    //
+    // Regenerates speech.
+    //
+    Regenerate: function() {
+      var speechItems = ['SpeechOutput', 'Subtitles'];
+      speechItems.forEach(
+        function(x) {
+          var item = MathJax.Menu.menu.FindId('Accessibility', x);
+          if (item) {
+            item.disabled = !item.disabled;
+          }});
+      for (var jax in MathJax.Hub.getAllJax()) {
+        if (jax.enriched) {
+          // This does not yet work!
+          MathJax.Extension.SemanticMathML(jax); 
+          MathJax.Hub.Reprocess(jax); 
+        }
+      }
     }
   };
 
@@ -406,9 +428,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                            ITEM.RADIO(['red','Red'], 'Assistive-foreground', {action: Explorer.Reset}),
                            ITEM.RADIO(['blue','Blue'], 'Assistive-foreground', {action: Explorer.Reset})
                           ),
-              ITEM.RULE(),
-              ITEM.CHECKBOX(['Speech', 'Speech Output'], 'Assistive-speech'),
-              ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle')
+                       ITEM.RULE(),
+                       ITEM.CHECKBOX(['GenerateSpeech', 'Generate Speech'], 'Assistive-generateSpeech',
+                                     {action: Explorer.Regenerate}),
+                       ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech',
+                                     {disabled: !SETTINGS['Assistive-generateSpeech']}),
+                       ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
+                                     {disabled: !SETTINGS['Assistive-generateSpeech']})
                       );
     // Attaches the menu;
     var about = MathJax.Menu.menu.IndexOfId('About');
