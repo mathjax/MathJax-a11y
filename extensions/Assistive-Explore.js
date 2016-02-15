@@ -160,7 +160,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     hoverer: null,
     flamer: null,
     speechDiv: null,
-    enriched: {},
     earconFile: location.protocol +
       '//progressiveaccess.com/content/invalid_keypress' +
       (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
@@ -181,7 +180,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (script && script.id) {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
-          Explorer.enriched[script.id] = script;
           Explorer.liveRegion.Add();
           Explorer.AddEvent(script);
         }
@@ -309,8 +307,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     },
     FlameEnriched: function() {
-      for (var key in Explorer.enriched) {
-        Explorer.Flame(Explorer.enriched[key].previousSibling);
+      for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
+        Explorer.Flame(document.getElementById(jax.inputID).previousSibling);
       }
     },
     // 
@@ -382,7 +380,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           if (item) {
             item.disabled = !item.disabled;
           }});
-      for (var jax in MathJax.Hub.getAllJax()) {
+      for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
         if (jax.enriched) {
           // This does not yet work!
           MathJax.Extension.SemanticMathML(jax); 
@@ -404,8 +402,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                   ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
                           ),
               ITEM.SUBMENU(['Highlight', 'Highlight'],
-                           ITEM.RADIO(['none', 'None'], 'Assistive-highlight'),
-                           ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight'),
+                           ITEM.RADIO(['none', 'None'], 'Assistive-highlight', {action: Explorer.Reset}),
+                           ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', {action: Explorer.Reset}),
                            ITEM.RADIO(['flame','Flame'], 'Assistive-highlight', {action: Explorer.Reset})
                           ),
               ITEM.SUBMENU(['Background', 'Background'],
