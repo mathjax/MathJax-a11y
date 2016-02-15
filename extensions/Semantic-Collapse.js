@@ -146,16 +146,11 @@
     //  MathJax internal format, with collapsing).
     //
     Filter: function (jax,id,script) {
-      if (jax.enriched &&
-             (jax.root.Get("display") === "block" ||
-              script.parentNode.childNodes.length <= 3)) {
-        if (jax.enriched.nodeName.toLowerCase() !== "math") {
-          var math = document.createElement("math");
-          math.appendChild(jax.enriched);
-          jax.enriched = math;
-        }
-        jax.root = this.MakeMML(jax.enriched);
-        jax.root.inputID = script.id;
+      if (!jax.enriched) { return; }
+      jax.root = this.MakeMML(jax.enriched);
+      jax.root.inputID = script.id;
+      if (jax.root.Get("display") === "block" ||
+          script.parentNode.childNodes.length <= 3) {
         jax.root.SRE = {action: this.Actions(jax.root)};
       }
     },
