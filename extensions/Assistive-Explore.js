@@ -374,10 +374,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
   MathJax.Hub.Register.StartupHook('MathMenu Ready', function() {
     var ITEM = MathJax.Menu.ITEM;
-    var accessibiltyMenu =
+    var accessibilityMenu =
           ITEM.SUBMENU(['Accessibility', 'Accessibilty'],
               ITEM.SUBMENU(['Walker', 'Walker'],
-                  ITEM.RADIO(['dummy', 'Dummy walker'], 'Assistive-walker'),
+                  ITEM.RADIO(['dummy', 'No walker'], 'Assistive-walker'),
                   ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
                   ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
                           ),
@@ -413,12 +413,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Attaches the menu;
     var about = MathJax.Menu.menu.IndexOfId('About');
     if (about === null) {
-      MathJax.Menu.menu.items.push(ITEM.RULE());
-      MathJax.Menu.menu.items.push(accessibiltyMenu);
+      MathJax.Menu.menu.items.push(ITEM.RULE(), accessibilityMenu);
       return;
     }
-    MathJax.Menu.menu.items.splice(about, 0, ITEM.RULE());
-    MathJax.Menu.menu.items.splice(about, 0, accessibiltyMenu);
+    MathJax.Menu.menu.items.splice(about, 0, accessibilityMenu, ITEM.RULE());
   });
 
   MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
