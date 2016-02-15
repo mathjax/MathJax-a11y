@@ -56,7 +56,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     div: null,
     inner: null,
     Init: function() {
-      this.div = LiveRegion.Create('assertive', LiveRegion.hidden);
+      this.div = LiveRegion.Create('assertive');
       this.inner = MathJax.HTML.addElement(this.div,'div');
     },
     //
@@ -71,9 +71,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Shows the live region as a subtitle of a node.
     //
     Show: function(node, highlighter) {
-      for (var key in LiveRegion.subtitle) {
-        this.div.style[key] = LiveRegion.subtitle[key];
-      }
+      this.div.classList.add('MJX_LiveRegion_Show');
       var rect = node.getBoundingClientRect();
       var bot = rect.bottom + 10 + window.pageYOffset;
       var left = rect.left + window.pageXOffset;
@@ -87,9 +85,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Takes the live region out of the page flow.
     //
     Hide: function(node) {
-      for (var key in LiveRegion.hidden) {
-        this.div.style[key] = LiveRegion.hidden[key];
-      }
+      this.div.classList.remove('MJX_LiveRegion_Show');
     },
     //
     // Clears the speech div.
@@ -110,20 +106,25 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   }, {
     ANNOUNCE: 'Navigatable Math in page. Explore with shift space.',
     announced: false,
-    hidden: {position: 'absolute', top:'0', height: '1px', width: '1px',
-             padding: '1px', overflow: 'hidden'},
-    subtitle: {position: 'absolute', width: 'auto', height: 'auto',
-               padding: '5px 0px', opacity: 1, 'z-index': '202',
+    styles: {'.MJX_LiveRegion':
+             {
+               position: 'absolute', top:'0', height: '1px', width: '1px',
+               padding: '1px', overflow: 'hidden'
+             },
+             '.MJX_LiveRegion_Show':
+             {
+               top:'0', position: 'absolute', width: 'auto', height: 'auto',
+               padding: '0px 0px', opacity: 1, 'z-index': '202',
                left: 0, right: 0, 'margin': '0 auto',
-               backgroundColor: 'white'
-              },
-
+               'background-color': 'white', 'box-shadow': '0px 10px 20px #888',
+               border: '2px solid #CCCCCC'
+             }},
     //
-    // Creates a live region with a particular type and display style.
+    // Creates a live region with a particular type.
     //
-    Create: function(type, style) {
+    Create: function(type) {
       var element = MathJax.HTML.Element(
-        'div', {className: 'MathJax_SpeechOutput', style: style});
+        'div', {className: 'MJX_LiveRegion'});
       element.setAttribute('aria-live', type);
       return element;
     },
@@ -143,7 +144,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     Announce: function() {
       if (LiveRegion.announced) return;
       LiveRegion.announced = true;
-      var div = LiveRegion.Create('polite', LiveRegion.hidden);
+      MathJax.Ajax.Styles(LiveRegion.styles);
+      var div = LiveRegion.Create('polite');
       document.body.appendChild(div);
       LiveRegion.Update(div, LiveRegion.ANNOUNCE);
       setTimeout(function() {document.body.removeChild(div);}, 1000);
