@@ -216,14 +216,14 @@ MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
     if (message[0] === "radio button") {
       var variable = message[1].variable;
       if (variable === 'renderer') {
-        Lab.renderer.value = value;
+        Lab.renderer.value = message[1].value;
         return;
       }
       if (String(variable).match(/^Assistive-/)) {
         var key = String(variable).replace('Assistive-', '');
         var element = document.getElementById(key);
         if (element) {
-          element.value = value;
+          element.value = message[1].value;
         }
       }
     }
