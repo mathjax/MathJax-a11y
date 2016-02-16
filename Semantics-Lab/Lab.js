@@ -107,7 +107,6 @@ var Lab = {
     if (!skipUpdate) {
       MathJax.Hub.Queue(
         ["Reprocess",this.jax[1]],
-        ["ShowMathML",this],
         ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
       );
     }
@@ -207,6 +206,11 @@ MathJax.Hub.Register.StartupHook("Explorer Ready",
                                    Lab.ASSISTIVE = MathJax.Extension.Assistive;
                                    Lab.executeExplorerOptions();
                                  });
+
+//
+// Hook into reprocess as this can be also triggered from the menu.
+//
+MathJax.Hub.Register.MessageHook('End Reprocess', ['ShowMathML', Lab]);
 
 //
 //  Hook into menu renderer changes
