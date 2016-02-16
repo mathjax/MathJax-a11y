@@ -215,7 +215,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           return;
         }
       }
-      MathJax.Hub.Queue(['AddEvent', Explorer, script]);
     },
     //
     // Event execution on keydown. Subsumes the same method of MathEvents.
@@ -373,6 +372,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Regenerates speech.
     //
     Regenerate: function() {
+      Explorer.Reset();
       var speechItems = ['SpeechOutput', 'Subtitles'];
       speechItems.forEach(
         function(x) {
@@ -382,9 +382,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           }});
       for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
         if (jax.enriched) {
-          // This does not yet work!
-          MathJax.Extension.SemanticMathML(jax); 
-          MathJax.Hub.Reprocess(jax); 
+          MathJax.Hub.Queue(['Reprocess', jax]);
         }
       }
     }
