@@ -144,7 +144,7 @@ MathJax.Callback.Queue(
     //
     //  Install enrichment filter, and signal that we are ready.
     //
-    MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML]);
+    MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML],50);
     MathJax.Hub.Startup.signal.Post("Semantic MathML Ready");
   })
 );
