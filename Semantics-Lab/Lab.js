@@ -146,8 +146,7 @@ var Lab = {
     var jax = MathJax.Hub.getJaxFor(message[1]);
     if (jax.root.Get("display") === "block") {
       var div = jax.SourceElement().previousSibling;
-      div.style.overflow = "auto visible";
-      div.style.minHeight = (div.offsetHeight+1) + "px"; // force height to be big enough
+      div.style.overflowX = "auto";
     }
   },
   
