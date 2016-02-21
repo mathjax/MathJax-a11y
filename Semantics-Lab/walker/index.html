@@ -20,7 +20,7 @@
   <script src="../Lab.js"></script>
   <script src="../Lab-Defaults.js"></script>
   <script>
-  Lab.defaults.enableCollapse = false;
+  Lab.defaults.enhance = "complexity";
   </script>
   <script>
     Lab.Examples = [
@@ -69,17 +69,21 @@
 
         <span style="display:none;">
           <label>
-            <input id="collapse" type="checkbox" onchange="Lab.setCollapse(this.checked)" />
-            <small>Collapse MathML</small>
+            <small>Add:</small>
+            <select id="enhance" onchange="Lab.setEnhance(this.value)">
+              <option value="none">No Enhancements</option>
+              <option value="enrich">Enriched MathML</option>
+              <option value="complexity">Complexity Actions</option>
+              <option value="collapse">Automatic Collapse</option>
+            </select>
           </label>
-          <br>
-
+          <br/>
 
           <label>
             <input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
-            <small>Scrolling overflow</small>
+            <small>Scrolling Overflow</small>
           </label>
-          <br>
+          <br/>
 
           <!-- <hr> -->
         </span>
@@ -138,7 +142,7 @@
 
         <label>
           <small>Renderer:</small>
-          <select id="renderer">
+          <select id="renderer" onchange="Lab.setRenderer(this.value)">
             <option value="CommonHTML">Common HTML</option>
             <option value="SVG">SVG</option>
             <!-- <option value="PreviewHTML">Preview HTML</option> -->
