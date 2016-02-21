@@ -23,9 +23,9 @@ var Lab = {
   //
   DOM: {},
   //
-  // The explorer extension
+  // The assistive extension
   //
-  EXPLORER: null,
+  ASSISTIVE: null,
   //
   //  The TeX code for the examples menu
   //
@@ -71,10 +71,10 @@ var Lab = {
           this.DOM.renderer.value,
           this.DOM.enhance.value,
           this.OPTION.overflow,
-          Lab.EXPLORER.config.walker,
-          Lab.EXPLORER.config.highlight,
-          Lab.EXPLORER.config.background,
-          Lab.EXPLORER.config.foreground,
+          Lab.ASSISTIVE.config.walker,
+          Lab.ASSISTIVE.config.highlight,
+          Lab.ASSISTIVE.config.background,
+          Lab.ASSISTIVE.config.foreground,
           ""].join(';')
         +escape(this.DOM.input.value);
   },
@@ -163,9 +163,9 @@ var Lab = {
   //
   explorerOptions: [],
   executeExplorerOptions: function() {
-    while (Lab.EXPLORER && Lab.explorerOptions.length > 0) {
-      Lab.EXPLORER.setExplorerOption.apply(Lab.EXPLORER,
-                                           Lab.explorerOptions.pop());
+    while (Lab.ASSISTIVE && Lab.explorerOptions.length > 0) {
+      Lab.ASSISTIVE.setOption.apply(Lab.ASSISTIVE,
+                                    Lab.explorerOptions.pop());
     }
   },
   setExplorerOption: function(key, value) {
@@ -248,17 +248,33 @@ MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 //
 MathJax.Hub.Register.StartupHook("Explorer Ready",
                                  function() {
-                                   Lab.EXPLORER = MathJax.Extension.Explorer;
+                                   Lab.ASSISTIVE = MathJax.Extension.Assistive;
                                    Lab.executeExplorerOptions();
                                  });
+
+//
+// Hook into reprocess as this can be also triggered from the menu.
+//
+MathJax.Hub.Register.MessageHook('End Reprocess', ['ShowMathML', Lab]);
 
 //
 //  Hook into menu renderer changes
 //
 MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
   MathJax.Extension.MathMenu.signal.Interest(function (message) {
-    if (message[0] === "radio button" && message[1].variable === "renderer") {
-      Lab.DOM.renderer.value = message[1].value;
+    if (message[0] === "radio button") {
+      var variable = message[1].variable;
+      if (variable === 'renderer') {
+        Lab.DOM.renderer.value = message[1].value;
+        return;
+      }
+      if (String(variable).match(/^Assistive-/)) {
+        var key = String(variable).replace('Assistive-', '');
+        var element = document.getElementById(key);
+        if (element) {
+          element.value = message[1].value;
+        }
+      }
     }
   });
 });
