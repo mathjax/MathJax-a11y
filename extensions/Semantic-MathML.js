@@ -140,13 +140,14 @@ MathJax.Callback.Queue(
         return TEXCLASS.apply(this,arguments);
       }
     });
-
+  }),
+  function () {
     //
     //  Install enrichment filter, and signal that we are ready.
     //
     MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML],50);
     MathJax.Hub.Startup.signal.Post("Semantic MathML Ready");
-  })
+  }
 );
 
 MathJax.Ajax.loadComplete("[RespEq]/Semantic-MathML.js");
