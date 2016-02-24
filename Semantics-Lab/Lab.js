@@ -14,8 +14,8 @@ var Lab = {
     background: "blue",
     foreground: "black"
   },
-  // The explorer extension
-  EXPLORER: null,
+  // The assistive extension
+  ASSISTIVE: null,
   //
   //  The TeX code for the examples menu
   //
@@ -48,10 +48,10 @@ var Lab = {
       String(window.location).replace(/\?.*/,"")+"?"
         +[this.example.value, this.width.value, this.renderer.value,
           this.collapse, this.overflow,
-          Lab.EXPLORER.config.walker,
-          Lab.EXPLORER.config.highlight,
-          Lab.EXPLORER.config.background,
-          Lab.EXPLORER.config.foreground,
+          Lab.ASSISTIVE.config.walker,
+          Lab.ASSISTIVE.config.highlight,
+          Lab.ASSISTIVE.config.background,
+          Lab.ASSISTIVE.config.foreground,
           ""].join(';')
         +escape(this.input.value);
   },
@@ -107,7 +107,6 @@ var Lab = {
     if (!skipUpdate) {
       MathJax.Hub.Queue(
         ["Reprocess",this.jax[1]],
-        ["ShowMathML",this],
         ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
       );
     }
@@ -144,9 +143,9 @@ var Lab = {
   //
   explorerOptions: [],
   executeExplorerOptions: function() {
-    while (Lab.EXPLORER && Lab.explorerOptions.length > 0) {
-      Lab.EXPLORER.setExplorerOption.apply(Lab.EXPLORER,
-                                           Lab.explorerOptions.pop());
+    while (Lab.ASSISTIVE && Lab.explorerOptions.length > 0) {
+      Lab.ASSISTIVE.setOption.apply(Lab.ASSISTIVE,
+                                    Lab.explorerOptions.pop());
     }
   },
   setExplorerOption: function(key, value) {
@@ -204,9 +203,14 @@ MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 //
 MathJax.Hub.Register.StartupHook("Explorer Ready",
                                  function() {
-                                   Lab.EXPLORER = MathJax.Extension.Explorer;
+                                   Lab.ASSISTIVE = MathJax.Extension.Assistive;
                                    Lab.executeExplorerOptions();
                                  });
+
+//
+// Hook into reprocess as this can be also triggered from the menu.
+//
+MathJax.Hub.Register.MessageHook('End Reprocess', ['ShowMathML', Lab]);
 
 //
 //  Hook into menu renderer changes
@@ -214,9 +218,17 @@ MathJax.Hub.Register.StartupHook("Explorer Ready",
 MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
   MathJax.Extension.MathMenu.signal.Interest(function (message) {
     if (message[0] === "radio button") {
-      var renderer = message[1].value;
-      if (String(renderer).match(/^(HTML-CSS|CommonHTML|PreviewHTML|NativeMML|SVG)$/)) {
-        Lab.renderer.value = renderer;
+      var variable = message[1].variable;
+      if (variable === 'renderer') {
+        Lab.renderer.value = message[1].value;
+        return;
+      }
+      if (String(variable).match(/^Assistive-/)) {
+        var key = String(variable).replace('Assistive-', '');
+        var element = document.getElementById(key);
+        if (element) {
+          element.value = message[1].value;
+        }
       }
     }
   });
