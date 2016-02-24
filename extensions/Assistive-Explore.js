@@ -207,6 +207,21 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
         if (math) {
           math.onkeydown = Explorer.Keydown;
+          //
+          var speechGenerator = new sre.DirectSpeechGenerator();
+          var span = math.querySelector('.math');
+          if (span) {
+            var speech = speechGenerator.getSpeech(span);
+            if (speech) {
+              var descr = id + '-Descr';
+              math.setAttribute('aria-labelledby', descr);
+              var newSpan = MathJax.HTML.addElement(
+                document.body, 'div',
+                {id: descr, className: 'MJX_LiveRegion'});
+              newSpan.textContent = speech;
+            }
+          }
+          //
           math.addEventListener(
             Explorer.focusEvent,
             function(event) {
