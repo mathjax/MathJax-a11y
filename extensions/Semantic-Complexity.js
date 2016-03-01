@@ -1,8 +1,7 @@
 //
-//  A filter to convert the enhanced MathML to MathJax internal format
-//  so we can display it, while adding maction elements for parts that
-//  can be collapsed.  We determine this based on a "complexity" value
-//  and collapse those terms that exceed a given complexity.
+//  A filter to add maction elements to the enriched MathML for parts that
+//  can be collapsed.  We determine this based on a "complexity" value and
+//  collapse those terms that exceed a given complexity.
 //
 //  The parameters controlling the complexity measure still need work.
 //
@@ -127,8 +126,7 @@
     },
     
     //
-    //  The main filter (convert the enriched MathML to the
-    //  MathJax internal format, with collapsing).
+    //  The main filter:  add mactions for collapsing the math.
     //
     Filter: function (jax,id,script) {
       if (!jax.enriched || this.config.disabled) return;
@@ -172,8 +170,7 @@
           attrNames: [], attr: {}
         });
         mrow.attrNames.push("complexity");
-        for (var i = mml.attrNames.length-1; i >= 0; i--) {
-          var name = mml.attrNames[i];
+        for (var i = mml.attrNames.length-1, name; name = mml.attrNames[i]; i--) {
           if (name.substr(0,14) === "data-semantic-") {
             mrow.attr[name] = mml.attr[name];
             mrow.attrNames.push(name);
@@ -228,7 +225,7 @@
     //
     UncollapseChild: function (mml,n,m) {
       if (m == null) m = 1;
-      if (mml.attr["data-semantic-children"].split(/,/).length === m) {
+      if (this.SplitAttribute(mml,"children").length === m) {
         var child = (mml.data.length === 1 && mml.data[0].inferred ? mml.data[0] : mml);
         if (child && child.data[n] && child.data[n].collapsible) {
           child.SetData(n,child.data[n].data[1]);
@@ -257,6 +254,13 @@
         }
       }
       return null;
+    },
+    
+    //
+    //  Split a data attribute at commas
+    //
+    SplitAttribute: function (mml,id) {
+      return (mml.attr["data-semantic-"+id]||"").split(/,/);
     },
 
     /*****************************************************************/
@@ -313,7 +317,7 @@
     //  For enclose, include enclosure in collapsed child, if any
     //
     Collapse_enclose: function (mml) {
-      if (mml.attr["data-semantic-children"].split(/,/).length === 1) {
+      if (this.SplitAttribute(mml,"children").length === 1) {
         var child = (mml.data.length === 1 && mml.data[0].inferred ? mml.data[0] : mml);
         if (child.data[0] && child.data[0].collapsible) {
           //
@@ -333,7 +337,7 @@
     //
     Collapse_bigop: function (mml) {
       if (mml.complexity > this.COLLAPSE.bigop || mml.data[0].type !== "mo") {
-        var id = mml.attr["data-semantic-content"].split(/,/); id = id[id.length-1];
+        var id = this.SplitAttribute(mml,"content").pop();
         var op = Complexity.FindChildText(mml,id);
         mml = this.MakeAction(this.Marker(op),mml);
       }
@@ -341,7 +345,7 @@
     },
     Collapse_integral: function (mml) {
       if (mml.complexity > this.COLLAPSE.integral || mml.data[0].type !== "mo") {
-        var id = (mml.attr["data-semantic-content"].split(/,/))[0];
+        var id = this.SplitAttribute(mml,"content")[0];
         var op = Complexity.FindChildText(mml,id);
         mml = this.MakeAction(this.Marker(op),mml);
       }
@@ -353,7 +357,7 @@
     //
     Collapse_relseq: function (mml) {
       if (mml.complexity > this.COLLAPSE.relseq) {
-        var content = mml.attr["data-semantic-content"].split(/,/);
+        var content = this.SplitAttribute(mml,"content");
         var marker = Complexity.FindChildText(mml,content[0]);
         if (content.length > 1) marker += "\u22EF";
         mml = this.MakeAction(this.Marker(marker),mml);
@@ -362,7 +366,7 @@
     },
     Collapse_multirel: function (mml) {
       if (mml.complexity > this.COLLAPSE.multirel) {
-        var content = mml.attr["data-semantic-content"].split(/,/);
+        var content = this.SplitAttribute(mml,"content");
         var marker = Complexity.FindChildText(mml,content[0]) + "\u22EF";
         mml = this.MakeAction(this.Marker(marker),mml);
       }

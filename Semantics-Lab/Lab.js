@@ -71,10 +71,10 @@ var Lab = {
           this.DOM.renderer.value,
           this.DOM.enhance.value,
           this.OPTION.overflow,
-          Lab.ASSISTIVE.config.walker,
-          Lab.ASSISTIVE.config.highlight,
-          Lab.ASSISTIVE.config.background,
-          Lab.ASSISTIVE.config.foreground,
+          Lab.ASSISTIVE.getOption("walker"),
+          Lab.ASSISTIVE.getOption("highlight"),
+          Lab.ASSISTIVE.getOption("background"),
+          Lab.ASSISTIVE.getOption("foreground"),
           ""].join(';')
         +escape(this.DOM.input.value);
   },
@@ -221,9 +221,7 @@ var Lab = {
   GetDomElements: function () {
     var ids = ["input","container","enhance","overflow","renderer",
                "mathml","example","container","width","range_output"];
-    for (var i = 0; i < ids.length; i++) {
-      Lab.DOM[ids[i]] = document.getElementById(ids[i]);
-    }
+    for (var i = 0, id; id = ids[i]; i++) Lab.DOM[id] = document.getElementById(id);
   },
   
   //

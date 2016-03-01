@@ -29,18 +29,17 @@ MathJax.Extension.SemanticMathML = {
   //
   Filter: function (jax,id,script) {
     delete jax.enriched;
-    if (!this.config.disabled) {
-      try {
-        this.running = true;
-        var mml = sre.Enrich.semanticMathmlSync(jax.root.toMathML());
-        jax.root = MathJax.InputJax.MathML.Parse.prototype.MakeMML(mml);
-        jax.root.inputID = script.id;
-        jax.enriched = true;
-        this.running = false;
-      } catch (err) {
-        this.running = false;
-        throw err;
-      }
+    if (this.config.disabled) return;
+    try {
+      this.running = true;
+      var mml = sre.Enrich.semanticMathmlSync(jax.root.toMathML());
+      jax.root = MathJax.InputJax.MathML.Parse.prototype.MakeMML(mml);
+      jax.root.inputID = script.id;
+      jax.enriched = true;
+      this.running = false;
+    } catch (err) {
+      this.running = false;
+      throw err;
     }
   },
   //
