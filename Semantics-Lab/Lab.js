@@ -6,7 +6,7 @@ var Lab = {
   //  Defaults for the options
   //
   defaults: {
-    collapse: true,
+    enhance: "collapse",
     width: 100,
     overflow: false,
     walker: "dummy",
@@ -14,7 +14,17 @@ var Lab = {
     background: "blue",
     foreground: "black"
   },
+  //
+  //  Current option values
+  //
+  OPTION: {},
+  //
+  //  DOM element cache
+  //
+  DOM: {},
+  //
   // The assistive extension
+  //
   ASSISTIVE: null,
   //
   //  The TeX code for the examples menu
@@ -26,7 +36,7 @@ var Lab = {
   //
   Typeset: function () {
     if (this.jax) {
-      var math = this.input.value;
+      var math = this.DOM.input.value;
       MathJax.Hub.Queue(
         ["Disable",this.SMML],
         ["Text",this.jax[0],math],
@@ -37,6 +47,16 @@ var Lab = {
       );
     }
   },
+  //
+  //  Rerender the enriched math when options change
+  //
+  Rerender: function () {
+    MathJax.Hub.Queue(
+      ["Reprocess",this.jax[1]],
+      ["ShowMathML",this],
+      ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
+    );
+  },
 
   //
   //  Encode the TeX and add it to the URL so that reloading the page
@@ -46,14 +66,17 @@ var Lab = {
   Keep: function () {
     window.location = 
       String(window.location).replace(/\?.*/,"")+"?"
-        +[this.example.value, this.width.value, this.renderer.value,
-          this.collapse, this.overflow,
-          Lab.ASSISTIVE.config.walker,
-          Lab.ASSISTIVE.config.highlight,
-          Lab.ASSISTIVE.config.background,
-          Lab.ASSISTIVE.config.foreground,
+        +[this.DOM.example.value,
+          this.DOM.width.value,
+          this.DOM.renderer.value,
+          this.DOM.enhance.value,
+          this.OPTION.overflow,
+          Lab.ASSISTIVE.getOption("walker"),
+          Lab.ASSISTIVE.getOption("highlight"),
+          Lab.ASSISTIVE.getOption("background"),
+          Lab.ASSISTIVE.getOption("foreground"),
           ""].join(';')
-        +escape(this.input.value);
+        +escape(this.DOM.input.value);
   },
 
   //
@@ -61,7 +84,7 @@ var Lab = {
   //
   Select: function (n) {
     if (n === "-" || n === "?") return;
-    this.input.value = this.Examples[n];
+    this.DOM.input.value = this.Examples[n];
     this.Typeset();
   },
   
@@ -69,8 +92,9 @@ var Lab = {
   //  Show the enhanced MathML
   //
   ShowMathML: function () {
-    this.mathml.innerHTML = "";
-    MathJax.HTML.addText(this.mathml,this.jax[1].root.toMathML().replace(/data-semantic-/g,""));
+    var mathml = this.jax[1].root.toMathML().replace(/data-semantic-/g,"");
+    this.DOM.mathml.innerHTML = "";
+    MathJax.HTML.addText(this.DOM.mathml,mathml);
   },
   
   //
@@ -92,41 +116,37 @@ var Lab = {
   //  Set the width of the output div
   //
   setWidth: function (width,skipHandler) {
-    this.container.style.width = width+"%";
-    document.getElementById("range_output").innerHTML = width+"%";
+    this.DOM.container.style.width = width + "%";
+    this.DOM.range_output.innerHTML = width + "%";
     if (!skipHandler) MathJax.Extension.SemanticCollapse.resizeHandler({});
   },
   
   //
-  //  The collapse toggle
+  //  The enhance toggle
   //
-  collapse: true,
-  setCollapse: function (type,skipUpdate) {
-    this.collapse = type;
-    MathJax.Extension.SemanticCollapse[type ? "Enable" : "Disable"]();
-    if (!skipUpdate) {
-      MathJax.Hub.Queue(
-        ["Reprocess",this.jax[1]],
-        ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
-      );
+  setEnhance: function (type,skipUpdate) {
+    var n = {none:0, enrich:1, complexity:2, collapse:3}[type];
+    for (var i = 1; i < 4; i++) {
+      this.OPTION[["","enrich","complexity","collapse"][i]] = (i <= n);
+      var extension = MathJax.Extension["Semantic"+["","MathML","Complexity","Collapse"][i]];
+      extension[i <= n ? "Enable" : "Disable"]();
     }
+    if (!skipUpdate) this.Rerender();
   },
   
   //
   //  The overflow toggle
   //
-  overflow: false,
   setOverflow: function (type,skipUpdate) {
-    this.overflow = type;
+    this.OPTION.overflow = type;
     if (!skipUpdate) MathJax.Hub.Queue(["Rerender",MathJax.Hub]);
   },
   NewMath: function (message) {
-    if (!this.overflow) return;
+    if (!this.OPTION.overflow) return;
     var jax = MathJax.Hub.getJaxFor(message[1]);
     if (jax.root.Get("display") === "block") {
       var div = jax.SourceElement().previousSibling;
-      div.style.overflow = "auto";
-      div.style.minHeight = (div.offsetHeight+1) + "px"; // force height to be big enough
+      div.style.overflowX = "auto";
     }
   },
   
@@ -152,6 +172,19 @@ var Lab = {
     Lab.explorerOptions.push([key, value]);
     Lab.executeExplorerOptions();
   },
+  
+  //
+  //  Set a Lab option (either boolean or string)
+  //
+  setOption: function (id,value) {
+    if (value.match(/^(true|false)$/)) {
+      value = this.DOM[id].checked = (value === "true");
+    } else {
+      this.DOM[id].value = value;
+    }
+    var method = "set"+id.charAt(0).toUpperCase()+id.substr(1);
+    if (this[method]) this[method](value,true);
+  },
 
   //
   //  Directly select a specific test equation
@@ -160,8 +193,8 @@ var Lab = {
     (n < 1 && (this.Current = this.Examples.length)) ||
       (n > this.Examples.length && (this.Current = 1)) ||
       (this.Current = parseInt(n));
-    this.input.value = this.Examples[this.Current - 1];
-    this.example.value = this.Current;
+    this.DOM.input.value = this.Examples[this.Current - 1];
+    this.DOM.example.value = this.Current;
     this.Typeset();
   },
   //
@@ -179,6 +212,16 @@ var Lab = {
   //
   Prev: function() {
     this.DirectSelect(this.Current - 1);
+  },
+  
+  
+  //
+  //  Get DOM elements needed by the Lab
+  //
+  GetDomElements: function () {
+    var ids = ["input","container","enhance","overflow","renderer",
+               "mathml","example","container","width","range_output"];
+    for (var i = 0, id; id = ids[i]; i++) Lab.DOM[id] = document.getElementById(id);
   },
   
   //
@@ -199,7 +242,7 @@ var Lab = {
 MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 
 //
-// Wait for explorer to be ready and set its options
+//  Wait for explorer to be ready and set its options
 //
 MathJax.Hub.Register.StartupHook("Explorer Ready",
                                  function() {
@@ -220,7 +263,7 @@ MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
     if (message[0] === "radio button") {
       var variable = message[1].variable;
       if (variable === 'renderer') {
-        Lab.renderer.value = message[1].value;
+        Lab.DOM.renderer.value = message[1].value;
         return;
       }
       if (String(variable).match(/^Assistive-/)) {
@@ -239,10 +282,12 @@ MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
 //
 MathJax.Hub.Register.StartupHook("onLoad",[Lab.EnableInputs,false]);
 MathJax.Hub.Queue(function () {
-  var defaults = [null,"0",
+  Lab.GetDomElements();
+  var defaults = [
+    "0",
     String(Lab.defaults.width),
     Lab.defaults.renderer,
-    String(Lab.defaults.collapse),
+    String(Lab.defaults.enhance),
     String(Lab.defaults.overflow),
     Lab.defaults.walker,
     Lab.defaults.highlight,
@@ -250,36 +295,22 @@ MathJax.Hub.Queue(function () {
     Lab.defaults.foreground,
     "",
   ];
+  if (window.location.search.length > 1) 
+    defaults = window.location.search.replace(/.*\?/,"").split(/;/);
   Lab.SMML = MathJax.Extension.SemanticMathML;
   Lab.jax = MathJax.Hub.getAllJax();
-  Lab.input = document.getElementById("input");
-  Lab.container = document.getElementById("container");
-  Lab.enriched = document.getElementById("enriched");
-  Lab.mathml = document.getElementById("mathml");
-  Lab.example = document.getElementById("example");
-  Lab.width = document.getElementById("width");
-  Lab.renderer = document.getElementById("renderer");
-  if (window.location.search.length > 1) 
-    defaults = window.location.search.match(
-        /^\?(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*?);(.*)$/);
-  Lab.example.value = defaults[1];
-  Lab.Current = parseInt(defaults[1]);
-  Lab.width.value = defaults[2];
-  Lab.enriched.style.width = defaults[2];
-  Lab.renderer.value = defaults[3];
-  Lab.setRenderer(Lab.renderer.value,true);
-  Lab.renderer.onchange = function () {Lab.setRenderer(this.value)};
-  Lab.setWidth(Lab.width.value,true);
-  Lab.collapse = document.getElementById("collapse").checked = (defaults[4] === "true");
-  Lab.setCollapse(Lab.collapse,true);
-  Lab.overflow = document.getElementById("overflow").checked = (defaults[5] === "true");
-  Lab.setOverflow(Lab.overflow,true);
-  Lab.setExplorerOption("walker", document.getElementById("walker").value = defaults[6]);
-  Lab.setExplorerOption("highlight", document.getElementById("highlight").value = defaults[7]);
-  Lab.setExplorerOption("background", document.getElementById("background").value = defaults[8]);
-  Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[9]);
-  Lab.input.value = unescape(defaults[10]);
-  MathJax.Extension.SemanticCollapse.config.disabled = !Lab.defaults.enableCollapse;
-  if (Lab.input.value !== "") Lab.Typeset();
+  Lab.Current = parseInt(defaults[0]);
+  Lab.setOption("example",defaults[0]);
+  Lab.DOM.container.style.width = defaults[1]+"%";
+  Lab.setOption("width",defaults[1]);
+  Lab.setOption("renderer",defaults[2]);
+  Lab.setOption("enhance",defaults[3]);
+  Lab.setOption("overflow",defaults[4]);
+  Lab.setExplorerOption("walker", document.getElementById("walker").value = defaults[5]);
+  Lab.setExplorerOption("highlight", document.getElementById("highlight").value = defaults[6]);
+  Lab.setExplorerOption("background", document.getElementById("background").value = defaults[7]);
+  Lab.setExplorerOption("foreground", document.getElementById("foreground").value = defaults[8]);
+  Lab.setOption("input",unescape(defaults[9]));
+  if (Lab.DOM.input.value !== "") Lab.Typeset();
   Lab.EnableInputs(true);
 });

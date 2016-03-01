@@ -9,7 +9,7 @@
 //
 MathJax.Hub.Config({
   MMLorHTML: {MSIE: "HTML"},
-  AssistiveMML: {diabled: true},
+  AssistiveMML: {disabled: true},
   "fast-preview": {disabled: true}
 });
 MathJax.Ajax.config.path["RespEq"] = "../extensions";
@@ -34,11 +34,17 @@ MathJax.Hub.config.extensions.push(
 <span style="background:white; padding:0 5px; font-size:95%;">Options</span>
 </div>
 
-<label><input id="collapse" type="checkbox" onchange="Lab.setCollapse(this.checked)" />
-<small>Collapse MathML</small></label><br/>
+<label><small>Add:</small>
+<select id="enhance" onchange="Lab.setEnhance(this.value)">
+<option value="none">No Enhancements</option>
+<option value="enrich">Enriched MathML</option>
+<option value="complexity">Complexity Actions</option>
+<option value="collapse">Automatic Collapse</option>
+</select>
+</label><br/>
 
 <label><input id="overflow" type="checkbox" onchange="Lab.setOverflow(this.checked)" />
-<small>Scrolling overflow</small></label><br/>
+<small>Scrolling Overflow</small></label><br/>
 
 <hr>
 
@@ -83,7 +89,7 @@ MathJax.Hub.config.extensions.push(
 <hr>
 
 <label><small>Renderer:</small>
-<select id="renderer">
+<select id="renderer" onchange="Lab.setRenderer(this.value)">
 <option value="HTML-CSS">HTML-CSS</option>
 <option value="CommonHTML">Common HTML</option>
 <option value="PreviewHTML">Preview HTML</option>
