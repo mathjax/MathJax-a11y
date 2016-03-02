@@ -7,15 +7,19 @@
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
-  tex2jax: {inlineMath: [['$','$'],['\\(','\\)']]},
-  menuSettings: {'Assistive-generateSpeech': false,
-                 'Assistive-walker': 'syntactic'
+  tex2jax: {
+    inlineMath: [['$','$'],['\\(','\\)']]
+  },
+  menuSettings: {
+    'Assistive-generateSpeech': false,
+    'Assistive-walker': 'syntactic'
   }
 });
-MathJax.Ajax.config.path["RespEq"] = "../extensions"
+MathJax.Ajax.config.path["RespEq"] = "../extensions";
 MathJax.Hub.config.extensions.push(
-"[RespEq]/Assistive-Explore.js",
-"[RespEq]/Semantic-Collapse.js");
+  "[RespEq]/Assistive-Explore.js",
+  "[RespEq]/Semantic-Collapse.js"
+);
 </script>
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>
 </head>

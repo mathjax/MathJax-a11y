@@ -146,8 +146,8 @@ MathJax.Callback.Queue(
     //
     MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML],50);
     MathJax.Hub.Startup.signal.Post("Semantic MathML Ready");
+    MathJax.Ajax.loadComplete("[RespEq]/Semantic-MathML.js");
   }
 );
 
-MathJax.Ajax.loadComplete("[RespEq]/Semantic-MathML.js");
 
