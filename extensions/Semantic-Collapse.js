@@ -388,12 +388,12 @@ MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
 
 //
 //  Load the Semantic-Compmlexity extension and
-//  start up when that has loaded.
+//  signal the start up when that has loaded.
 //
 MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook("Semantic Complexity Ready", function () {
   MathJax.Extension.SemanticCollapse.Startup(); // Initialize the collapsing process
   MathJax.Hub.Startup.signal.Post("Semantic Collapse Ready");
+  MathJax.Ajax.loadComplete("[RespEq]/Semantic-Collapse.js");
 });
 
-MathJax.Ajax.loadComplete("[RespEq]/Semantic-Collapse.js");

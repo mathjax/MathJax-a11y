@@ -624,6 +624,6 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //  Signal that we are ready
   //
   MathJax.Hub.Startup.signal.Post("Semantic Complexity Ready");
+  MathJax.Ajax.loadComplete("[RespEq]/Semantic-Complexity.js");
 });
 
-MathJax.Ajax.loadComplete("[RespEq]/Semantic-Complexity.js");

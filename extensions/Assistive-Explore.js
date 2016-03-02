@@ -32,7 +32,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
 
     addDefaults: function() {
-      for (var key in Object.keys(Assistive.default)) {
+      var keys = Object.keys(Assistive.default);
+      for (var i = 0, key; key = keys[i]; i++) {
         if (typeof(SETTINGS[Assistive.prefix + key]) === 'undefined') {
           Assistive.addMenuOption(key, Assistive.default[key]);
         }
