@@ -119,7 +119,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                left: 0, right: 0, 'margin': '0 auto',
                'background-color': 'white', 'box-shadow': '0px 10px 20px #888',
                border: '2px solid #CCCCCC'
-             }},
+             },
+             '.MJX_DescriptionElement':
+             {
+               position: 'absolute', top:'0', height: '1px', width: '1px',
+               padding: '1px', overflow: 'hidden'
+             }
+            },
     //
     // Creates a live region with a particular type.
     //
@@ -208,6 +214,21 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         }
         if (math) {
           math.onkeydown = Explorer.Keydown;
+          //
+          var speechGenerator = new sre.DirectSpeechGenerator();
+          var span = math.querySelector('[data-semantic-speech]');
+          if (span) {
+            var speech = speechGenerator.getSpeech(span);
+            if (speech) {
+              var descr = id + '-Descr';
+              math.setAttribute('aria-labelledby', descr);
+              var newSpan = MathJax.HTML.addElement(
+                document.body, 'div',
+                {id: descr, className: 'MJX_DescriptionElement'});
+              newSpan.textContent = speech;
+            }
+          }
+          //
           math.addEventListener(
             Explorer.focusEvent,
             function(event) {
