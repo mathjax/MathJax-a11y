@@ -464,6 +464,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
+  MathJax.Hub.Register.MessageHook('End Math', ['Reset', MathJax.Extension.Assistive.Explorer]);
 
   MathJax.Hub.Startup.signal.Post("Explorer Ready");
 });
