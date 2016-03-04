@@ -229,6 +229,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             }
           }
           //
+          Explorer.Flame(math);
           math.addEventListener(
             Explorer.focusEvent,
             function(event) {
@@ -329,7 +330,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     FlameEnriched: function() {
       Explorer.UnFlame();
       for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
-        Explorer.Flame(document.getElementById(jax.inputID).previousSibling);
+        Explorer.Flame(jax.SourceElement().previousSibling);
       }
     },
     // 
@@ -464,7 +465,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   MathJax.Hub.Register.MessageHook('New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
-  MathJax.Hub.Register.MessageHook('End Math', ['Reset', MathJax.Extension.Assistive.Explorer]);
 
   MathJax.Hub.Startup.signal.Post("Explorer Ready");
 });
