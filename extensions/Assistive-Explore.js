@@ -220,12 +220,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           if (span) {
             var speech = speechGenerator.getSpeech(span);
             if (speech) {
-              var descr = id + '-Descr';
-              math.setAttribute('aria-labelledby', descr);
-              var newSpan = MathJax.HTML.addElement(
-                document.body, 'div',
-                {id: descr, className: 'MJX_DescriptionElement'});
-              newSpan.textContent = speech;
+              math.setAttribute('aria-label', speech);
             }
           }
           //
