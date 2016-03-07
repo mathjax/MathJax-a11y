@@ -23,7 +23,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       speech: true,
       subtitle: false,
       // Configuration option only.
-      generateSpeech: true
+      generateSpeech: false
     },
     prefix: 'Assistive-',
     
@@ -349,8 +349,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(math, speechGenerator, mathml);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
-      if (//Assistive.getOption('generateSpeech') &&
-          Assistive.getOption('speech')) {
+      if (Assistive.getOption('speech')) {
         if (Assistive.getOption('subtitle')) {
           Explorer.liveRegion.Show(math, Explorer.highlighter);
         }
