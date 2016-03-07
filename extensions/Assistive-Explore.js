@@ -342,7 +342,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       'dummy': sre.DummyWalker
     },
     ActivateWalker: function(math) {
-      var speechGenerator = new sre.AdhocSpeechGenerator();
+      var speechGenerator = new sre.TreeSpeechGenerator();
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
       var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
