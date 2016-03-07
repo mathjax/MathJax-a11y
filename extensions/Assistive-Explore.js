@@ -346,7 +346,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
       var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
-      Explorer.walker = new constructor(math, mathml, speechGenerator);
+      Explorer.walker = new constructor(math, speechGenerator, mathml);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
       if (//Assistive.getOption('generateSpeech') &&
