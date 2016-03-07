@@ -342,13 +342,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       'dummy': sre.DummyWalker
     },
     ActivateWalker: function(math) {
-      var speechGenerator = new sre.DirectSpeechGenerator();
+      var speechGenerator = new sre.AdhocSpeechGenerator();
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
-      Explorer.walker = new constructor(math, speechGenerator);
+      var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
+      Explorer.walker = new constructor(math, mathml, speechGenerator);
       Explorer.GetHighlighter(.2);
       Explorer.walker.activate();
-      if (Assistive.getOption('generateSpeech') &&
+      if (//Assistive.getOption('generateSpeech') &&
           Assistive.getOption('speech')) {
         if (Assistive.getOption('subtitle')) {
           Explorer.liveRegion.Show(math, Explorer.highlighter);
