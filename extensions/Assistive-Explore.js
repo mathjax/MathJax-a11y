@@ -210,7 +210,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (!math) return;
       math.onkeydown = Explorer.Keydown;
       //
-      Explorer.AddMathLabel(math);
+      setTimeout(function() {Explorer.AddSpeech(math);}, 5);
       //
       Explorer.Flame(math);
       math.addEventListener(
@@ -218,6 +218,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         function(event) {
           if (Explorer.walker) Explorer.DeactivateWalker();
         });
+    },
+    //
+    // Adds speech strings to the node.
+    // Could become a web worker!
+    //
+    AddSpeech: function(math) {
+      var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
+      var speechGenerator = new sre.TreeSpeechGenerator();
+      var dummy = new sre.DummyWalker(math, speechGenerator, mathml);
+      dummy.speech();
+      Explorer.AddMathLabel(math);
     },
     //
     // Attaches the Math expression as an aria label.
