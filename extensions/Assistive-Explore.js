@@ -138,6 +138,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         div.textContent = '';
         setTimeout(function() {div.textContent = speech;}, 100);
       } : function(div, speech) {
+        div.textContent = '';
         div.textContent = speech;
       },
     //
