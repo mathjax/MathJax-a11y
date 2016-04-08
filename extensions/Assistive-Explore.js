@@ -64,9 +64,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Adds the speech div.
     //
     Add: function() {
-      if (LiveRegion.announced) return;
+      if (LiveRegion.added) return;
       document.body.appendChild(this.div);
-      LiveRegion.Announce();
+      LiveRegion.added = true;
     },
     //
     // Shows the live region as a subtitle of a node.
@@ -105,8 +105,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     }
   }, {
-    ANNOUNCE: 'Navigatable Math in page. Explore with shift space.',
+    ANNOUNCE: 'Navigatable Math in page. Explore with shift space and arrow' +
+      ' keys.',
     announced: false,
+    added: false,
     styles: {'.MJX_LiveRegion':
              {
                position: 'absolute', top:'0', height: '1px', width: '1px',
@@ -145,7 +147,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Speaks the announce string.
     //
     Announce: function() {
-      if (LiveRegion.announced) return;
       LiveRegion.announced = true;
       MathJax.Ajax.Styles(LiveRegion.styles);
       var div = LiveRegion.Create('polite');
@@ -167,7 +168,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       '//progressiveaccess.com/content/invalid_keypress' +
       (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
        '.ogg' : '.mp3'),
-    focusEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
+    focusoutEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
+    focusinEvent: 'focus',
     //
     // Resets the explorer, rerunning methods not triggered by events.
     //
@@ -215,7 +217,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       //
       Explorer.Flame(math);
       math.addEventListener(
-        Explorer.focusEvent,
+        Explorer.focusinEvent,        
+        function(event) {
+          if (!LiveRegion.announced) LiveRegion.Announce();
+        });
+      math.addEventListener(
+        Explorer.focusoutEvent,
         function(event) {
           if (Explorer.walker) Explorer.DeactivateWalker();
         });
