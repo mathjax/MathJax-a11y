@@ -168,8 +168,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       '//progressiveaccess.com/content/invalid_keypress' +
       (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
        '.ogg' : '.mp3'),
+    expanded: false,
     focusoutEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
     focusinEvent: 'focus',
+    jaxCache: {},
     //
     // Resets the explorer, rerunning methods not triggered by events.
     //
@@ -185,10 +187,20 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (script && script.id) {
         var jax = MathJax.Hub.getJaxFor(script.id);
         if (jax && jax.enriched) {
+          Explorer.StateChange(script.id, jax);
           Explorer.liveRegion.Add();
           Explorer.AddEvent(script);
         }
       }
+    },
+    StateChange: function(id, jax) {
+      Explorer.GetHighlighter(.2);
+      var oldJax = Explorer.jaxCache[id];
+      if (oldJax && oldJax === jax.root) return;
+      if (oldJax) {
+        Explorer.highlighter.resetState(id + '-Frame');
+      }
+      Explorer.jaxCache[id] = jax.root;
     },
     //
     // Adds Aria attributes.
@@ -213,7 +225,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (!math) return;
       math.onkeydown = Explorer.Keydown;
       //
-      setTimeout(function() {Explorer.AddSpeech(math, script);}, 5);
+      setTimeout(function() {
+        Explorer.AddSpeech(math, script);
+        if (Explorer.expanded === id) {
+          Explorer.ActivateWalker(math);
+          math.focus();
+          Explorer.expanded = false;
+        }
+      }, 5);
       //
       Explorer.Flame(math);
       math.addEventListener(
@@ -232,7 +251,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Could become a web worker!
     //
     AddSpeech: function(math, script) {
-      Explorer.GetHighlighter(.2);
       var jax = MathJax.Hub.getJaxFor(script);
       var mathml = jax.root.toMathML();
       var speechGenerator = new sre.TreeSpeechGenerator();
@@ -269,6 +287,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var move = Explorer.walker.move(event.keyCode);
         if (move === null) return;
         if (move) {
+          if (Explorer.walker.moved === 'expand') {
+            Explorer.expanded = Explorer.walker.node.id;
+          }
           Explorer.liveRegion.Update(Explorer.walker.speech());
           Explorer.Highlight();
         } else {
@@ -361,7 +382,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
       var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
-      Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, mathml);
       Explorer.walker.activate();
