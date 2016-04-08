@@ -227,12 +227,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       //
       setTimeout(function() {
         Explorer.AddSpeech(math, script);
-        if (Explorer.expanded === id) {
-          Explorer.ActivateWalker(math);
-          math.focus();
-          Explorer.expanded = false;
-        }
-      }, 5);
+        setTimeout(function() {
+          if (Explorer.expanded === id) {
+            Explorer.ActivateWalker(math);
+            math.focus();
+            Explorer.expanded = false;
+          }}, 50);
+        }, 5);
       //
       Explorer.Flame(math);
       math.addEventListener(
