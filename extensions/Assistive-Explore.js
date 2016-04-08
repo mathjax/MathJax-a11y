@@ -213,7 +213,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (!math) return;
       math.onkeydown = Explorer.Keydown;
       //
-      setTimeout(function() {Explorer.AddSpeech(math);}, 5);
+      setTimeout(function() {Explorer.AddSpeech(math, script);}, 5);
       //
       Explorer.Flame(math);
       math.addEventListener(
@@ -231,10 +231,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Adds speech strings to the node.
     // Could become a web worker!
     //
-    AddSpeech: function(math) {
-      var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
+    AddSpeech: function(math, script) {
+      Explorer.GetHighlighter(.2);
+      var jax = MathJax.Hub.getJaxFor(script);
+      var mathml = jax.root.toMathML();
       var speechGenerator = new sre.TreeSpeechGenerator();
-      var dummy = new sre.DummyWalker(math, speechGenerator, mathml);
+      var dummy = new sre.DummyWalker(
+          math, speechGenerator, Explorer.highlighter, mathml);
       dummy.speech();
       Explorer.AddMathLabel(math);
     },
@@ -358,8 +361,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
       var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
-      Explorer.walker = new constructor(math, speechGenerator, mathml);
       Explorer.GetHighlighter(.2);
+      Explorer.walker = new constructor(
+          math, speechGenerator, Explorer.highlighter, mathml);
       Explorer.walker.activate();
       if (Assistive.getOption('speech')) {
         if (Assistive.getOption('subtitle')) {
