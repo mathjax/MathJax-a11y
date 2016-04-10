@@ -300,6 +300,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             // Also test with IE, Safari!
             if (MathJax.Hub.Browser.isFirefox) {
               Explorer.DeactivateWalker();
+              return;
             }
           }
           Explorer.liveRegion.Update(Explorer.walker.speech());
