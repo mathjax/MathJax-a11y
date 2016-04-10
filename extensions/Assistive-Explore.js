@@ -26,7 +26,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       generateSpeech: false
     },
     prefix: 'Assistive-',
-    
+    hook: null,
     addMenuOption: function(key, value) {
       SETTINGS[Assistive.prefix + key] = value;      
     },
@@ -212,7 +212,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Adds a key event to an enriched jax.
     //
-    hook: null,
     AddEvent: function(script) {
       var id = script.id + '-Frame';
       var sibling = script.previousSibling;
@@ -230,11 +229,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.AddSpeech(math, script);
         Explorer.hook = MathJax.Hub.Register.MessageHook(
           // the rendering is complete
-          "End Math",function (message) {
-            var newid = message[1].id+'-Frame';
+          'End Math', function(message) {
+            var newid = message[1].id + '-Frame';
             var jax = MathJax.Hub.getJaxFor(math);
             if (jax && newid === Explorer.expanded) {
-              Explorer.ActivateWalker(math, MathJax.Hub.getJaxFor(script));
+              Explorer.ActivateWalker(math, jax);
               math.focus();
               Explorer.expanded = false;
             }
@@ -297,6 +296,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (move) {
           if (Explorer.walker.moved === 'expand') {
             Explorer.expanded = Explorer.walker.node.id;
+            // Find out why this does not blur in FF.
+            // Also test with IE, Safari!
+            if (MathJax.Hub.Browser.isFirefox) {
+              Explorer.DeactivateWalker();
+            }
           }
           Explorer.liveRegion.Update(Explorer.walker.speech());
           Explorer.Highlight();
