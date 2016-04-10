@@ -212,6 +212,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Adds a key event to an enriched jax.
     //
+    hook: null,
     AddEvent: function(script) {
       var id = script.id + '-Frame';
       var sibling = script.previousSibling;
@@ -227,13 +228,18 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       //
       setTimeout(function() {
         Explorer.AddSpeech(math, script);
-        setTimeout(function() {
-          if (Explorer.expanded === id) {
-            Explorer.ActivateWalker(math);
-            math.focus();
-            Explorer.expanded = false;
-          }}, 50);
-        }, 5);
+        Explorer.hook = MathJax.Hub.Register.MessageHook(
+          // the rendering is complete
+          "End Math",function (message) {
+            var newid = message[1].id+'-Frame';
+            var jax = MathJax.Hub.getJaxFor(math);
+            if (jax && newid === Explorer.expanded) {
+              Explorer.ActivateWalker(math, MathJax.Hub.getJaxFor(script));
+              math.focus();
+              Explorer.expanded = false;
+            }
+          });
+      }, 5);
       //
       Explorer.Flame(math);
       math.addEventListener(
@@ -281,6 +287,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (!Explorer.walker) return;
         Explorer.DeactivateWalker();
         FALSE(event);
+        Explorer.hook = null;
         return;
       }
       // If walker is active we redirect there.
@@ -302,7 +309,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var math = event.target;
       if (event.keyCode === KEY.SPACE) {
         if (event.shiftKey) {
-          Explorer.ActivateWalker(math);
+          Explorer.ActivateWalker(math, MathJax.Hub.getJaxFor(math));
         } else {
           MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
         }
@@ -378,11 +385,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       'semantic': sre.SemanticWalker,
       'dummy': sre.DummyWalker
     },
-    ActivateWalker: function(math) {
+    ActivateWalker: function(math, jax) {
       var speechGenerator = new sre.DirectSpeechGenerator();
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
-      var mathml = MathJax.Hub.getJaxFor(math).root.toMathML();
+      var mathml = jax.root.toMathML();
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, mathml);
       Explorer.walker.activate();
