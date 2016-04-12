@@ -272,10 +272,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var speechGenerator = new sre.DirectSpeechGenerator();
       var span = math.querySelector('[data-semantic-speech]');
       if (span) {
-        var speech = speechGenerator.getSpeech(span);
-        if (speech) {
-          math.setAttribute('aria-label', speech);
-        }
+        setTimeout(function() {
+          var speech = speechGenerator.getSpeech(span);
+          if (speech) {
+            math.setAttribute('aria-label', speech);
+          }
+        }, math.id === Explorer.expanded ? 100 : 0);
       }
     },
     // 
@@ -395,6 +397,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
       var mathml = jax.root.toMathML();
+      Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, mathml);
       Explorer.walker.activate();
