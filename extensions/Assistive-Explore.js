@@ -177,7 +177,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Reset: function() {
       Explorer.FlameEnriched();
-      sre.Engine.getInstance().speech = Assistive.getOption('generateSpeech');
     },
     //
     // Registers new Maths and adds a key event if it is enriched.
@@ -210,6 +209,31 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       math.setAttribute('aria-label', 'Math');
     },
     //
+    // Add hook to run at End Math to restart walking on an expansion element.
+    //
+    AddHook: function(jax) {
+      Explorer.RemoveHook();
+      Explorer.hook = MathJax.Hub.Register.MessageHook(
+        'End Math', function(message) {
+          var newid = message[1].id + '-Frame';
+          var math = document.getElementById(newid);
+          if (jax && newid === Explorer.expanded) {
+            Explorer.ActivateWalker(math, jax);
+            math.focus();
+            Explorer.expanded = false;
+          }
+        });
+    },
+    //
+    // Remove and unregister the explorer hook.
+    //
+    RemoveHook: function() {
+      if (Explorer.hook) {
+        MathJax.Hub.UnRegister.MessageHook(Explorer.hook);
+        Explorer.hook = null;
+      }
+    },
+    //
     // Adds a key event to an enriched jax.
     //
     AddEvent: function(script) {
@@ -227,17 +251,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       //
       setTimeout(function() {
         Explorer.AddSpeech(math, script);
-        Explorer.hook = MathJax.Hub.Register.MessageHook(
-          // the rendering is complete
-          'End Math', function(message) {
-            var newid = message[1].id + '-Frame';
-            var jax = MathJax.Hub.getJaxFor(math);
-            if (jax && newid === Explorer.expanded) {
-              Explorer.ActivateWalker(math, jax);
-              math.focus();
-              Explorer.expanded = false;
-            }
-          });
       }, 5);
       //
       Explorer.Flame(math);
@@ -286,9 +299,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     Keydown: function(event) {
       if (event.keyCode === KEY.ESCAPE) {
         if (!Explorer.walker) return;
+        Explorer.RemoveHook();
         Explorer.DeactivateWalker();
         FALSE(event);
-        Explorer.hook = null;
         return;
       }
       // If walker is active we redirect there.
@@ -316,7 +329,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var math = event.target;
       if (event.keyCode === KEY.SPACE) {
         if (event.shiftKey) {
-          Explorer.ActivateWalker(math, MathJax.Hub.getJaxFor(math));
+          var jax = MathJax.Hub.getJaxFor(math);
+          Explorer.ActivateWalker(math, jax);
+          Explorer.AddHook(jax);
         } else {
           MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
         }
@@ -455,11 +470,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           if (item) {
             item.disabled = !item.disabled;
           }});
-      for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
-        if (jax.enriched) {
-          MathJax.Hub.Queue(['Reprocess', jax]);
-        }
-      }
     }
   };
 
