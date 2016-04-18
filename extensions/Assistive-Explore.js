@@ -271,7 +271,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     AddSpeech: function(math, script) {
       var jax = MathJax.Hub.getJaxFor(script);
       var mathml = jax.root.toMathML();
-      var speechGenerator = new sre.TreeSpeechGenerator();
+      var speechGenerator = Assistive.getOption('speech') ?
+            new sre.TreeSpeechGenerator() :
+            new sre.DummySpeechGenerator();
       var dummy = new sre.DummyWalker(
           math, speechGenerator, Explorer.highlighter, mathml);
       dummy.speech();
@@ -470,6 +472,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           if (item) {
             item.disabled = !item.disabled;
           }});
+      for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
+        var script = document.getElementById(jax.inputID);
+        var math = document.getElementById(jax.inputID + '-Frame');
+        if (script) {
+          Explorer.AddSpeech(math, script);
+        }
+      }
     }
   };
 
