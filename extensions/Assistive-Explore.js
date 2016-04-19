@@ -21,10 +21,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       background: 'blue',
       foreground: 'black',
       speech: true,
-      subtitle: true
+      subtitle: true,
+      ruleset: 'mathspeak-default'
     },
     prefix: 'Assistive-',
     hook: null,
+    oldrules: null,
     addMenuOption: function(key, value) {
       SETTINGS[Assistive.prefix + key] = value;      
     },
@@ -36,6 +38,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           Assistive.addMenuOption(key, Assistive.default[key]);
         }
       }
+      Assistive.setSpeechOption();
       Explorer.Reset();
     },
 
@@ -47,6 +50,22 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
     getOption: function(key) {
       return SETTINGS[Assistive.prefix + key];
+    },
+    
+    speechOption: function(msg) {
+      if (Assistive.oldrules === msg.value) return;
+      Assistive.setSpeechOption();
+      Explorer.Regenerate();
+    },
+
+    setSpeechOption: function() {
+      var ruleset = SETTINGS[Assistive.prefix + 'ruleset'];
+      var cstr = ruleset.split('-');
+      sre.System.getInstance().setupEngine({
+        domain: cstr[0],
+        style: cstr[1]
+      });
+      Assistive.oldrules = ruleset;
     }
     
   };
@@ -518,11 +537,18 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                            ITEM.RADIO(['red','Red'], 'Assistive-foreground', {action: Explorer.Reset}),
                            ITEM.RADIO(['blue','Blue'], 'Assistive-foreground', {action: Explorer.Reset})
                           ),
-                       ITEM.RULE(),
-                       ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech',
-                                     {action: Explorer.Regenerate}),
-                       ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
-                                     {disabled: !SETTINGS['Assistive-speech']})
+              ITEM.RULE(),
+              ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech', {action: Explorer.Regenerate}),
+              ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle', {disabled: !SETTINGS['Assistive-speech']}),
+              ITEM.RULE(),
+              ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
+                           ITEM.RADIO(['mathspeak-default','Verbose'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                           ITEM.RADIO(['mathspeak-brief','Brief'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                           ITEM.RADIO(['mathspeak-sbrief','Superbrief'], 'Assistive-ruleset', {action: Assistive.speechOption})),
+              ITEM.SUBMENU(['Chromevox', 'ChromeVox Rules'],
+                           ITEM.RADIO(['chromevox-default','Verbose'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                           ITEM.RADIO(['chromevox-short','Short'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                           ITEM.RADIO(['chromevox-alternative','Alternative'], 'Assistive-ruleset', {action: Assistive.speechOption}))
                       );
     // Attaches the menu;
     var about = MathJax.Menu.menu.IndexOfId('About');
