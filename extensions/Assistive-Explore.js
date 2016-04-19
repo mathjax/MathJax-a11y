@@ -519,42 +519,42 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                   ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
                           ),
               ITEM.SUBMENU(['Highlight', 'Highlight'],
-                           ITEM.RADIO(['none', 'None'], 'Assistive-highlight', {action: Explorer.Reset}),
-                           ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', {action: Explorer.Reset}),
-                           ITEM.RADIO(['flame','Flame'], 'Assistive-highlight', {action: Explorer.Reset})
+                  ITEM.RADIO(['none', 'None'], 'Assistive-highlight', {action: Explorer.Reset}),
+                  ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', {action: Explorer.Reset}),
+                  ITEM.RADIO(['flame','Flame'], 'Assistive-highlight', {action: Explorer.Reset})
                           ),
               ITEM.SUBMENU(['Background', 'Background'],
-                           ITEM.RADIO(['blue','Blue'], 'Assistive-background', {action: Explorer.Reset}),
-                           ITEM.RADIO(['red','Red'], 'Assistive-background', {action: Explorer.Reset}),
-                           ITEM.RADIO(['green','Green'], 'Assistive-background', {action: Explorer.Reset}),
-                           ITEM.RADIO(['yellow','Yellow'], 'Assistive-background', {action: Explorer.Reset}),
-                           ITEM.RADIO(['cyan','Cyan'], 'Assistive-background', {action: Explorer.Reset}),
-                           ITEM.RADIO(['magenta','Magenta'], 'Assistive-background', {action: Explorer.Reset}),
-                           ITEM.RADIO(['white','White'], 'Assistive-background', {action: Explorer.Reset}),
-                           ITEM.RADIO(['black','Black'], 'Assistive-background', {action: Explorer.Reset})
+                  ITEM.RADIO(['blue','Blue'], 'Assistive-background', {action: Explorer.Reset}),
+                  ITEM.RADIO(['red','Red'], 'Assistive-background', {action: Explorer.Reset}),
+                  ITEM.RADIO(['green','Green'], 'Assistive-background', {action: Explorer.Reset}),
+                  ITEM.RADIO(['yellow','Yellow'], 'Assistive-background', {action: Explorer.Reset}),
+                  ITEM.RADIO(['cyan','Cyan'], 'Assistive-background', {action: Explorer.Reset}),
+                  ITEM.RADIO(['magenta','Magenta'], 'Assistive-background', {action: Explorer.Reset}),
+                  ITEM.RADIO(['white','White'], 'Assistive-background', {action: Explorer.Reset}),
+                  ITEM.RADIO(['black','Black'], 'Assistive-background', {action: Explorer.Reset})
                           ),
               ITEM.SUBMENU(['Foreground', 'Foreground'],
-                           ITEM.RADIO(['black','Black'], 'Assistive-foreground', {action: Explorer.Reset}),
-                           ITEM.RADIO(['white','White'], 'Assistive-foreground', {action: Explorer.Reset}),
-                           ITEM.RADIO(['magenta','Magenta'], 'Assistive-foreground', {action: Explorer.Reset}),
-                           ITEM.RADIO(['cyan','Cyan'], 'Assistive-foreground', {action: Explorer.Reset}),
-                           ITEM.RADIO(['yellow','Yellow'], 'Assistive-foreground', {action: Explorer.Reset}),
-                           ITEM.RADIO(['green','Green'], 'Assistive-foreground', {action: Explorer.Reset}),
-                           ITEM.RADIO(['red','Red'], 'Assistive-foreground', {action: Explorer.Reset}),
-                           ITEM.RADIO(['blue','Blue'], 'Assistive-foreground', {action: Explorer.Reset})
+                  ITEM.RADIO(['black','Black'], 'Assistive-foreground', {action: Explorer.Reset}),
+                  ITEM.RADIO(['white','White'], 'Assistive-foreground', {action: Explorer.Reset}),
+                  ITEM.RADIO(['magenta','Magenta'], 'Assistive-foreground', {action: Explorer.Reset}),
+                  ITEM.RADIO(['cyan','Cyan'], 'Assistive-foreground', {action: Explorer.Reset}),
+                  ITEM.RADIO(['yellow','Yellow'], 'Assistive-foreground', {action: Explorer.Reset}),
+                  ITEM.RADIO(['green','Green'], 'Assistive-foreground', {action: Explorer.Reset}),
+                  ITEM.RADIO(['red','Red'], 'Assistive-foreground', {action: Explorer.Reset}),
+                  ITEM.RADIO(['blue','Blue'], 'Assistive-foreground', {action: Explorer.Reset})
                           ),
               ITEM.RULE(),
               ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech', {action: Explorer.SpeechOutput}),
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle', {disabled: !SETTINGS['Assistive-speech']}),
               ITEM.RULE(),
               ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
-                           ITEM.RADIO(['mathspeak-default','Verbose'], 'Assistive-ruleset', {action: Assistive.speechOption}),
-                           ITEM.RADIO(['mathspeak-brief','Brief'], 'Assistive-ruleset', {action: Assistive.speechOption}),
-                           ITEM.RADIO(['mathspeak-sbrief','Superbrief'], 'Assistive-ruleset', {action: Assistive.speechOption})),
+                  ITEM.RADIO(['mathspeak-default','Verbose'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                  ITEM.RADIO(['mathspeak-brief','Brief'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                  ITEM.RADIO(['mathspeak-sbrief','Superbrief'], 'Assistive-ruleset', {action: Assistive.speechOption})),
               ITEM.SUBMENU(['Chromevox', 'ChromeVox Rules'],
-                           ITEM.RADIO(['chromevox-default','Verbose'], 'Assistive-ruleset', {action: Assistive.speechOption}),
-                           ITEM.RADIO(['chromevox-short','Short'], 'Assistive-ruleset', {action: Assistive.speechOption}),
-                           ITEM.RADIO(['chromevox-alternative','Alternative'], 'Assistive-ruleset', {action: Assistive.speechOption}))
+                  ITEM.RADIO(['chromevox-default','Verbose'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                  ITEM.RADIO(['chromevox-short','Short'], 'Assistive-ruleset', {action: Assistive.speechOption}),
+                  ITEM.RADIO(['chromevox-alternative','Alternative'], 'Assistive-ruleset', {action: Assistive.speechOption}))
                       );
     // Attaches the menu;
     var about = MathJax.Menu.menu.IndexOfId('About');
