@@ -267,9 +267,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (!math) return;
       math.onkeydown = Explorer.Keydown;
       //
-      setTimeout(function() {
-        Explorer.AddSpeech(math, script);
-      }, 5);
+      Explorer.AddSpeech(math, script);
       //
       Explorer.Flame(math);
       math.addEventListener(
@@ -288,15 +286,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Could become a web worker!
     //
     AddSpeech: function(math, script) {
-      var jax = MathJax.Hub.getJaxFor(script);
-      var mathml = jax.root.toMathML();
-      var speechGenerator = Assistive.getOption('speech') ?
-            new sre.TreeSpeechGenerator() :
-            new sre.DummySpeechGenerator();
-      var dummy = new sre.DummyWalker(
+      setTimeout(function() {
+        var jax = MathJax.Hub.getJaxFor(script);
+        var mathml = jax.root.toMathML();
+        var speechGenerator = Assistive.getOption('speech') ?
+              new sre.TreeSpeechGenerator() :
+              new sre.DummySpeechGenerator();
+        var dummy = new sre.DummyWalker(
           math, speechGenerator, Explorer.highlighter, mathml);
-      dummy.speech();
-      Explorer.AddMathLabel(math);
+        dummy.speech();
+        Explorer.AddMathLabel(math);
+      }, 5);
     },
     //
     // Attaches the Math expression as an aria label.
@@ -480,9 +480,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       audio.play();
     },
     //
-    // Regenerates speech.
+    // Toggle speech output.
     //
-    Regenerate: function() {
+    SpeechOutput: function() {
       Explorer.Reset();
       var speechItems = ['Subtitles'];
       speechItems.forEach(
@@ -491,6 +491,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           if (item) {
             item.disabled = !item.disabled;
           }});
+      Explorer.Regenerate();
+    },
+    //
+    // Regenerates speech.
+    //
+    Regenerate: function() {
       for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
         var script = document.getElementById(jax.inputID);
         var math = document.getElementById(jax.inputID + '-Frame');
@@ -538,7 +544,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                            ITEM.RADIO(['blue','Blue'], 'Assistive-foreground', {action: Explorer.Reset})
                           ),
               ITEM.RULE(),
-              ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech', {action: Explorer.Regenerate}),
+              ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech', {action: Explorer.SpeechOutput}),
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle', {disabled: !SETTINGS['Assistive-speech']}),
               ITEM.RULE(),
               ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
