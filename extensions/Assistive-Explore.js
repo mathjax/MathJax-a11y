@@ -183,12 +183,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     flamer: null,
     speechDiv: null,
     earconFile: location.protocol +
-      '//progressiveaccess.com/content/invalid_keypress' +
+      '//mathjax.github.io/MathJax-accessibility/dist/invalid_keypress' +
       (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
        '.ogg' : '.mp3'),
     expanded: false,
     focusoutEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
     focusinEvent: 'focus',
+    ignoreFocusOut: false,
     jaxCache: {},
     //
     // Resets the explorer, rerunning methods not triggered by events.
@@ -278,6 +279,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       math.addEventListener(
         Explorer.focusoutEvent,
         function(event) {
+          // A fix for Edge.
+          if (Explorer.ignoreFocusOut) {
+            Explorer.ignoreFocusOut = false;
+            if (Explorer.walker.moved === 'enter') {
+              event.target.focus();
+              return;
+            }
+          }
           if (Explorer.walker) Explorer.DeactivateWalker();
         });
     },
@@ -332,9 +341,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (move) {
           if (Explorer.walker.moved === 'expand') {
             Explorer.expanded = Explorer.walker.node.id;
-            // Find out why this does not blur in FF.
-            // Also test with IE, Safari!
-            if (MathJax.Hub.Browser.isFirefox) {
+            // This sometimes blurs in Edge and sometimes it does not.
+              if (MathJax.Hub.Browser.isEdge) {
+                Explorer.ignoreFocusOut = true;
+                Explorer.DeactivateWalker();
+                return;
+              }
+            // This does not blur in FF, IE.
+            if (MathJax.Hub.Browser.isFirefox || MathJax.Hub.Browser.isMSIE) {
               Explorer.DeactivateWalker();
               return;
             }
@@ -444,6 +458,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.liveRegion.Update(Explorer.walker.speech());
       }
       Explorer.Highlight();
+      // A fix for Edge.
+      if (Explorer.ignoreFocusOut) {
+        setTimeout(function() {Explorer.ignoreFocusOut = false;}, 500);
+      }
     },
     //
     // Deactivates the walker.
