@@ -182,8 +182,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     hoverer: null,
     flamer: null,
     speechDiv: null,
-    earconFile: location.protocol +
-        '//mathjax.github.io/MathJax-accessibility/dist/invalid_keypress' +
+    earconFile: 'https://' +
+        'mathjax.github.io/MathJax-accessibility/dist/invalid_keypress' +
         (['Firefox', 'Chrome', 'Opera'].
         indexOf(MathJax.Hub.Browser.name) !== -1 ?
         '.ogg' : '.mp3'),
