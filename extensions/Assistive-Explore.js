@@ -295,9 +295,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Could become a web worker!
     //
     AddSpeech: function(math) {
-      var newGenerator = new sre.TreeSpeechGenerator();
-      newGenerator.setRebuilt(Explorer.walker.rebuilt);
-      newGenerator.getSpeech(Explorer.walker.rootNode, Explorer.walker.xml);
+      var generator = new sre.TreeSpeechGenerator();
+      generator.setRebuilt(Explorer.walker.rebuilt);
+      generator.getSpeech(Explorer.walker.rootNode, Explorer.walker.xml);
       math.setAttribute('hasspeech', 'true');
     },
     //
