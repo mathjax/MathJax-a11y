@@ -268,7 +268,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (!math) return;
       math.onkeydown = Explorer.Keydown;
       //
-      Explorer.AddSpeech(math, script);
+      Explorer.AddMathLabel(math, script);
       //
       Explorer.Flame(math);
       math.addEventListener(
@@ -294,34 +294,28 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Adds speech strings to the node.
     // Could become a web worker!
     //
-    AddSpeech: function(math, script) {
-      setTimeout(function() {
-        var jax = MathJax.Hub.getJaxFor(script);
-        var mathml = jax.root.toMathML();
-        var speechGenerator = Assistive.getOption('speech') ?
-              new sre.TreeSpeechGenerator() :
-              new sre.DummySpeechGenerator();
-        var dummy = new sre.DummyWalker(
-          math, speechGenerator, Explorer.highlighter, mathml);
-        dummy.speech();
-        Explorer.AddMathLabel(math);
-      }, 5);
+    AddSpeech: function(math) {
+      var newGenerator = new sre.TreeSpeechGenerator();
+      newGenerator.setRebuilt(Explorer.walker.rebuilt);
+      newGenerator.getSpeech(Explorer.walker.rootNode, Explorer.walker.xml);
+      math.setAttribute('hasspeech', 'true');
     },
     //
     // Attaches the Math expression as an aria label.
     //
-    AddMathLabel: function(math) {
+    AddMathLabel: function(math, script) {
       if (!Assistive.getOption('speech')) return;
-      var speechGenerator = new sre.DirectSpeechGenerator();
-      var span = math.querySelector('[data-semantic-speech]');
-      if (span) {
-        setTimeout(function() {
-          var speech = speechGenerator.getSpeech(span);
-          if (speech) {
-            math.setAttribute('aria-label', speech);
-          }
-        }, math.id === Explorer.expanded ? 100 : 0);
-      }
+      setTimeout(function() {
+        var jax = MathJax.Hub.getJaxFor(script);
+        var mathml = jax.root.toMathML();
+        var speechGenerator = new sre.SummarySpeechGenerator();
+        var dummy = new sre.DummyWalker(
+          math, speechGenerator, Explorer.highlighter, mathml);
+        var speech = dummy.speech();
+        if (speech) {
+          math.setAttribute('aria-label', speech);
+        }
+      }, 5);
     },
     // 
     // Event execution on keydown. Subsumes the same method of MathEvents.
@@ -443,15 +437,19 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       'dummy': sre.DummyWalker
     },
     ActivateWalker: function(math, jax) {
-      var speechGenerator = new sre.DirectSpeechGenerator();
+      var speechOn = Assistive.getOption('speech');
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
             Explorer.Walkers['dummy'];
-      var mathml = jax.root.toMathML();
+      var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
+            new sre.DummySpeechGenerator();
       Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
-          math, speechGenerator, Explorer.highlighter, mathml);
+          math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
+      if (speechOn && !math.getAttribute('hasspeech')) {
+        Explorer.AddSpeech(math);
+      }
       Explorer.walker.activate();
-      if (Assistive.getOption('speech')) {
+      if (speechOn) {
         if (Assistive.getOption('subtitle')) {
           Explorer.liveRegion.Show(math, Explorer.highlighter);
         }
@@ -519,7 +517,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var script = document.getElementById(jax.inputID);
         var math = document.getElementById(jax.inputID + '-Frame');
         if (script) {
-          Explorer.AddSpeech(math, script);
+          Explorer.AddMathLabel(math, script);
         }
       }
     }
