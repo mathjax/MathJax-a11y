@@ -257,12 +257,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     },
     AddMessage: function() {
-      Explorer.messageID = MathJax.Message.Set('Generating Speech Output');
+      return MathJax.Message.Set('Generating Speech Output');
     },
-    RemoveMessage: function() {
-      if (Explorer.messageID) {
-        MathJax.Message.Clear(Explorer.messageID);
-      }
+    RemoveMessage: function(id) {
+      if (id) MathJax.Message.Clear(id);
     },
     //
     // Adds a key event to an enriched jax.
@@ -300,9 +298,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           });
       //
       if (Assistive.getOption('speech')) {
-        Explorer.AddMessage();
         Explorer.AddSpeech(math);
-        Explorer.RemoveMessage();
       }
       //
     },
@@ -363,6 +359,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // The actual speech task generator.
     //
     MakeSpeechTask: function(mathml, id, constructor, onSpeech, time) {
+      var messageID = Explorer.AddMessage();
       setTimeout(function() {
         var speechGenerator = new constructor();
         var math = document.getElementById(id);
@@ -372,6 +369,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (speech) {
           onSpeech(math, speech);
         };
+        Explorer.RemoveMessage(messageID);
       }, time);
     },
     //
@@ -503,9 +501,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
       if (speechOn && !math.getAttribute('hasspeech')) {
-        Explorer.AddMessage();
         Explorer.AddSpeechLazy(math);
-        Explorer.RemoveMessage();
       }
       Explorer.walker.activate();
       if (speechOn) {
