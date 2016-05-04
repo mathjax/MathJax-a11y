@@ -194,6 +194,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     focusinEvent: 'focus',
     ignoreFocusOut: false,
     jaxCache: {},
+    messageID: null,
     //
     // Resets the explorer, rerunning methods not triggered by events.
     //
@@ -255,6 +256,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.hook = null;
       }
     },
+    AddMessage: function() {
+      Explorer.messageID = MathJax.Message.Set('Generating Speech Output');
+    },
+    RemoveMessage: function() {
+      if (Explorer.messageID) {
+        MathJax.Message.Clear(Explorer.messageID);
+      }
+    },
     //
     // Adds a key event to an enriched jax.
     //
@@ -291,7 +300,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           });
       //
       if (Assistive.getOption('speech')) {
+        Explorer.AddMessage();
         Explorer.AddSpeech(math);
+        Explorer.RemoveMessage();
       }
       //
     },
@@ -492,7 +503,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
       if (speechOn && !math.getAttribute('hasspeech')) {
+        Explorer.AddMessage();
         Explorer.AddSpeechLazy(math);
+        Explorer.RemoveMessage();
       }
       Explorer.walker.activate();
       if (speechOn) {
