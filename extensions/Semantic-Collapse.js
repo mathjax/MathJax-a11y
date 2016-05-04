@@ -55,7 +55,7 @@
       return this.sortActions(actions);
     },
     getActions: function (node,depth,actions) {
-      if (node.isToken) return;
+      if (node.isToken || !node.data) return;
       depth++;
       for (var i = 0, m = node.data.length; i < m; i++) {
         if (node.data[i]) {
