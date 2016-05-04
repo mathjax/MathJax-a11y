@@ -623,6 +623,13 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       return this.complexity;
     }
   });
+  MML.annotation.Augment({
+    getComplexity: function () {
+      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
+      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.XML;
+      return this.complexity;
+    }
+  });
 
   //
   //  Use fixed complexity, since we can't really measure it
