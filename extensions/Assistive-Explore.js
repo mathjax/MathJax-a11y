@@ -21,10 +21,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       background: 'blue',
       foreground: 'black',
       speech: true,
-      eager: false,
+      generation: 'lazy',
       subtitle: true,
       ruleset: 'mathspeak-default'
     },
+    eagerComplexity: 80,
     prefix: 'Assistive-',
     hook: null,
     oldrules: null,
@@ -301,13 +302,23 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var id = math.id;
       var jax = MathJax.Hub.getJaxFor(id);
       var mathml = jax.root.toMathML();
-      var complexity = math.querySelectorAll('[complexity]');
       if (!math.getAttribute('haslabel')) {
         Explorer.AddMathLabel(mathml, id);
       }
-      if (Assistive.getOption('eager') && complexity.length >= 75
-          && !math.getAttribute('hasspeech')) {
+      if (math.getAttribute('hasspeech')) return;
+      switch (Assistive.getOption('generation')) {
+      case 'eager':
         Explorer.AddSpeechEager(mathml, id);
+        break;
+      case 'mixed':
+        var complexity = math.querySelectorAll('[complexity]');
+        if (complexity.length >= Assistive.eagerComplexity) {
+          Explorer.AddSpeechEager(mathml, id);
+        }
+        break;
+      case 'lazy':
+      default:
+        break;
       }
     },
     AddSpeechLazy: function(math) {
@@ -480,8 +491,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
-      if (speechOn && // !Assistive.getOption('eager') &&
-          !math.getAttribute('hasspeech')) {
+      if (speechOn && !math.getAttribute('hasspeech')) {
         Explorer.AddSpeechLazy(math);
       }
       Explorer.walker.activate();
@@ -536,7 +546,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     SpeechOutput: function() {
       Explorer.Reset();
-      var speechItems = ['Subtitles', 'Eager'];
+      var speechItems = ['Subtitles', 'Generation'];
       speechItems.forEach(
           function(x) {
             var item = MathJax.Menu.menu.FindId('Accessibility', x);
@@ -603,9 +613,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                           {action: Explorer.SpeechOutput}),
             ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
                           {disabled: !SETTINGS['Assistive-speech']}),
-            ITEM.CHECKBOX(['Eager', 'Eager Generation'], 'Assistive-eager',
-                          {disabled: !SETTINGS['Assistive-speech'],
-                           action: Explorer.Regenerate}),
+            ITEM.SUBMENU(['Generation', 'Generation'],
+                ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
+                           {action: Explorer.Regenerate}),
+                ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
+                           {action: Explorer.Regenerate}),
+                ITEM.RADIO(['lazy', 'Lazy'], 'Assistive-generation',
+                           {action: Explorer.Regenerate})),
             ITEM.RULE(),
             ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
                 ITEM.RADIO(['mathspeak-default', 'Verbose'],
