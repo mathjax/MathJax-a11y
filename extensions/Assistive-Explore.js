@@ -64,10 +64,31 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var ruleset = SETTINGS[Assistive.prefix + 'ruleset'];
       var cstr = ruleset.split('-');
       sre.System.getInstance().setupEngine({
-        domain: cstr[0],
-        style: cstr[1]
+        domain: Assistive.Domain(cstr[0]),
+        style: cstr[1],
+        rules: Assistive.RuleSet(cstr[0])
       });
       Assistive.oldrules = ruleset;
+    },
+
+    Domain: function(domain) {
+      switch (domain) {
+      case 'chromevox':
+        return 'default';
+      case 'mathspeak':
+      default:
+        return 'mathspeak';
+      }
+    },
+
+    RuleSet: function(domain) {
+      switch (domain) {
+      case 'chromevox':
+        return ['SemanticTreeRules', 'AbstractionRules'];
+      case 'mathspeak':
+      default:
+        return ['MathspeakRules', 'AbstractionRules'];
+      }
     }
 
   };
