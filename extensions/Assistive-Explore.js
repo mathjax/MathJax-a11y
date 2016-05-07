@@ -21,11 +21,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       background: 'blue',
       foreground: 'black',
       speech: true,
-      generation: 'lazy',
       subtitle: true,
       ruleset: 'mathspeak-default'
     },
-    eagerComplexity: 80,
     prefix: 'Assistive-',
     hook: null,
     oldrules: null,
@@ -194,7 +192,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     focusinEvent: 'focus',
     ignoreFocusOut: false,
     jaxCache: {},
-    messageID: null,
     //
     // Resets the explorer, rerunning methods not triggered by events.
     //
@@ -256,12 +253,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.hook = null;
       }
     },
-    AddMessage: function() {
-      return MathJax.Message.Set('Generating Speech Output');
-    },
-    RemoveMessage: function(id) {
-      if (id) MathJax.Message.Clear(id);
-    },
     //
     // Adds a key event to an enriched jax.
     //
@@ -277,6 +268,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       if (!math) return;
       math.onkeydown = Explorer.Keydown;
+      //
+      Explorer.AddMathLabel(math, script);
+      //
       Explorer.Flame(math);
       math.addEventListener(
           Explorer.focusinEvent,
@@ -296,81 +290,33 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             }
             if (Explorer.walker) Explorer.DeactivateWalker();
           });
-      //
-      if (Assistive.getOption('speech')) {
-        Explorer.AddSpeech(math);
-      }
-      //
     },
     //
-    // Add speech output.
+    // Adds speech strings to the node.
+    // Could become a web worker!
     //
     AddSpeech: function(math) {
-      var id = math.id;
-      var jax = MathJax.Hub.getJaxFor(id);
-      var mathml = jax.root.toMathML();
-      if (!math.getAttribute('haslabel')) {
-        Explorer.AddMathLabel(mathml, id);
-      }
-      if (math.getAttribute('hasspeech')) return;
-      switch (Assistive.getOption('generation')) {
-      case 'eager':
-        Explorer.AddSpeechEager(mathml, id);
-        break;
-      case 'mixed':
-        var complexity = math.querySelectorAll('[complexity]');
-        if (complexity.length >= Assistive.eagerComplexity) {
-          Explorer.AddSpeechEager(mathml, id);
-        }
-        break;
-      case 'lazy':
-      default:
-        break;
-      }
-    },
-    AddSpeechLazy: function(math) {
       var generator = new sre.TreeSpeechGenerator();
       generator.setRebuilt(Explorer.walker.rebuilt);
       generator.getSpeech(Explorer.walker.rootNode, Explorer.walker.xml);
       math.setAttribute('hasspeech', 'true');
     },
-    // 
-    //
-    // Adds speech strings to the node using a web worker.
-    //
-    AddSpeechEager: function(mathml, id) {
-      Explorer.MakeSpeechTask(
-        mathml, id, sre.TreeSpeechGenerator,
-        function(math, speech) {math.setAttribute('hasspeech', 'true');},
-        5);
-    },
     //
     // Attaches the Math expression as an aria label.
     //
-    AddMathLabel: function(mathml, id) {
-      Explorer.MakeSpeechTask(
-        mathml, id, sre.SummarySpeechGenerator,
-        function(math, speech) {
-          math.setAttribute('haslabel', 'true');
-          math.setAttribute('aria-label', speech);},
-        5);
-    },
-    //
-    // The actual speech task generator.
-    //
-    MakeSpeechTask: function(mathml, id, constructor, onSpeech, time) {
-      var messageID = Explorer.AddMessage();
+    AddMathLabel: function(math, script) {
+      if (!Assistive.getOption('speech')) return;
       setTimeout(function() {
-        var speechGenerator = new constructor();
-        var math = document.getElementById(id);
+        var jax = MathJax.Hub.getJaxFor(script);
+        var mathml = jax.root.toMathML();
+        var speechGenerator = new sre.SummarySpeechGenerator();
         var dummy = new sre.DummyWalker(
-          math, speechGenerator, Explorer.highlighter, mathml);
+            math, speechGenerator, Explorer.highlighter, mathml);
         var speech = dummy.speech();
         if (speech) {
-          onSpeech(math, speech);
-        };
-        Explorer.RemoveMessage(messageID);
-      }, time);
+          math.setAttribute('aria-label', speech);
+        }
+      }, 5);
     },
     //
     // Event execution on keydown. Subsumes the same method of MathEvents.
@@ -501,7 +447,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
       if (speechOn && !math.getAttribute('hasspeech')) {
-        Explorer.AddSpeechLazy(math);
+        Explorer.AddSpeech(math);
       }
       Explorer.walker.activate();
       if (speechOn) {
@@ -555,7 +501,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     SpeechOutput: function() {
       Explorer.Reset();
-      var speechItems = ['Subtitles', 'Generation'];
+      var speechItems = ['Subtitles'];
       speechItems.forEach(
           function(x) {
             var item = MathJax.Menu.menu.FindId('Accessibility', x);
@@ -569,9 +515,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Regenerate: function() {
       for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
+        var script = document.getElementById(jax.inputID);
         var math = document.getElementById(jax.inputID + '-Frame');
-        if (math) {
-          Explorer.AddSpeech(math);
+        if (script) {
+          Explorer.AddMathLabel(math, script);
         }
       }
     }
@@ -622,13 +569,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                           {action: Explorer.SpeechOutput}),
             ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
                           {disabled: !SETTINGS['Assistive-speech']}),
-            ITEM.SUBMENU(['Generation', 'Generation'],
-                ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
-                           {action: Explorer.Regenerate}),
-                ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
-                           {action: Explorer.Regenerate}),
-                ITEM.RADIO(['lazy', 'Lazy'], 'Assistive-generation',
-                           {action: Explorer.Regenerate})),
             ITEM.RULE(),
             ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
                 ITEM.RADIO(['mathspeak-default', 'Verbose'],
