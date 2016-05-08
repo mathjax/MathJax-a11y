@@ -84,10 +84,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     RuleSet: function(domain) {
       switch (domain) {
       case 'chromevox':
-        return ['SemanticTreeRules', 'AbstractionRules'];
+        return ['AbstractionRules', 'SemanticTreeRules'];
       case 'mathspeak':
       default:
-        return ['MathspeakRules', 'AbstractionRules'];
+        return ['AbstractionRules', 'MathspeakRules'];
       }
     }
 
@@ -598,6 +598,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
         var math = document.getElementById(jax.inputID + '-Frame');
         if (math) {
+          math.removeAttribute('hasSpeech');
           Explorer.AddSpeech(math);
         }
       }
