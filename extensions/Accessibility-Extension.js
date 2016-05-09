@@ -42,42 +42,34 @@ MathJax.Extension.Accessibility = {
       about, 0, responsiveBox, accessibilityBox, ITEM.RULE());
     
   },
-  SwitchExplorer: function() {
+  SwitchExplorer: function(opt_startup) {
     var explorer = MathJax.Extension.Accessibility.GetOption('explorer');
     if (explorer) {
-      MathJax.Extension.Accessibility.LoadExplorer();
+      MathJax.Ajax.Require("[RespEq]/Assistive-Explore.js");
     }
+    if (opt_startup) return explorer;
     MathJax.Hub.Register.StartupHook('Explorer Ready', function() {
       MathJax.Hub.Reprocess();
     });
+    return explorer;
   },
-  LoadExplorer: function() {
-    MathJax.Ajax.Require("[RespEq]/Assistive-Explore.js");
-  },
-  SwitchCollapse: function() {
+  SwitchCollapse: function(opt_startup) {
     var collapse = MathJax.Extension.Accessibility.GetOption('collapse');
     if (collapse) {
-      MathJax.Extension.Accessibility.LoadCollapse();
+      MathJax.Ajax.Require("[RespEq]/Semantic-Collapse.js");
     }
+    if (opt_startup) return collapse;
     MathJax.Hub.Register.StartupHook('Semantic Collapse Ready', function() {
       MathJax.Hub.Reprocess();
     });
-  },
-  LoadCollapse: function() {
-    MathJax.Ajax.Require("[RespEq]/Semantic-Collapse.js");
+    return collapse;
   },
   Startup: function() {
     MathJax.Extension.Accessibility.AddDefaults();
     MathJax.Extension.Accessibility.AddMenu();
-    var explorer = MathJax.Extension.Accessibility.GetOption('explorer');
-    var collapse = MathJax.Extension.Accessibility.GetOption('collapse');
-    if (explorer) {
-      MathJax.Extension.Accessibility.LoadExplorer();
-    }
-    if (collapse) {
-      MathJax.Extension.Accessibility.LoadCollapse();
-    }
-    if (collapse || explorer) {
+    var explorer = MathJax.Extension.Accessibility.SwitchExplorer(true);
+    var collapse = MathJax.Extension.Accessibility.SwitchCollapse(true);
+    if (explorer || collapse) {
       MathJax.Hub.Queue(['Reprocess', MathJax.Hub]);
     }
   }
