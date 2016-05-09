@@ -42,33 +42,39 @@ MathJax.Extension.Accessibility = {
       about, 0, responsiveBox, accessibilityBox, ITEM.RULE());
     
   },
-  SwitchExplorer: function(opt_startup) {
-    var explorer = MathJax.Extension.Accessibility.GetOption('explorer');
-    if (explorer) {
-      MathJax.Ajax.Require("[RespEq]/Assistive-Explore.js");
+  LoadModule: function(option, module, signal, opt_startup) {
+    var flag = MathJax.Extension.Accessibility.GetOption(option);
+    if (flag) {
+      MathJax.Ajax.Require(module);
     }
-    if (opt_startup) return explorer;
-    MathJax.Hub.Register.StartupHook('Explorer Ready', function() {
+    if (opt_startup) return flag;
+    MathJax.Hub.Register.StartupHook(signal, function() {
       MathJax.Hub.Reprocess();
     });
-    return explorer;
+    return flag;
   },
-  SwitchCollapse: function(opt_startup) {
-    var collapse = MathJax.Extension.Accessibility.GetOption('collapse');
-    if (collapse) {
-      MathJax.Ajax.Require("[RespEq]/Semantic-Collapse.js");
-    }
-    if (opt_startup) return collapse;
-    MathJax.Hub.Register.StartupHook('Semantic Collapse Ready', function() {
-      MathJax.Hub.Reprocess();
-    });
-    return collapse;
+  LoadExplorer: function(opt_startup) {
+    return MathJax.Extension.Accessibility.LoadModule(
+      'explorer', '[RespEq]/Assistive-Explore.js', 'Explorer Ready', opt_startup
+    );
+  },
+  SwitchExplorer: function() {
+    MathJax.Extension.Accessibility.LoadExplorer();
+  },
+  LoadCollapse: function(opt_startup) {
+    return MathJax.Extension.Accessibility.LoadModule(
+      'collapse', '[RespEq]/Semantic-Collapse.js', 'Semantic Collapse Ready',
+      opt_startup
+    );
+  },
+  SwitchCollapse: function() {
+    MathJax.Extension.Accessibility.LoadCollapse();
   },
   Startup: function() {
     MathJax.Extension.Accessibility.AddDefaults();
     MathJax.Extension.Accessibility.AddMenu();
-    var explorer = MathJax.Extension.Accessibility.SwitchExplorer(true);
-    var collapse = MathJax.Extension.Accessibility.SwitchCollapse(true);
+    var explorer = MathJax.Extension.Accessibility.LoadExplorer(true);
+    var collapse = MathJax.Extension.Accessibility.LoadCollapse(true);
     if (explorer || collapse) {
       MathJax.Hub.Queue(['Reprocess', MathJax.Hub]);
     }
