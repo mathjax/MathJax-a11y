@@ -602,10 +602,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           Explorer.AddSpeech(math);
         }
       }
+    },
+    Startup: function() {
+      MathJax.Extension.Assistive.addDefaults();
+      MathJax.Hub.Register.MessageHook(
+        'New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
     }
   };
-
-  MathJax.Extension.Assistive.addDefaults();
 
   MathJax.Hub.Register.StartupHook('MathMenu Ready', function() {
     var ITEM = MathJax.Menu.ITEM;
@@ -679,13 +682,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       MathJax.Menu.menu.items.push(ITEM.RULE(), accessibilityMenu);
       return;
     }
-    MathJax.Menu.menu.items.splice(about, 0, accessibilityMenu, ITEM.RULE());
+    MathJax.Menu.menu.items.splice(about, 0, accessibilityMenu, ITEM.RULE());    
   });
 
-  MathJax.Hub.Register.MessageHook(
-      'New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
+  
 
   MathJax.Hub.Startup.signal.Post('Explorer Ready');
+
 });
 
-MathJax.Ajax.loadComplete('[RespEq]/Assistive-Explore.js');
+MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
+MathJax.Hub.Register.StartupHook('Semantic Complexity Ready', function() {
+  MathJax.Extension.Assistive.Explorer.Startup();
+  MathJax.Ajax.loadComplete('[RespEq]/Assistive-Explore.js');
+});
