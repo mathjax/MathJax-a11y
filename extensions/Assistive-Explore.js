@@ -685,14 +685,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     MathJax.Menu.menu.items.splice(about, 0, accessibilityMenu, ITEM.RULE());    
   });
 
-  
-
-  MathJax.Hub.Startup.signal.Post('Explorer Ready');
-
 });
 
 MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook('Semantic Complexity Ready', function() {
   MathJax.Extension.Assistive.Explorer.Startup();
+  MathJax.Hub.Startup.signal.Post('Explorer Ready');
   MathJax.Ajax.loadComplete('[RespEq]/Assistive-Explore.js');
 });
