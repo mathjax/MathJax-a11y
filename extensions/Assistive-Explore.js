@@ -677,12 +677,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                            'Assistive-ruleset', speech))
         );
     // Attaches the menu;
+    var box = MathJax.Menu.menu.IndexOfId('Accessibility');
+    if (box !== null) {
+      MathJax.Menu.menu.items[box] = accessibilityMenu;
+      return;
+    };
     var about = MathJax.Menu.menu.IndexOfId('About');
     if (about === null) {
       MathJax.Menu.menu.items.push(ITEM.RULE(), accessibilityMenu);
       return;
     }
-    MathJax.Menu.menu.items.splice(about, 0, accessibilityMenu, ITEM.RULE());    
+    MathJax.Menu.menu.items.splice(about, 0, accessibilityMenu, ITEM.RULE());
   });
 
 });

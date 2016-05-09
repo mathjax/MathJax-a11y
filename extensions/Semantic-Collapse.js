@@ -11,8 +11,8 @@
 
     /*****************************************************************/
 
-    Enable: function () {this.config.disabled = false},
-    Disable: function () {this.config.disabled = true},
+    Enable: function () { this.config.disabled = false; },
+    Disable: function () { this.config.disabled = true; },
     
     Startup: function () {
       //
@@ -248,8 +248,52 @@
         Collapse.retry = false;
         setTimeout(Collapse.resizeHandler,0);
       }
+    },
+    syncConfig: function() {
+      var oldResp = MathJax.Extension.SemanticComplexity.config.disabled;
+      var newResp = MathJax.Menu.config.settings['responsive'];
+      if (oldResp ? newResp : !newResp) { // \neg \xor
+        MathJax.Extension.SemanticComplexity.config.disabled = !newResp;
+        HUB.Queue(['Reprocess', HUB],
+                  ['resizeHandler', Collapse]);
+      }
+      var item = MathJax.Menu.menu.FindId('Responsiveness', 'Collapse');
+      if (item) {
+        item.disabled = !newResp;
+      }
+      MathJax.Menu.config.settings['collapse'] ?
+        Collapse.Enable() : Collapse.Disable();
+    },
+    Remove: function() {
+      Collapse.Disable();
+      MathJax.Extension.SemanticComplexity.config.disabled = true;
     }
   };
+
+  MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
+    var ITEM = MathJax.Menu.ITEM;
+    var SETTINGS = MathJax.Menu.config.settings;
+    var menu =
+        ITEM.SUBMENU(['Responsiveness', 'Responsiveness'],
+             ITEM.CHECKBOX(['Responsive', 'Responsive Equations'], 'responsive',
+                           {action: Collapse.syncConfig}),
+             ITEM.CHECKBOX(['Collapse', 'Auto Collapse'], 'collapse',
+                           {action: Collapse.syncConfig})
+                    );
+    // Attaches the menu;
+    var box = MathJax.Menu.menu.IndexOfId('Responsiveness');
+    if (box !== null) {
+      MathJax.Menu.menu.items[box] = menu;
+      return;
+    };
+    var about = MathJax.Menu.menu.IndexOfId('About');
+    if (about === null) {
+      MathJax.Menu.menu.items.push(ITEM.RULE(), menu);
+      return;
+    }
+    MathJax.Menu.menu.items.splice(about, 0, menu, ITEM.RULE());
+  });
+
 })(MathJax.Hub);
 
 
@@ -392,6 +436,7 @@ MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
 //
 MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook("Semantic Complexity Ready", function () {
+  MathJax.Extension.SemanticCollapse.syncConfig();
   MathJax.Extension.SemanticCollapse.Startup(); // Initialize the collapsing process
   MathJax.Hub.Startup.signal.Post("Semantic Collapse Ready");
   MathJax.Ajax.loadComplete("[RespEq]/Semantic-Collapse.js");

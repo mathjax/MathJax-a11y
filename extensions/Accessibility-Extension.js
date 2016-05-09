@@ -31,8 +31,12 @@
       var flag = Accessibility.GetOption(option);
       if (flag) {
         MathJax.Ajax.Require(module);
+        A11YMENU.Active(option, signal);
       }
       if (opt_startup) return flag;
+      if (!flag) {
+        A11YMENU.Remove(option);
+      }
       HUB.Register.StartupHook(signal, function() {
         HUB.Reprocess();
       });
@@ -64,19 +68,54 @@
   };
 
   var A11YMENU = MathJax.Extension.Accessibility.Menu = {
-    a11yBox: ITEM.CHECKBOX(['AccessibilityBox', 'Accessibility'],
+    a11yBox: ITEM.CHECKBOX(['Accessibility', 'Accessibility'],
                            'Accessibility-explorer',
                            {action: Accessibility.SwitchExplorer}),
-    respBox: ITEM.CHECKBOX(['ResponsiveBox', 'Responsive Equations'],
-                                 'Accessibility-collapse',
+    a11yActive: ITEM.CHECKBOX(['Active', 'Active'],
+                           'Accessibility-explorer',
+                           {action: Accessibility.SwitchExplorer}),
+    respBox: ITEM.CHECKBOX(['Responsiveness', 'Responsiveness'],
+                           'Accessibility-collapse',
+                           {action: Accessibility.SwitchCollapse}),
+    respActive: ITEM.CHECKBOX(['Active', 'Active'],
+                               'Accessibility-collapse',
                            {action: Accessibility.SwitchCollapse}),
     Add: function() {
       // Attaches the menu;
       var about = MENU.IndexOfId('About');
       about === null ? 
-        MENU.items.push(ITEM.RULE(), A11YMENU.respBox, A11YMENU.a11yBox) :
+        MENU.items.push(ITEM.RULE(), this.respBox, this.a11yBox) :
         MENU.items.splice(
-          about, 0, A11YMENU.respBox, A11YMENU.a11yBox, ITEM.RULE());
+          about, 0, this.respBox, this.a11yBox, ITEM.RULE());
+    },
+    Active: function(item, signal) {
+      //TODO: Make sure it is not added twice!
+      var activeMap = {'explorer': this.a11yActive,
+                    'collapse': this.respActive};
+      var menuMap = {'explorer': 'Accessibility',
+                     'collapse': 'Responsiveness'};
+      var active = activeMap[item];
+      var menu = menuMap[item];
+      if (!active || !menu) return;
+      HUB.Register.StartupHook(signal, function() {
+        var submenu = MENU.FindId(menu);
+        if (submenu !== null) {
+          submenu.submenu.items.push(ITEM.RULE(), active);
+        }
+      });
+    },
+    Remove: function(item) {
+      var menuMap = {'explorer': 'Accessibility',
+                     'collapse': 'Responsiveness'};
+      var boxMap = {'explorer': this.a11yBox,
+                    'collapse': this.respBox};
+      var box = boxMap[item];
+      var menu = menuMap[item];
+      if (!box || !menu) return;
+      var index = MENU.IndexOfId(menu);
+      if (index !== null) {
+        MENU.items[index] = box;
+      }
     }
   };
 
