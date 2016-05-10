@@ -253,7 +253,7 @@
       var oldResp = MathJax.Extension.SemanticComplexity.config.disabled;
       var newResp = MathJax.Menu.config.settings['responsive'];
       if (oldResp ? newResp : !newResp) { // \neg \xor
-        MathJax.Extension.SemanticComplexity.config.disabled = !newResp;
+        MathJax.Extension.SemanticComplexity[newResp ? 'Enable' : 'Disable']();
         HUB.Queue(['Reprocess', HUB],
                   ['resizeHandler', Collapse]);
       }
@@ -266,7 +266,7 @@
     },
     Remove: function() {
       Collapse.Disable();
-      MathJax.Extension.SemanticComplexity.config.disabled = true;
+      MathJax.Extension.SemanticComplexity.Disable();
     }
   };
 
