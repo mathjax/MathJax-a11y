@@ -16,7 +16,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Default configurations.
     //
     default: {
-      walker: 'dummy',
+      walker: 'syntactic',
       highlight: 'none',
       background: 'blue',
       foreground: 'black',
