@@ -89,8 +89,20 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       default:
         return ['AbstractionRules', 'MathspeakRules'];
       }
-    }
+    },
 
+    hook: null,
+    Enable: function(force) {
+      Assistive.hook = MathJax.Hub.Register.MessageHook( 
+        'New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
+      if (force) MathJax.Hub.Queue(['Reprocess', MathJax.Hub]);
+    },
+    Disable: function() {
+      if (Assistive.hook) {
+        MathJax.Hub.UnRegister.MessageHook(Assistive.hook);
+      }
+      Assistive.hook = null;
+    }
   };
 
   var LiveRegion = MathJax.Object.Subclass({
@@ -604,9 +616,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     },
     Startup: function() {
-      MathJax.Extension.Assistive.addDefaults();
-      MathJax.Hub.Register.MessageHook(
-        'New Math', ['Register', MathJax.Extension.Assistive.Explorer]);
+      SETTINGS['responsive'] = true;
+      Assistive.addDefaults();
+      Assistive.Enable();
     }
   };
 
@@ -692,8 +704,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
 });
 
+
+
 MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook('Semantic Complexity Ready', function() {
+  MathJax.Extension.SemanticComplexity.Enable();
   MathJax.Extension.Assistive.Explorer.Startup();
   MathJax.Hub.Startup.signal.Post('Explorer Ready');
   MathJax.Ajax.loadComplete('[RespEq]/Assistive-Explore.js');

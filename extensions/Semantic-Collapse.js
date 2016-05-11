@@ -11,8 +11,11 @@
 
     /*****************************************************************/
 
-    Enable: function () { this.config.disabled = false; },
-    Disable: function () { this.config.disabled = true; },
+    Enable: function (force) {
+      Collapse.config.disabled = false;
+      if (force) HUB.Reprocess();
+    },
+    Disable: function () { Collapse.config.disabled = true; },
     
     Startup: function () {
       //
@@ -271,19 +274,19 @@
   };
 
   MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
+    var Switch = function(menu) {
+      MathJax.Menu.config.settings['collapse'] ?
+        Collapse.Enable(menu && MathJax.Menu.config.settings['responsive']) :
+        Collapse.Disable();
+    };
     var ITEM = MathJax.Menu.ITEM;
     var SETTINGS = MathJax.Menu.config.settings;
-    var menu =
-        ITEM.SUBMENU(['Responsiveness', 'Responsiveness'],
-             ITEM.CHECKBOX(['Responsive', 'Responsive Equations'], 'responsive',
-                           {action: Collapse.syncConfig}),
-             ITEM.CHECKBOX(['Collapse', 'Auto Collapse'], 'collapse',
-                           {action: Collapse.syncConfig})
-                    );
+    var menu = ITEM.CHECKBOX('Auto Collapse', 'collapse', {action: Switch});
     // Attaches the menu;
-    var box = MathJax.Menu.menu.IndexOfId('Responsiveness');
-    if (box !== null) {
-      MathJax.Menu.menu.items[box] = menu;
+    var index = MathJax.Menu.menu.IndexOfId('Auto Collapse');
+    Switch();
+    if (index !== null) {
+      MathJax.Menu.menu.items[index] = menu;
       return;
     };
     var about = MathJax.Menu.menu.IndexOfId('About');
@@ -436,7 +439,6 @@ MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
 //
 MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook("Semantic Complexity Ready", function () {
-  MathJax.Extension.SemanticCollapse.syncConfig();
   MathJax.Extension.SemanticCollapse.Startup(); // Initialize the collapsing process
   MathJax.Hub.Startup.signal.Post("Semantic Collapse Ready");
   MathJax.Ajax.loadComplete("[RespEq]/Semantic-Collapse.js");

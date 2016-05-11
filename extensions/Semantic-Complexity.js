@@ -114,8 +114,8 @@
 
     /*****************************************************************/
 
-    Enable: function () {this.config.disabled = false},
-    Disable: function () {this.config.disabled = true},
+    Enable: function () {Complexity.config.disabled = false;},
+    Disable: function () {Complexity.config.disabled = true;},
     
     Startup: function () {
       MML = MathJax.ElementJax.mml;
@@ -398,7 +398,37 @@
       return mml;
     }
   };
-  
+
+  MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
+    // This is a dirty hack. Not sure how to do it otherwise!
+    if (MathJax.Extension['Assistive']) {
+      MathJax.Menu.config.settings['responsive'] = true;
+      Complexity.Enable();
+    }
+    var Switch = function(menu) {
+      MathJax.Menu.config.settings['responsive'] ?
+        Complexity.Enable() :
+        Complexity.Disable();
+      if (menu) MathJax.Hub.Reprocess();
+    };
+    var ITEM = MathJax.Menu.ITEM;
+    var SETTINGS = MathJax.Menu.config.settings;
+    var menu = ITEM.CHECKBOX('Responsive Equations', 'responsive',
+                             {action: Switch});
+    var index = MathJax.Menu.menu.IndexOfId('Responsive Equations');
+    Switch();
+    if (index !== null) {
+      MathJax.Menu.menu.items[index] = menu;
+      return;
+    };
+    var about = MathJax.Menu.menu.IndexOfId('About');
+    if (about === null) {
+      MathJax.Menu.menu.items.push(ITEM.RULE(), menu);
+      return;
+    }
+    MathJax.Menu.menu.items.splice(about, 0, menu, ITEM.RULE());
+  });
+
 })(MathJax.Hub);
 
 

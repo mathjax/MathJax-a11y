@@ -8,11 +8,11 @@
 
   var Accessibility = MathJax.Extension.Accessibility = {
     version: '1.0',
-    prefix: 'Accessibility',
+    prefix: '', //'Accessibility-',
     default: {},
     modules: [],
     MakeOption: function(name) {
-      return Accessibility.prefix + '-' + name;
+      return Accessibility.prefix + name;
     },
     GetOption: function(option) {
       return SETTINGS[Accessibility.MakeOption(option)];
@@ -46,7 +46,8 @@
     Startup: function() {
       Accessibility.AddDefaults();
       Accessibility.AddMenu();
-      var result = Accessibility.modules.map(function(x) {return x.Load();});
+      var result = Accessibility.modules.map(function(x) {
+        return x.Load();});
       if (result.reduce(function(x, y) {return x || y;}, false)) {
         HUB.Queue(['Reprocess', HUB]);
       }
@@ -62,11 +63,16 @@
     placeHolder: null,
     activeBox: null,
     subMenu: null,
-    Init: function(option, name, module, signal) {
+    extension: null,
+    Enable: null,
+    Disable: null,
+    onSwitch: false,
+    Init: function(option, name, module, signal, extension) {
       this.option = option;
       this.name = name;
       this.module = module;
       this.signal = signal;
+      this.extension = extension;
       var that = this;
       var helper = function() {that.Switch.apply(that);};
       this.placeHolder = ITEM.CHECKBOX(
@@ -81,18 +87,33 @@
           this.AddSubMenu();
         } else {
           MathJax.Ajax.Require(this.module);
+          this.AddMethods();
           this.AddActiveBox();
         }
       }
       return flag;
     },
     Switch: function() {
+      this.onSwitch = true;
       var flag = this.Load();
       if (!flag) {
         this.AddPlaceHolder();
+        this.Disable(true);
+      } else {
+        if (this.subMenu) {
+          this.Enable(true);
+        }
       }
+    },
+    AddMethods: function() {
+      var that = this;
       HUB.Register.StartupHook(this.signal, function() {
-        HUB.Reprocess();
+        var ext = MathJax.Extension[that.extension];
+        if (ext) {
+          that.Enable = ext.Enable;
+          that.Disable = ext.Disable;
+          if (that.onSwitch) that.Enable(true);
+        }
       });
     },
     AddActiveBox: function() {
@@ -100,7 +121,7 @@
       HUB.Register.StartupHook(this.signal, function() {
         if (that.subMenu) return;
         var submenu = MENU.FindId(that.name);
-        if (submenu !== null) {
+        if (submenu !== null && submenu.submenu) {
           submenu.submenu.items.push(ITEM.RULE(), that.activeBox);
         }
       });
@@ -128,12 +149,16 @@ MathJax.Callback.Queue(
   MathJax.Hub.Register.StartupHook('MathMenu Ready', function() {
   MathJax.Extension.Accessibility.Register(
     MathJax.Extension.ModuleLoader(
-      'collapse', 'Responsiveness', '[RespEq]/Semantic-Collapse.js',
-      'Semantic Collapse Ready'));
-  MathJax.Extension.Accessibility.Register(
-    MathJax.Extension.ModuleLoader(
-      'explorer', 'Accessibility', '[RespEq]/Assistive-Explore.js',
-      'Explorer Ready'));
+      'responsive', 'Responsive Equations', '[RespEq]/Semantic-Complexity.js',
+      'Semantic Complexity Ready', 'SemanticComplexity'));
+    MathJax.Extension.Accessibility.Register(
+      MathJax.Extension.ModuleLoader(
+        'collapse', 'Auto Collapse', '[RespEq]/Semantic-Collapse.js',
+        'Semantic Collapse Ready', 'SemanticCollapse'));
+    MathJax.Extension.Accessibility.Register(
+      MathJax.Extension.ModuleLoader(
+        'explorer', 'Accessibility', '[RespEq]/Assistive-Explore.js',
+        'Explorer Ready', 'Assistive'));
     MathJax.Extension.Accessibility.Startup();
   MathJax.Hub.Startup.signal.Post('Accessibility Loader Ready');
 }));
