@@ -302,19 +302,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       //
     },
-    // Temporary: Until issue #105 is resolved.
-    GetMathML: function(jax) {
-      var mathml = jax.root.toMathML();
-      mathml = mathml.replace(/data-semantic-complexity="[.0-9]+"/g, '');
-      return mathml;
-    },
     //
     // Add speech output.
     //
     AddSpeech: function(math) {
       var id = math.id;
       var jax = MathJax.Hub.getJaxFor(id);
-      var mathml = Explorer.GetMathML(jax);
+      var mathml = jax.root.toMathML();
       if (!math.getAttribute('haslabel')) {
         Explorer.AddMathLabel(mathml, id);
       }
@@ -505,7 +499,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           new sre.DummySpeechGenerator();
       Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
-        math, speechGenerator, Explorer.highlighter, Explorer.GetMathML(jax));
+        math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
       if (speechOn && !math.getAttribute('hasspeech')) {
         Explorer.AddSpeechLazy(math);
       }
