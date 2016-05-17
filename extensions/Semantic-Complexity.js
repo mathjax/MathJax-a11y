@@ -9,12 +9,14 @@
   var MML;
   
   var NOCOLLAPSE = 10000000; // really big complexity
+  var COMPLEXATTR = "data-semantic-complexity";
 
   var Complexity = MathJax.Extension.SemanticComplexity = {
     version: "1.0",
     config: HUB.CombineConfig("SemanticComplexity",{
       disabled: false
     }),
+    COMPLEXATTR: COMPLEXATTR,
 
     /*****************************************************************/
 
@@ -140,11 +142,11 @@
     //  Create a marker from a given string of characters
     //  (several possibilities are commented out)
     //
-//    Marker: function (c) {return MML.mtext("\u25C3"+c+"\u25B9").With({mathcolor:"blue"})},
-//    Marker: function (c) {return MML.mtext("\u25B9"+c+"\u25C3").With({mathcolor:"blue"})},
-    Marker: function (c) {return MML.mtext("\u25C2"+c+"\u25B8").With({mathcolor:"blue"})},
-//    Marker: function (c) {return MML.mtext("\u25B8"+c+"\u25C2").With({mathcolor:"blue"})},
-//    Marker: function (c) {return MML.mtext("\u27EA"+c+"\u27EB").With({mathcolor:"blue"})},
+//    Marker: function (c) {return MML.mtext("\u25C3"+c+"\u25B9").With({mathcolor:"blue",attr:{},attrNames:[]})},
+//    Marker: function (c) {return MML.mtext("\u25B9"+c+"\u25C3").With({mathcolor:"blue",attr:{},attrNames:[]})},
+    Marker: function (c) {return MML.mtext("\u25C2"+c+"\u25B8").With({mathcolor:"blue",attr:{},attrNames:[]})},
+//    Marker: function (c) {return MML.mtext("\u25B8"+c+"\u25C2").With({mathcolor:"blue",attr:{},attrNames:[]})},
+//    Marker: function (c) {return MML.mtext("\u27EA"+c+"\u27EB").With({mathcolor:"blue",attr:{},attrNames:[]})},
 
 
 
@@ -161,15 +163,15 @@
       var maction = MML.maction(collapse).With({
         id:this.getActionID(), actiontype:"toggle",
         complexity:collapse.getComplexity(), collapsible:true,
-        attrNames:["id","actiontype","complexity","selection"], attr:{}, selection:2
+        attrNames:["id","actiontype","selection",COMPLEXATTR], attr:{}, selection:2
       });
+      maction.attr[COMPLEXATTR] = maction.complexity;
       if (mml.type === "math") {
         var mrow = MML.mrow().With({
           data: mml.data,
           complexity: mml.complexity,
           attrNames: [], attr: {}
         });
-        mrow.attrNames.push("complexity");
         for (var i = mml.attrNames.length-1, name; name = mml.attrNames[i]; i--) {
           if (name.substr(0,14) === "data-semantic-") {
             mrow.attr[name] = mml.attr[name];
@@ -178,8 +180,9 @@
             mml.attrNames.splice(i,1);
           }
         }
-        mrow.complexity = mml.complexity; maction.Append(mrow); 
-        mml.data = []; mml.Append(maction);
+        mrow.attrNames.push(COMPLEXATTR);
+        mrow.attr[COMPLEXATTR] = mrow.complexity = mml.complexity;
+        maction.Append(mrow); mml.data = []; mml.Append(maction);
         mml.complexity = maction.complexity; maction = mml;
       } else {
         maction.Append(mml);
@@ -410,7 +413,8 @@ MathJax.Ajax.Require("[RespEq]/Semantic-MathML.js");
 MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   var MML = MathJax.ElementJax.mml,
       Complexity = MathJax.Extension.SemanticComplexity,
-      COMPLEXITY = Complexity.COMPLEXITY;
+      COMPLEXITY = Complexity.COMPLEXITY,
+      COMPLEXATTR = Complexity.COMPLEXATTR;
       
   Complexity.Startup(MML); // Initialize the collapsing process
 
@@ -443,7 +447,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
           }
           if (m > 1) complexity += m * COMPLEXITY.CHILD;
         }
-        if (this.attrNames && !("complexity" in this)) this.attrNames.push("complexity");
+        if (this.attrNames && !("complexity" in this)) this.attrNames.push(COMPLEXATTR);
+        if (this.attr) this.attr[COMPLEXATTR] = complexity;
         this.complexity = complexity;
       }
       return this.complexity;
@@ -460,6 +465,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         this.SUPER(arguments).getComplexity.call(this);
         this.complexity *= COMPLEXITY.SCRIPT;
         this.complexity += COMPLEXITY.FRACTION;
+        this.attr[COMPLEXATTR] = this.complexity;
       }
       return this.complexity;
     }
@@ -473,6 +479,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       if (this.complexity == null) {
         this.SUPER(arguments).getComplexity.call(this);
         this.complexity += COMPLEXITY.SQRT;
+        this.attr[COMPLEXATTR] = this.complexity;
       }
       return this.complexity;
     }
@@ -483,6 +490,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         this.SUPER(arguments).getComplexity.call(this);
         this.complexity -= (1-COMPLEXITY.SCRIPT) * this.data[1].getComplexity();
         this.complexity += COMPLEXITY.SQRT;
+        this.attr[COMPLEXATTR] = this.complexity;
       }
       return this.complexity;
     }
@@ -503,8 +511,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         if (this.data[this.sub]) C += COMPLEXITY.CHILD;
         if (this.data[this.sup]) C += COMPLEXITY.CHILD;
         if (this.data[this.base]) C += this.data[this.base].getComplexity() + COMPLEXITY.CHILD;
-        this.complexity = C + COMPLEXITY.SUBSUP;
-        this.attrNames.push("complexity");
+        this.attr[COMPLEXATTR] = this.complexity = C + COMPLEXITY.SUBSUP;
+        this.attrNames.push(COMPLEXATTR);
       }
       return this.complexity;
     }
@@ -526,8 +534,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         if (this.data[this.sub])  C += COMPLEXITY.CHILD;
         if (this.data[this.sup])  C += COMPLEXITY.CHILD;
         if (this.data[this.base]) C += COMPLEXITY.CHILD;
-        this.complexity = C + COMPLEXITY.UNDEROVER;
-        this.attrNames.push("complexity");
+        this.attr[COMPLEXATTR] = this.complexity = C + COMPLEXITY.UNDEROVER;
+        this.attrNames.push(COMPLEXATTR);
       }
       return this.complexity;
     }
@@ -538,8 +546,9 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML.mphantom.Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push("complexity");
+      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
       this.complexity = COMPLEXITY.PHANTOM;
+      this.attr[COMPLEXATTR] = this.complexity;
       return this.complexity;
     }
   });
@@ -553,6 +562,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       this.SUPER(arguments).getComplexity.call(this);
       this.complexity += this.Get("lquote").length * COMPLEXITY.TEXT;
       this.complexity += this.Get("rquote").length * COMPLEXITY.TEXT;
+      this.attr[COMPLEXATTR] = this.complexity;
       return this.complexity;
     }
   });
@@ -568,6 +578,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       if (this.complexity == null) {
         this.SUPER(arguments).getComplexity.call(this);
         this.complexity += COMPLEXITY.ACTION;
+        this.attr[COMPLEXATTR] = this.complexity;
       }
       return this.complexity;
     }
@@ -581,8 +592,9 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       //
       //  Don't cache it, since selection can change.
       //
-      if (this.complexity == null) this.attrNames.push("complexity");
+      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
       this.complexity = (this.collapsible ? this.data[0] : this.selected()).getComplexity();
+      this.attr[COMPLEXATTR] = this.complexity;
       return this.complexity;
     }
   });
@@ -594,7 +606,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
     getComplexity: function () {
       if (this.complexity == null) {
         this.complexity = (this.data[0] ? this.data[0].getComplexity() : 0);
-        this.attrNames.push("complexity");
+        this.attrNames.push(COMPLEXATTR);
+        this.attr[COMPLEXATTR] = this.complexity;
       }
       return this.complexity;
     }
@@ -605,7 +618,15 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML["annotation-xml"].Augment({
     getComplexity: function () {
-      this.complexity = COMPLEXITY.XML;
+      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
+      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.XML;
+      return this.complexity;
+    }
+  });
+  MML.annotation.Augment({
+    getComplexity: function () {
+      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
+      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.XML;
       return this.complexity;
     }
   });
@@ -615,7 +636,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML.mglyph.Augment({
     getComplexity: function () {
-      this.complexity = COMPLEXITY.GLYPH;
+      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
+      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.GLYPH;
       return this.complexity;
     }
   });
