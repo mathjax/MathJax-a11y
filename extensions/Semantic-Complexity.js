@@ -8,6 +8,9 @@
 (function (HUB) {
   var MML;
   
+  var SETTINGS = HUB.config.menuSettings;
+  var COOKIE = {};   // replaced when menu is available
+  
   var NOCOLLAPSE = 10000000; // really big complexity
   var COMPLEXATTR = "data-semantic-complexity";
 
@@ -16,7 +19,8 @@
     config: HUB.CombineConfig("SemanticComplexity",{
       disabled: false
     }),
-    COMPLEXATTR: COMPLEXATTR,
+    dependants: [],            // the extensions that depend on this one
+    COMPLEXATTR: COMPLEXATTR,  // attribute name for the complexity value
 
     /*****************************************************************/
 
@@ -114,12 +118,35 @@
 
     /*****************************************************************/
 
-    Enable: function () {Complexity.config.disabled = false;},
-    Disable: function () {Complexity.config.disabled = true;},
+    Enable: function (update,menu) {
+      SETTINGS.collapsible = true;
+      if (menu) COOKIE.collapsible = true;
+      this.config.disabled = false;
+      MathJax.Extension.SemanticMathML.Enable(false,menu);
+      if (update) HUB.Queue(["Reprocess",HUB]);
+    },
+    Disable: function (update,menu) {
+      SETTINGS.collapsible = false;
+      if (menu) COOKIE.collapsible = false;
+      this.config.disabled = true;
+      for (var i = this.dependants.length-1; i >= 0; i--) {
+        var dependant = this.dependants[i];
+        if (dependant.Disable) dependant.Disable(false,menu);
+      }
+      if (update) HUB.Queue(["Reprocess",HUB]);
+    },
     
     Startup: function () {
       MML = MathJax.ElementJax.mml;
-      
+      //
+      //  Inform SemanticMathML that we are a dependant
+      //
+      var SMML = MathJax.Extension.SemanticMathML;
+      if (SMML) SMML.dependants.push(this);
+      //
+      //  Set up the menu for this extension
+      //
+      this.createMenu();
       //
       //  Add the filter into the post-input hooks (priority 100, so other
       //  hooks run first, in particular, the enrichment hook).
@@ -127,6 +154,30 @@
       HUB.postInputHooks.Add(["Filter",Complexity],100);
     },
     
+    createMenu: function () {
+      MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
+        COOKIE = MathJax.Menu.cookie;
+        if (SETTINGS.collapsible != null)
+          Complexity.config.disabled = !SETTINGS.collapsible;
+        var Switch = function(menu) {
+          Complexity[SETTINGS.collapsible ? "Enable" : "Disable"](true,true);
+          MathJax.Menu.saveCookie();
+        };
+        var ITEM = MathJax.Menu.ITEM,
+            MENU = MathJax.Menu.menu;
+        var menu = ITEM.CHECKBOX(
+          ['CollapsibleMath','Collapsible Math'], 'collapsible', {action: Switch}
+        );
+        var index = MENU.IndexOfId('CollapsibleMath');
+        if (index !== null) {
+          MENU.items[index] = menu;
+        } else {
+          index = MENU.IndexOfId('About');
+          MENU.items.splice(index,0,menu,ITEM.RULE());
+        }
+      },15);  // before Assistive-Explore
+    },
+
     //
     //  The main filter:  add mactions for collapsing the math.
     //
@@ -135,7 +186,7 @@
       jax.root = jax.root.Collapse();
       jax.root.inputID = script.id;
     },
-
+    
     /*****************************************************************/
 
     //
@@ -399,36 +450,6 @@
     }
   };
 
-  MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
-    // This is a dirty hack. Not sure how to do it otherwise!
-    if (MathJax.Extension['Assistive']) {
-      MathJax.Menu.config.settings['responsive'] = true;
-      Complexity.Enable();
-    }
-    var Switch = function(menu) {
-      MathJax.Menu.config.settings['responsive'] ?
-        Complexity.Enable() :
-        Complexity.Disable();
-      if (menu) MathJax.Hub.Reprocess();
-    };
-    var ITEM = MathJax.Menu.ITEM;
-    var SETTINGS = MathJax.Menu.config.settings;
-    var menu = ITEM.CHECKBOX('Responsive Equations', 'responsive',
-                             {action: Switch});
-    var index = MathJax.Menu.menu.IndexOfId('Responsive Equations');
-    Switch();
-    if (index !== null) {
-      MathJax.Menu.menu.items[index] = menu;
-      return;
-    };
-    var about = MathJax.Menu.menu.IndexOfId('About');
-    if (about === null) {
-      MathJax.Menu.menu.items.push(ITEM.RULE(), menu);
-      return;
-    }
-    MathJax.Menu.menu.items.splice(about, 0, menu, ITEM.RULE());
-  });
-
 })(MathJax.Hub);
 
 
@@ -446,7 +467,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       COMPLEXITY = Complexity.COMPLEXITY,
       COMPLEXATTR = Complexity.COMPLEXATTR;
       
-  Complexity.Startup(MML); // Initialize the collapsing process
+  Complexity.Startup(); // Initialize the collapsing process
 
   MML.mbase.Augment({
     //

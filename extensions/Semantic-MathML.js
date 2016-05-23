@@ -4,6 +4,7 @@
 MathJax.Extension.SemanticMathML = {
   version: "1.0",
   config: MathJax.Hub.CombineConfig("SemanticMathML",{disabled: false}),
+  dependants: [],     // the extensions that depend on this one
   running: false,
   //
   //  Names of attributes to force if set by mstyle
@@ -45,8 +46,18 @@ MathJax.Extension.SemanticMathML = {
   //
   //  Functions to enable and disabled enrichment.
   //
-  Enable: function () {this.config.disabled = false},
-  Disable: function () {this.config.disabled = true}
+  Enable: function (update,menu) {
+    this.config.disabled = false;
+    if (update) MathJax.Hub.Queue(["Reprocess",MathJax.Hub]);
+  },
+  Disable: function (update) {
+    this.config.disabled = true;
+    for (var i = this.dependants.length-1; i >= 0; i--) {
+      var dependant = this.dependants[i];
+      if (dependant.Disable) dependant.Disable();
+    }
+    if (update) MathJax.Hub.Queue(["Reprocess",MathJax.Hub]);
+  }
 };
 
 //
