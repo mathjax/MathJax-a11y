@@ -50,11 +50,11 @@ MathJax.Extension.SemanticMathML = {
     this.config.disabled = false;
     if (update) MathJax.Hub.Queue(["Reprocess",MathJax.Hub]);
   },
-  Disable: function (update) {
+  Disable: function (update,menu) {
     this.config.disabled = true;
     for (var i = this.dependants.length-1; i >= 0; i--) {
       var dependant = this.dependants[i];
-      if (dependant.Disable) dependant.Disable();
+      if (dependant.Disable) dependant.Disable(false,menu);
     }
     if (update) MathJax.Hub.Queue(["Reprocess",MathJax.Hub]);
   }
