@@ -57,6 +57,13 @@ MathJax.Extension.SemanticMathML = {
       if (dependant.Disable) dependant.Disable(false,menu);
     }
     if (update) MathJax.Hub.Queue(["Reprocess",MathJax.Hub]);
+  },
+  
+  //
+  //  Register a dependant
+  //
+  Dependant: function (extension) {
+    this.dependants.push(extension);
   }
 };
 

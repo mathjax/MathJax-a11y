@@ -136,13 +136,20 @@
       if (update) HUB.Queue(["Reprocess",HUB]);
     },
     
+    //
+    //  Register a dependant
+    //
+    Dependant: function (extension) {
+      this.dependants.push(extension);
+    },
+
     Startup: function () {
       MML = MathJax.ElementJax.mml;
       //
       //  Inform SemanticMathML that we are a dependant
       //
       var SMML = MathJax.Extension.SemanticMathML;
-      if (SMML) SMML.dependants.push(this);
+      if (SMML) SMML.Dependant(this);
       //
       //  Set up the menu for this extension
       //

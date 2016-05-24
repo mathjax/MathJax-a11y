@@ -38,12 +38,19 @@
       if (update) HUB.Queue(["Rerender",HUB]);
     },
     
+    //
+    //  Register a dependant
+    //
+    Dependant: function (extension) {
+      this.dependants.push(extension);
+    },
+
     Startup: function () {
       //
       //  Inform SemanticComplexity that we are a dependant
       //
       var Complexity = MathJax.Extension.SemanticComplexity;
-      if (Complexity) Complexity.dependants.push(this);
+      if (Complexity) Complexity.Dependant(this);
       //
       //  Set up the menu for this extension
       //

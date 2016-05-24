@@ -128,6 +128,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
         }
       }
+    },
+    //
+    //  Register a dependant
+    //
+    Dependant: function (extension) {
+      this.dependants.push(extension);
     }
   };
 
@@ -640,7 +646,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     Startup: function() {
       var Complexity = MathJax.Extension.SemanticComplexity;
-      if (Complexity) Complexity.dependants.push(Assistive);
+      if (Complexity) Complexity.Dependant(Assistive);
       Assistive.addDefaults();
       this.createMenu();
     },
