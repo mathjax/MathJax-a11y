@@ -68,13 +68,13 @@
 
     createMenu: function () {
       HUB.Register.StartupHook("End Extensions", function () {
+        if (SETTINGS.autocollapse == null) {
+          SETTINGS.autocollapse = !Collapse.config.disabled;
+        } else {
+          Collapse.config.disabled = !SETTINGS.autocollapse;
+        }
         HUB.Register.StartupHook("MathMenu Ready", function () {
           COOKIE = MathJax.Menu.cookie;
-          if (SETTINGS.autocollapse == null) {
-            SETTINGS.autocollapse = !Collapse.config.disabled;
-          } else {
-            Collapse.config.disabled = !SETTINGS.autocollapse;
-          }
           var Switch = function(menu) {
             Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"](true,true);
             MathJax.Menu.saveCookie();

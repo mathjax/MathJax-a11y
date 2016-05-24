@@ -121,10 +121,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       //    (now that we check for being enabled in the event handlers)
     },
     DisableMenus: function (state) {
-      var menu = MathJax.Menu.menu.FindId("Accessibility");
-      if (menu) {
-        var items = menu.submenu.items;
-        for (var i = 2, item; item = items[i]; i++) item.disabled = state;
+      if (MathJax.Menu) {
+        var menu = MathJax.Menu.menu.FindId("Accessibility");
+        if (menu) {
+          var items = menu.submenu.items;
+          for (var i = 2, item; item = items[i]; i++) item.disabled = state;
+        }
       }
     }
   };

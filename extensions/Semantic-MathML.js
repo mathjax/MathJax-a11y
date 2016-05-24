@@ -82,6 +82,10 @@ MathJax.Callback.Queue(
   ["Require",MathJax.Ajax,"[MathJax]/jax/input/MathML/config.js"],
   ["Require",MathJax.Ajax,"[MathJax]/jax/input/MathML/jax.js"],
   //
+  //  Load toMathML extension (if it isn't already)(
+  //
+  ["Require",MathJax.Ajax,"[MathJax]/extensions/toMathML.js"],
+  //
   //  Wait for SRE (which waits for mml jax) before modifying mbase
   //
   MathJax.Hub.Register.StartupHook("Sre Ready",function () {

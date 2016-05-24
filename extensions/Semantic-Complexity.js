@@ -156,13 +156,13 @@
     
     createMenu: function () {
       HUB.Register.StartupHook("End Extensions", function () {
+        if (SETTINGS.collapsible == null) {
+          SETTINGS.collapsible = !Complexity.config.disabled;
+        } else {
+          Complexity.config.disabled = !SETTINGS.collapsible;
+        }
         HUB.Register.StartupHook("MathMenu Ready", function () {
           COOKIE = MathJax.Menu.cookie;
-          if (SETTINGS.collapsible == null) {
-            SETTINGS.collapsible = !Complexity.config.disabled;
-          } else {
-            Complexity.config.disabled = !SETTINGS.collapsible;
-          }
           var Switch = function(menu) {
             Complexity[SETTINGS.collapsible ? "Enable" : "Disable"](true,true);
             MathJax.Menu.saveCookie();
