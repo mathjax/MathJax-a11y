@@ -733,7 +733,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             index = MENU.IndexOfId('CollapsibleMath');
             MENU.items.splice(index+1,0,accessibilityMenu);
           }
-          Assistive[SETTINGS.explorer ? "Enable" : "Disable"]();
         },20);  // Between Semantic-Complexity and Semantic-Collapse
       },20);
     }
