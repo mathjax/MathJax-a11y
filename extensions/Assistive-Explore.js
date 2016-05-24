@@ -640,12 +640,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var Complexity = MathJax.Extension.SemanticComplexity;
       if (Complexity) Complexity.dependants.push(Assistive);
       Assistive.addDefaults();
-      Assistive[SETTINGS.explorer == false ? "Disable" : "Enable"]();
       this.createMenu();
     },
     
     createMenu: function () {
       MathJax.Hub.Register.StartupHook('End Extensions', function () {
+        Assistive[SETTINGS.explorer === false ? "Disable" : "Enable"]();
+        MathJax.Hub.Startup.signal.Post('Explorer Ready');
         MathJax.Hub.Register.StartupHook('MathMenu Ready', function () {
           COOKIE = MathJax.Menu.cookie;
           if (SETTINGS.explorer == null) SETTINGS.explorer = true;
@@ -735,6 +736,5 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook('Semantic Complexity Ready', function() {
   MathJax.Extension.Assistive.Explorer.Startup();
-  MathJax.Hub.Startup.signal.Post('Explorer Ready');
   MathJax.Ajax.loadComplete('[RespEq]/Assistive-Explore.js');
 });
