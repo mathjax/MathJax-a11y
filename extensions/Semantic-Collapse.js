@@ -52,10 +52,6 @@
       var Complexity = MathJax.Extension.SemanticComplexity;
       if (Complexity) Complexity.Dependent(this);
       //
-      //  Set up the menu for this extension
-      //
-      this.createMenu();
-      //
       //  Add the filter into the post-input hooks (priority 150, so other
       //  hooks run first, in particular, the enrichment and complexity hooks).
       //
@@ -73,35 +69,6 @@
       else window.onresize = Collapse.resizeHandler;
     },
 
-    createMenu: function () {
-      HUB.Register.StartupHook("End Extensions", function () {
-        if (SETTINGS.autocollapse == null) {
-          SETTINGS.autocollapse = !Collapse.config.disabled;
-        } else {
-          Collapse.config.disabled = !SETTINGS.autocollapse;
-        }
-        HUB.Register.StartupHook("MathMenu Ready", function () {
-          COOKIE = MathJax.Menu.cookie;
-          var Switch = function(menu) {
-            Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"](true,true);
-            MathJax.Menu.saveCookie();
-          };
-          var ITEM = MathJax.Menu.ITEM,
-              MENU = MathJax.Menu.menu;
-          var menu = ITEM.CHECKBOX(
-            ['AutoCollapse','Auto Collapse'], 'autocollapse', {action: Switch}
-          );
-          var index = MENU.IndexOfId('AutoCollapse');
-          if (index !== null) {
-            MENU.items[index] = menu;
-          } else {
-            index = MENU.IndexOfId('CollapsibleMath');
-            MENU.items.splice(index+1,0,menu);
-          }
-        },25);  // after Assistive-Explore
-      },25);
-    },
-    
     //
     //  If the math is block-level (or in an element "by itself"), then
     //  add the SRE actions for this element.
@@ -320,6 +287,33 @@
     }
 
   };
+
+  HUB.Register.StartupHook("End Extensions", function () {
+    if (SETTINGS.autocollapse == null) {
+      SETTINGS.autocollapse = !Collapse.config.disabled;
+    } else {
+      Collapse.config.disabled = !SETTINGS.autocollapse;
+    }
+    HUB.Register.StartupHook("MathMenu Ready", function () {
+      COOKIE = MathJax.Menu.cookie;
+      var Switch = function(menu) {
+        Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"](true,true);
+        MathJax.Menu.saveCookie();
+      };
+      var ITEM = MathJax.Menu.ITEM,
+          MENU = MathJax.Menu.menu;
+      var menu = ITEM.CHECKBOX(
+        ['AutoCollapse','Auto Collapse'], 'autocollapse', {action: Switch}
+      );
+      var index = MENU.IndexOfId('AutoCollapse');
+      if (index !== null) {
+        MENU.items[index] = menu;
+      } else {
+        index = MENU.IndexOfId('CollapsibleMath');
+        MENU.items.splice(index+1,0,menu);
+      }
+    },25);  // after Assistive-Explore
+  },25);
 
 })(MathJax.Hub);
 
