@@ -6,7 +6,7 @@
   var ITEM, MENU; // filled in when MathMenu extension loads
   
   var BIND = (Function.prototype.bind ? function (f,t) {return f.bind(t)} :
-              function (f,t) {return function () f.apply(t,arguments)});
+              function (f,t) {return function () {f.apply(t,arguments)}});
   var KEYS = Object.keys || function (obj) {
     var keys = [];
     for (var id in obj) {if (obj.hasOwnProperty(id)) keys.push(id)}
@@ -53,7 +53,7 @@
     },
     Startup: function() {
       ITEM = MathJax.Menu.ITEM;
-      MENU = MathJax.Menu.placeHolder;
+      MENU = MathJax.Menu.menu;
       for (var i = 0, module; module = this.modules[i]; i++) {
         module.CreateMenu();
         module.AddMethods();
@@ -117,11 +117,12 @@
     }
   });
 
-  HUB.Register.StartupHook('MathMenu Ready', function() {
-    Accessibility.Startup();
-    HUB.Startup.signal.Post('Accessibility Loader Ready');
-  },5);   // make sure it runs before other extensions' menu hooks
-          //   even if they are loaded first
+  HUB.Register.StartupHook('End Extensions', function () {
+    HUB.Register.StartupHook('MathMenu Ready', function () {
+      Accessibility.Startup();
+      HUB.Startup.signal.Post('Accessibility Loader Ready');
+    },5);   // run before other extensions' menu hooks even if they are loaded first
+  },5);
   
   Accessibility.Register(
     ModuleLoader(

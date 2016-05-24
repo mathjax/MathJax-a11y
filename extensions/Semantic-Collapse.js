@@ -67,26 +67,32 @@
     },
 
     createMenu: function () {
-      MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
-        COOKIE = MathJax.Menu.cookie;
-        if (SETTINGS.autocollapse != null) Collapse.config.disabled = !SETTINGS.autocollapse;
-        var Switch = function(menu) {
-          Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"](true,true);
-          MathJax.Menu.saveCookie();
-        };
-        var ITEM = MathJax.Menu.ITEM,
-            MENU = MathJax.Menu.menu;
-        var menu = ITEM.CHECKBOX(
-          ['AutoCollapse','Auto Collapse'], 'autocollapse', {action: Switch}
-        );
-        var index = MENU.IndexOfId('AutoCollapse');
-        if (index !== null) {
-          MENU.items[index] = menu;
-        } else {
-          index = MENU.IndexOfId('CollapsibleMath');
-          MENU.items.splice(index+1,0,menu);
-        }
-      },25);  // after Assistive-Explore
+      HUB.Register.StartupHook("End Extensions", function () {
+        HUB.Register.StartupHook("MathMenu Ready", function () {
+          COOKIE = MathJax.Menu.cookie;
+          if (SETTINGS.autocollapse == null) {
+            SETTINGS.autocollapse = !Collapse.config.disabled;
+          } else {
+            Collapse.config.disabled = !SETTINGS.autocollapse;
+          }
+          var Switch = function(menu) {
+            Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"](true,true);
+            MathJax.Menu.saveCookie();
+          };
+          var ITEM = MathJax.Menu.ITEM,
+              MENU = MathJax.Menu.menu;
+          var menu = ITEM.CHECKBOX(
+            ['AutoCollapse','Auto Collapse'], 'autocollapse', {action: Switch}
+          );
+          var index = MENU.IndexOfId('AutoCollapse');
+          if (index !== null) {
+            MENU.items[index] = menu;
+          } else {
+            index = MENU.IndexOfId('CollapsibleMath');
+            MENU.items.splice(index+1,0,menu);
+          }
+        },25);  // after Assistive-Explore
+      },25);
     },
     
     //

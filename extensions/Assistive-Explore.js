@@ -436,7 +436,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
     Keydown: function(event) {
-      if (!Assistive.hook) return;
       if (event.keyCode === KEY.ESCAPE) {
         if (!Explorer.walker) return;
         Explorer.RemoveHook();
@@ -473,7 +472,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       var math = event.target;
       if (event.keyCode === KEY.SPACE) {
-        if (event.shiftKey) {
+        if (event.shiftKey && Assistive.hook) {
           var jax = MathJax.Hub.getJaxFor(math);
           Explorer.ActivateWalker(math, jax);
           Explorer.AddHook(jax);
@@ -641,94 +640,93 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var Complexity = MathJax.Extension.SemanticComplexity;
       if (Complexity) Complexity.dependants.push(Assistive);
       Assistive.addDefaults();
-      Assistive[SETTINGS.explorer ? "Enable" : "Disable"]();
+      Assistive[SETTINGS.explorer == false ? "Disable" : "Enable"]();
       this.createMenu();
     },
     
     createMenu: function () {
-      MathJax.Hub.Register.StartupHook('MathMenu Ready', function() {
-        COOKIE = MathJax.Menu.cookie;
-        var Switch = function(menu) {
-          Assistive[SETTINGS.explorer ? "Enable" : "Disable"](true,true);
-          MathJax.Menu.saveCookie();
-        };
-        var ITEM = MathJax.Menu.ITEM
-            MENU = MathJax.Menu.menu;
-        var reset = {action: Explorer.Reset};
-        var speech = {action: Assistive.speechOption};
-        var accessibilityMenu =
-            ITEM.SUBMENU(['Accessibility','Accessibilty'],
-                ITEM.CHECKBOX(['Active','Active'], 'explorer', {action: Switch}),
-                ITEM.RULE(),
-                ITEM.SUBMENU(['Walker', 'Walker'],
-                    ITEM.RADIO(['dummy', 'No walker'], 'Assistive-walker'),
-                    ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
-                    ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
-                ),
-                ITEM.SUBMENU(['Highlight', 'Highlight'],
-                    ITEM.RADIO(['none', 'None'], 'Assistive-highlight', reset),
-                    ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', reset),
-                    ITEM.RADIO(['flame', 'Flame'], 'Assistive-highlight', reset)
-                ),
-                ITEM.SUBMENU(['Background', 'Background'],
-                    ITEM.RADIO(['blue', 'Blue'], 'Assistive-background', reset),
-                    ITEM.RADIO(['red', 'Red'], 'Assistive-background', reset),
-                    ITEM.RADIO(['green', 'Green'], 'Assistive-background', reset),
-                    ITEM.RADIO(['yellow', 'Yellow'], 'Assistive-background', reset),
-                    ITEM.RADIO(['cyan', 'Cyan'], 'Assistive-background', reset),
-                    ITEM.RADIO(['magenta', 'Magenta'], 'Assistive-background',
-                               reset),
-                    ITEM.RADIO(['white', 'White'], 'Assistive-background', reset),
-                    ITEM.RADIO(['black', 'Black'], 'Assistive-background', reset)
-                ),
-                ITEM.SUBMENU(['Foreground', 'Foreground'],
-                    ITEM.RADIO(['black', 'Black'], 'Assistive-foreground', reset),
-                    ITEM.RADIO(['white', 'White'], 'Assistive-foreground', reset),
-                    ITEM.RADIO(['magenta', 'Magenta'], 'Assistive-foreground',
-                               reset),
-                    ITEM.RADIO(['cyan', 'Cyan'], 'Assistive-foreground', reset),
-                    ITEM.RADIO(['yellow', 'Yellow'], 'Assistive-foreground', reset),
-                    ITEM.RADIO(['green', 'Green'], 'Assistive-foreground', reset),
-                    ITEM.RADIO(['red', 'Red'], 'Assistive-foreground', reset),
-                    ITEM.RADIO(['blue', 'Blue'], 'Assistive-foreground', reset)
-                ),
-                ITEM.RULE(),
-                ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech',
-                              {action: Explorer.SpeechOutput}),
-                ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
-                              {disabled: !SETTINGS['Assistive-speech']}),
-                ITEM.SUBMENU(['Generation', 'Generation'],
-                    ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
-                               {action: Explorer.Regenerate}),
-                    ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
-                               {action: Explorer.Regenerate}),
-                    ITEM.RADIO(['lazy', 'Lazy'], 'Assistive-generation',
-                               {action: Explorer.Regenerate})),
-                ITEM.RULE(),
-                ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
-                    ITEM.RADIO(['mathspeak-default', 'Verbose'],
-                               'Assistive-ruleset', speech),
-                    ITEM.RADIO(['mathspeak-brief', 'Brief'], 'Assistive-ruleset',
-                               speech),
-                    ITEM.RADIO(['mathspeak-sbrief', 'Superbrief'],
-                               'Assistive-ruleset', speech)),
-                ITEM.SUBMENU(['Chromevox', 'ChromeVox Rules'],
-                    ITEM.RADIO(['chromevox-default', 'Verbose'],
-                               'Assistive-ruleset', speech),
-                    ITEM.RADIO(['chromevox-short', 'Short'], 'Assistive-ruleset',
-                               speech),
-                    ITEM.RADIO(['chromevox-alternative', 'Alternative'],
-                               'Assistive-ruleset', speech))
-            );
-        var box = MENU.IndexOfId('Accessibility');
-        if (box !== null) {
-          MENU.items[box] = accessibilityMenu;
-        } else {
-          index = MENU.IndexOfId('AutoCollapse') ||
-                  MENU.IndexOfId('CollapsibleMath');
-          MENU.items.splice(index+1,0,accessibilityMenu);
-        }
-      },20);  // Between Semantic-Complexity and Semantic-Collapse
+      MathJax.Hub.Register.StartupHook('End Extensions', function () {
+        MathJax.Hub.Register.StartupHook('MathMenu Ready', function () {
+          COOKIE = MathJax.Menu.cookie;
+          if (SETTINGS.explorer == null) SETTINGS.explorer = true;
+          var Switch = function(menu) {
+            Assistive[SETTINGS.explorer ? "Enable" : "Disable"](true,true);
+            MathJax.Menu.saveCookie();
+          };
+          var ITEM = MathJax.Menu.ITEM
+              MENU = MathJax.Menu.menu;
+          var reset = {action: Explorer.Reset};
+          var speech = {action: Assistive.speechOption};
+          var accessibilityMenu =
+              ITEM.SUBMENU(['Accessibility','Accessibilty'],
+                  ITEM.CHECKBOX(['Active','Active'], 'explorer', {action: Switch}),
+                  ITEM.RULE(),
+                  ITEM.SUBMENU(['Walker', 'Walker'],
+                      ITEM.RADIO(['dummy', 'No walker'], 'Assistive-walker'),
+                      ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
+                      ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
+                  ),
+                  ITEM.SUBMENU(['Highlight', 'Highlight'],
+                      ITEM.RADIO(['none', 'None'], 'Assistive-highlight', reset),
+                      ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', reset),
+                      ITEM.RADIO(['flame', 'Flame'], 'Assistive-highlight', reset)
+                  ),
+                  ITEM.SUBMENU(['Background', 'Background'],
+                      ITEM.RADIO(['blue', 'Blue'], 'Assistive-background', reset),
+                      ITEM.RADIO(['red', 'Red'], 'Assistive-background', reset),
+                      ITEM.RADIO(['green', 'Green'], 'Assistive-background', reset),
+                      ITEM.RADIO(['yellow', 'Yellow'], 'Assistive-background', reset),
+                      ITEM.RADIO(['cyan', 'Cyan'], 'Assistive-background', reset),
+                      ITEM.RADIO(['magenta', 'Magenta'], 'Assistive-background', reset),
+                      ITEM.RADIO(['white', 'White'], 'Assistive-background', reset),
+                      ITEM.RADIO(['black', 'Black'], 'Assistive-background', reset)
+                  ),
+                  ITEM.SUBMENU(['Foreground', 'Foreground'],
+                      ITEM.RADIO(['black', 'Black'], 'Assistive-foreground', reset),
+                      ITEM.RADIO(['white', 'White'], 'Assistive-foreground', reset),
+                      ITEM.RADIO(['magenta', 'Magenta'], 'Assistive-foreground', reset),
+                      ITEM.RADIO(['cyan', 'Cyan'], 'Assistive-foreground', reset),
+                      ITEM.RADIO(['yellow', 'Yellow'], 'Assistive-foreground', reset),
+                      ITEM.RADIO(['green', 'Green'], 'Assistive-foreground', reset),
+                      ITEM.RADIO(['red', 'Red'], 'Assistive-foreground', reset),
+                      ITEM.RADIO(['blue', 'Blue'], 'Assistive-foreground', reset)
+                  ),
+                  ITEM.RULE(),
+                  ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech',
+                                {action: Explorer.SpeechOutput}),
+                  ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
+                                {disabled: !SETTINGS['Assistive-speech']}),
+                  ITEM.SUBMENU(['Generation', 'Generation'],
+                      ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
+                                 {action: Explorer.Regenerate}),
+                      ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
+                                 {action: Explorer.Regenerate}),
+                      ITEM.RADIO(['lazy', 'Lazy'], 'Assistive-generation',
+                                 {action: Explorer.Regenerate})),
+                  ITEM.RULE(),
+                  ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
+                      ITEM.RADIO(['mathspeak-default', 'Verbose'],
+                                 'Assistive-ruleset', speech),
+                      ITEM.RADIO(['mathspeak-brief', 'Brief'], 'Assistive-ruleset', speech),
+                      ITEM.RADIO(['mathspeak-sbrief', 'Superbrief'],
+                                 'Assistive-ruleset', speech)),
+                  ITEM.SUBMENU(['Chromevox', 'ChromeVox Rules'],
+                      ITEM.RADIO(['chromevox-default', 'Verbose'],
+                                 'Assistive-ruleset', speech),
+                      ITEM.RADIO(['chromevox-short', 'Short'], 'Assistive-ruleset', speech),
+                      ITEM.RADIO(['chromevox-alternative', 'Alternative'],
+                                 'Assistive-ruleset', speech))
+              );
+          var box = MENU.IndexOfId('Accessibility');
+          if (box !== null) {
+            MENU.items[box] = accessibilityMenu;
+          } else {
+            index = MENU.IndexOfId('CollapsibleMath');
+            MENU.items.splice(index+1,0,accessibilityMenu);
+          }
+          Assistive[SETTINGS.explorer ? "Enable" : "Disable"]();
+        },20);  // Between Semantic-Complexity and Semantic-Collapse
+      },20);
     }
   };
 

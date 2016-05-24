@@ -155,27 +155,32 @@
     },
     
     createMenu: function () {
-      MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
-        COOKIE = MathJax.Menu.cookie;
-        if (SETTINGS.collapsible != null)
-          Complexity.config.disabled = !SETTINGS.collapsible;
-        var Switch = function(menu) {
-          Complexity[SETTINGS.collapsible ? "Enable" : "Disable"](true,true);
-          MathJax.Menu.saveCookie();
-        };
-        var ITEM = MathJax.Menu.ITEM,
-            MENU = MathJax.Menu.menu;
-        var menu = ITEM.CHECKBOX(
-          ['CollapsibleMath','Collapsible Math'], 'collapsible', {action: Switch}
-        );
-        var index = MENU.IndexOfId('CollapsibleMath');
-        if (index !== null) {
-          MENU.items[index] = menu;
-        } else {
-          index = MENU.IndexOfId('About');
-          MENU.items.splice(index,0,menu,ITEM.RULE());
-        }
-      },15);  // before Assistive-Explore
+      HUB.Register.StartupHook("End Extensions", function () {
+        HUB.Register.StartupHook("MathMenu Ready", function () {
+          COOKIE = MathJax.Menu.cookie;
+          if (SETTINGS.collapsible == null) {
+            SETTINGS.collapsible = !Complexity.config.disabled;
+          } else {
+            Complexity.config.disabled = !SETTINGS.collapsible;
+          }
+          var Switch = function(menu) {
+            Complexity[SETTINGS.collapsible ? "Enable" : "Disable"](true,true);
+            MathJax.Menu.saveCookie();
+          };
+          var ITEM = MathJax.Menu.ITEM,
+              MENU = MathJax.Menu.menu;
+          var menu = ITEM.CHECKBOX(
+            ['CollapsibleMath','Collapsible Math'], 'collapsible', {action: Switch}
+          );
+          var index = MENU.IndexOfId('CollapsibleMath');
+          if (index !== null) {
+            MENU.items[index] = menu;
+          } else {
+            index = MENU.IndexOfId('About');
+            MENU.items.splice(index,0,menu,ITEM.RULE());
+          }
+        },15);  // before Assistive-Explore
+      },15);
     },
 
     //
