@@ -11,7 +11,7 @@
     config: HUB.CombineConfig("SemanticCollapse",{
       disabled: false
     }),
-    dependants: [],  // the extensions that depend on this one
+    dependents: [],  // the extensions that depend on this one
 
     /*****************************************************************/
 
@@ -31,26 +31,26 @@
       SETTINGS.autocollapse = false;
       if (menu) COOKIE.autocollapse = false;
       this.config.disabled = true;
-      for (var i = this.dependants.length-1; i >= 0; i--) {
-        var dependant = this.dependants[i];
-        if (dependant.Disable) dependant.Disable(false,menu);
+      for (var i = this.dependents.length-1; i >= 0; i--) {
+        var dependent = this.dependents[i];
+        if (dependent.Disable) dependent.Disable(false,menu);
       }
       if (update) HUB.Queue(["Rerender",HUB]);
     },
     
     //
-    //  Register a dependant
+    //  Register a dependent
     //
-    Dependant: function (extension) {
-      this.dependants.push(extension);
+    Dependent: function (extension) {
+      this.dependents.push(extension);
     },
 
     Startup: function () {
       //
-      //  Inform SemanticComplexity that we are a dependant
+      //  Inform SemanticComplexity that we are a dependent
       //
       var Complexity = MathJax.Extension.SemanticComplexity;
-      if (Complexity) Complexity.Dependant(this);
+      if (Complexity) Complexity.Dependent(this);
       //
       //  Set up the menu for this extension
       //

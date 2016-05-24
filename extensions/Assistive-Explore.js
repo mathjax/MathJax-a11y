@@ -13,7 +13,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
   var Assistive = MathJax.Extension.Assistive = {
     version: '1.0',
-    dependants: [],            // the extensions that depend on this one
+    dependents: [],            // the extensions that depend on this one
     //
     // Default configurations.
     //
@@ -113,9 +113,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         MathJax.Hub.UnRegister.MessageHook(this.hook);
         this.hook = null;
       }
-      for (var i = this.dependants.length-1; i >= 0; i--) {
-        var dependant = this.dependants[i];
-        if (dependant.Disable) dependant.Disable(false,menu);
+      for (var i = this.dependents.length-1; i >= 0; i--) {
+        var dependent = this.dependents[i];
+        if (dependent.Disable) dependent.Disable(false,menu);
       }
       //  Reprocess on update?  I don't think it is necessary
       //    (now that we check for being enabled in the event handlers)
@@ -130,10 +130,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     },
     //
-    //  Register a dependant
+    //  Register a dependent
     //
-    Dependant: function (extension) {
-      this.dependants.push(extension);
+    Dependent: function (extension) {
+      this.dependents.push(extension);
     }
   };
 
@@ -646,7 +646,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     Startup: function() {
       var Complexity = MathJax.Extension.SemanticComplexity;
-      if (Complexity) Complexity.Dependant(Assistive);
+      if (Complexity) Complexity.Dependent(Assistive);
       Assistive.addDefaults();
       this.createMenu();
     },

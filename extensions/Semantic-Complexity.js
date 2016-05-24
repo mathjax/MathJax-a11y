@@ -19,7 +19,7 @@
     config: HUB.CombineConfig("SemanticComplexity",{
       disabled: false
     }),
-    dependants: [],            // the extensions that depend on this one
+    dependents: [],            // the extensions that depend on this one
     COMPLEXATTR: COMPLEXATTR,  // attribute name for the complexity value
 
     /*****************************************************************/
@@ -129,27 +129,27 @@
       SETTINGS.collapsible = false;
       if (menu) COOKIE.collapsible = false;
       this.config.disabled = true;
-      for (var i = this.dependants.length-1; i >= 0; i--) {
-        var dependant = this.dependants[i];
-        if (dependant.Disable) dependant.Disable(false,menu);
+      for (var i = this.dependents.length-1; i >= 0; i--) {
+        var dependent = this.dependents[i];
+        if (dependent.Disable) dependent.Disable(false,menu);
       }
       if (update) HUB.Queue(["Reprocess",HUB]);
     },
     
     //
-    //  Register a dependant
+    //  Register a dependent
     //
-    Dependant: function (extension) {
-      this.dependants.push(extension);
+    Dependent: function (extension) {
+      this.dependents.push(extension);
     },
 
     Startup: function () {
       MML = MathJax.ElementJax.mml;
       //
-      //  Inform SemanticMathML that we are a dependant
+      //  Inform SemanticMathML that we are a dependent
       //
       var SMML = MathJax.Extension.SemanticMathML;
-      if (SMML) SMML.Dependant(this);
+      if (SMML) SMML.Dependent(this);
       //
       //  Set up the menu for this extension
       //
