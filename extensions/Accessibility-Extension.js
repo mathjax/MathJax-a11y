@@ -54,10 +54,7 @@
     Startup: function() {
       ITEM = MathJax.Menu.ITEM;
       MENU = MathJax.Menu.menu;
-      for (var i = 0, module; module = this.modules[i]; i++) {
-        module.CreateMenu();
-        module.AddMethods();
-      }
+      for (var i = 0, module; module = this.modules[i]; i++) module.CreateMenu();
       this.AddMenu();
     },
     LoadExtensions: function () {
@@ -71,13 +68,11 @@
 
   var ModuleLoader = MathJax.Extension.ModuleLoader = MathJax.Object.Subclass({
     option: '',
-    name: '',
+    name: ['',''],
     module: '',
     placeHolder: null,
     submenu: false,
     extension: null,
-    Enable: null,
-    Disable: null,
     Init: function(option, name, module, extension, submenu) {
       this.option = option;
       this.name = [name.replace(/ /g,''),name];
@@ -102,17 +97,13 @@
       }
     },
     Load: function() {
-      HUB.Queue(["Require",MathJax.Ajax,this.module,["AddMethods",this,true]]);
+      HUB.Queue(["Require",MathJax.Ajax,this.module,["Enable",this]]);
     },
-    AddMethods: function(menu) {
-      var ext = MathJax.Extension[this.extension];
-      if (ext) {
-        this.Enable = BIND(ext.Enable,ext);
-        this.Disable = BIND(ext.Disable,ext);
-        if (menu) {
-          this.Enable(true,true);
-          MathJax.Menu.saveCookie();
-        }
+    Enable: function(menu) {
+      var extension = MathJax.Extension[this.extension];
+      if (extension) {
+        extension.Enable(true,true);
+        MathJax.Menu.saveCookie();
       }
     }
   });
