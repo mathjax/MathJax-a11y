@@ -180,8 +180,7 @@
             mml.attrNames.splice(i,1);
           }
         }
-        mrow.attrNames.push(COMPLEXATTR);
-        mrow.attr[COMPLEXATTR] = mrow.complexity = mml.complexity;
+        mrow.complexity = mml.complexity;
         maction.Append(mrow); mml.data = []; mml.Append(maction);
         mml.complexity = maction.complexity; maction = mml;
       } else {
@@ -452,6 +451,12 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         this.complexity = complexity;
       }
       return this.complexity;
+    },
+    reportComplexity: function () {
+      if (this.attr && this.attrNames && !(COMPLEXATTR in this.attr)) {
+        this.attrNames.push(COMPLEXATTR);
+        this.attr[COMPLEXATTR] = this.complexity;
+      }
     }
   });
 
@@ -511,8 +516,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         if (this.data[this.sub]) C += COMPLEXITY.CHILD;
         if (this.data[this.sup]) C += COMPLEXITY.CHILD;
         if (this.data[this.base]) C += this.data[this.base].getComplexity() + COMPLEXITY.CHILD;
-        this.attr[COMPLEXATTR] = this.complexity = C + COMPLEXITY.SUBSUP;
-        this.attrNames.push(COMPLEXATTR);
+        this.complexity = C + COMPLEXITY.SUBSUP;
+        this.reportComplexity();
       }
       return this.complexity;
     }
@@ -534,8 +539,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         if (this.data[this.sub])  C += COMPLEXITY.CHILD;
         if (this.data[this.sup])  C += COMPLEXITY.CHILD;
         if (this.data[this.base]) C += COMPLEXITY.CHILD;
-        this.attr[COMPLEXATTR] = this.complexity = C + COMPLEXITY.UNDEROVER;
-        this.attrNames.push(COMPLEXATTR);
+        this.complexity = C + COMPLEXITY.UNDEROVER;
+        this.reportComplexity();
       }
       return this.complexity;
     }
@@ -546,9 +551,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML.mphantom.Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
       this.complexity = COMPLEXITY.PHANTOM;
-      this.attr[COMPLEXATTR] = this.complexity;
+      this.reportComplexity();
       return this.complexity;
     }
   });
@@ -592,9 +596,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       //
       //  Don't cache it, since selection can change.
       //
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
       this.complexity = (this.collapsible ? this.data[0] : this.selected()).getComplexity();
-      this.attr[COMPLEXATTR] = this.complexity;
+      this.reportComplexity();
       return this.complexity;
     }
   });
@@ -606,8 +609,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
     getComplexity: function () {
       if (this.complexity == null) {
         this.complexity = (this.data[0] ? this.data[0].getComplexity() : 0);
-        this.attrNames.push(COMPLEXATTR);
-        this.attr[COMPLEXATTR] = this.complexity;
+        this.reportComplexity();
       }
       return this.complexity;
     }
@@ -618,15 +620,15 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML["annotation-xml"].Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
-      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.XML;
+      this.complexity = COMPLEXITY.XML;
+      this.reportComplexity();
       return this.complexity;
     }
   });
   MML.annotation.Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
-      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.XML;
+      this.complexity = COMPLEXITY.XML;
+      this.reportComplexity();
       return this.complexity;
     }
   });
@@ -636,8 +638,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML.mglyph.Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
-      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.GLYPH;
+      this.complexity = COMPLEXITY.GLYPH;
+      this.reportComplexity();
       return this.complexity;
     }
   });
