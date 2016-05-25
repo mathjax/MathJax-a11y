@@ -67,15 +67,26 @@ MathJax.Extension.SemanticMathML = {
   }
 };
 
-//
-//  Load SRE and use the signal to tell MathJax when it is loaded.
-//  Since SRE waits for the mml element jax, load that too.
-//
-if (!MathJax.Ajax.config.path.SRE)
-  MathJax.Ajax.config.path.SRE = "https://progressiveaccess.com/content";
-MathJax.Ajax.Require("[MathJax]/jax/element/mml/jax.js");
-MathJax.Ajax.Load("[SRE]/sre_mathjax.js");
-MathJax.Hub.Register.StartupHook("Sre Ready",["loadComplete",MathJax.Ajax,"[SRE]/sre_mathjax.js"]);
+(function () {
+  //
+  //  Set up the a11y path,if it isn't already in place
+  //
+  var PATH = MathJax.Ajax.config.path;
+  if (!PATH.a11y) PATH.a11y =
+      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
+      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+        "//cdn.mathjax.org/mathjax/contrib/a11y");
+
+  //
+  //  Load SRE and use the signal to tell MathJax when it is loaded.
+  //  Since SRE waits for the mml element jax, load that too.
+  //
+  if (!PATH.SRE) PATH.SRE = PATH.a11y;
+  MathJax.Ajax.Load("[SRE]/sre_mathjax.js");
+  MathJax.Hub.Register.StartupHook("Sre Ready",["loadComplete",MathJax.Ajax,"[SRE]/sre_mathjax.js"]);
+
+  MathJax.Ajax.Require("[MathJax]/jax/element/mml/jax.js");
+})();
 
 //
 //  Make a queue so that the MathML jax and SRE are both loaded before
@@ -89,7 +100,7 @@ MathJax.Callback.Queue(
   ["Require",MathJax.Ajax,"[MathJax]/jax/input/MathML/config.js"],
   ["Require",MathJax.Ajax,"[MathJax]/jax/input/MathML/jax.js"],
   //
-  //  Load toMathML extension (if it isn't already)(
+  //  Load toMathML extension (if it isn't already)
   //
   ["Require",MathJax.Ajax,"[MathJax]/extensions/toMathML.js"],
   //
@@ -168,7 +179,7 @@ MathJax.Callback.Queue(
     //
     MathJax.Hub.postInputHooks.Add(["Filter",MathJax.Extension.SemanticMathML],50);
     MathJax.Hub.Startup.signal.Post("Semantic MathML Ready");
-    MathJax.Ajax.loadComplete("[RespEq]/Semantic-MathML.js");
+    MathJax.Ajax.loadComplete("[a11y]/Semantic-MathML.js");
   }
 );
 

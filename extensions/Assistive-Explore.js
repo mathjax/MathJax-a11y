@@ -740,8 +740,16 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
 });
 
-MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
+//
+//  Set up the a11y path,if it isn't already in place
+//
+if (!MathJax.Ajax.config.path.a11y)
+  MathJax.Ajax.config.path.a11y =
+    (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+      "//cdn.mathjax.org/mathjax/contrib/a11y"
+
+MathJax.Ajax.Require("[a11y]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook('Semantic Complexity Ready', function() {
   MathJax.Extension.Assistive.Explorer.Startup();
-  MathJax.Ajax.loadComplete('[RespEq]/Assistive-Explore.js');
+  MathJax.Ajax.loadComplete('[a11y]/Assistive-Explore.js');
 });

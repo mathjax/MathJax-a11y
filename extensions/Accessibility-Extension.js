@@ -12,6 +12,15 @@
     for (var id in obj) {if (obj.hasOwnProperty(id)) keys.push(id)}
     return keys;
   };
+  
+  //
+  //  Set up the a11y path,if it isn't already in place
+  //
+  var PATH = MathJax.Ajax.config.path;
+  if (!PATH.a11y) PATH.a11y =
+      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
+      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+        "//cdn.mathjax.org/mathjax/contrib/a11y");
 
   var Accessibility = EXTENSIONS.Accessibility = {
     version: '1.0',
@@ -117,19 +126,19 @@
   
   Accessibility.Register(
     ModuleLoader(
-      'collapsible', 'Collapsible Math', '[RespEq]/Semantic-Complexity.js',
+      'collapsible', 'Collapsible Math', '[a11y]/Semantic-Complexity.js',
       'SemanticComplexity'
     )
   );
   Accessibility.Register(
     ModuleLoader(
-      'autocollapse', 'Auto Collapse', '[RespEq]/Semantic-Collapse.js',
+      'autocollapse', 'Auto Collapse', '[a11y]/Semantic-Collapse.js',
       'SemanticCollapse'
     )
   );
   Accessibility.Register(
     ModuleLoader(
-      'explorer', 'Accessibility', '[RespEq]/Assistive-Explore.js',
+      'explorer', 'Accessibility', '[a11y]/Assistive-Explore.js',
       'Assistive', true
     )
   );
@@ -138,7 +147,7 @@
   
   MathJax.Callback.Queue(
     ["LoadExtensions",Accessibility],
-    ["loadComplete",MathJax.Ajax,"[RespEq]/Accessibility-Extension.js"]
+    ["loadComplete",MathJax.Ajax,"[a11y]/Accessibility-Extension.js"]
   );
 
 })(MathJax.Hub,MathJax.Extension);

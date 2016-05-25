@@ -14,6 +14,15 @@
   var NOCOLLAPSE = 10000000; // really big complexity
   var COMPLEXATTR = "data-semantic-complexity";
 
+  //
+  //  Set up the a11y path,if it isn't already in place
+  //
+  var PATH = MathJax.Ajax.config.path;
+  if (!PATH.a11y) PATH.a11y =
+      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
+      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+        "//cdn.mathjax.org/mathjax/contrib/a11y");
+
   var Complexity = MathJax.Extension.SemanticComplexity = {
     version: "1.0",
     config: HUB.CombineConfig("SemanticComplexity",{
@@ -465,7 +474,7 @@
  *  special handling.
  */
 
-MathJax.Ajax.Require("[RespEq]/Semantic-MathML.js");
+MathJax.Ajax.Require("[a11y]/Semantic-MathML.js");
 MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   var MML = MathJax.ElementJax.mml,
       Complexity = MathJax.Extension.SemanticComplexity,
@@ -705,6 +714,6 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //  Signal that we are ready
   //
   MathJax.Hub.Startup.signal.Post("Semantic Complexity Ready");
-  MathJax.Ajax.loadComplete("[RespEq]/Semantic-Complexity.js");
+  MathJax.Ajax.loadComplete("[a11y]/Semantic-Complexity.js");
 });
 

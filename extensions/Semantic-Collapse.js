@@ -6,6 +6,15 @@
   var SETTINGS = HUB.config.menuSettings;
   var COOKIE = {};   // replaced when menu is available
   
+  //
+  //  Set up the a11y path,if it isn't already in place
+  //
+  var PATH = MathJax.Ajax.config.path;
+  if (!PATH.a11y) PATH.a11y =
+      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
+      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+        "//cdn.mathjax.org/mathjax/contrib/a11y");
+
   var Collapse = MathJax.Extension.SemanticCollapse = {
     version: "1.0",
     config: HUB.CombineConfig("SemanticCollapse",{
@@ -455,10 +464,10 @@ MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
 //  Load the Semantic-Compmlexity extension and
 //  signal the start up when that has loaded.
 //
-MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
+MathJax.Ajax.Require("[a11y]/Semantic-Complexity.js");
 MathJax.Hub.Register.StartupHook("Semantic Complexity Ready", function () {
   MathJax.Extension.SemanticCollapse.Startup(); // Initialize the collapsing process
   MathJax.Hub.Startup.signal.Post("Semantic Collapse Ready");
-  MathJax.Ajax.loadComplete("[RespEq]/Semantic-Collapse.js");
+  MathJax.Ajax.loadComplete("[a11y]/Semantic-Collapse.js");
 });
 
