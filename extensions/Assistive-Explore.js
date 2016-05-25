@@ -24,7 +24,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       foreground: 'black',
       speech: true,
       generation: 'lazy',
-      subtitle: true,
+      subtitle: false,
       ruleset: 'mathspeak-default'
     },
     eagerComplexity: 80,
@@ -656,7 +656,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     MathJax.Hub.Startup.signal.Post('Explorer Ready');
     MathJax.Hub.Register.StartupHook('MathMenu Ready', function () {
       COOKIE = MathJax.Menu.cookie;
-      if (SETTINGS.explorer == null) SETTINGS.explorer = true;
       var Switch = function(menu) {
         Assistive[SETTINGS.explorer ? "Enable" : "Disable"](true,true);
         MathJax.Menu.saveCookie();
@@ -735,6 +734,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         index = MENU.IndexOfId('CollapsibleMath');
         MENU.items.splice(index+1,0,accessibilityMenu);
       }
+      if (!SETTINGS.explorer) Assistive.DisableMenus(true);
     },20);  // Between Semantic-Complexity and Semantic-Collapse
   },20);
 
