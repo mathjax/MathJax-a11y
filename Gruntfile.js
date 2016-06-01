@@ -22,11 +22,11 @@ module.exports = function(grunt) {
       },
       build: {
         files: {
-          'dist/Accessibility-Extension.js': 'extensions/Accessibility-Extension.js',
-          'dist/Assistive-Explore.js': 'extensions/Assistive-Explore.js',
-          'dist/Semantic-Collapse.js': 'extensions/Semantic-Collapse.js',
-          'dist/Semantic-Complexity.js': 'extensions/Semantic-Complexity.js',
-          'dist/Semantic-MathML.js': 'extensions/Semantic-MathML.js'
+          'dist/accessibility-menu.js': 'extensions/accessibility-menu.js',
+          'dist/explorer.js': 'extensions/explorer.js',
+          'dist/auto-collapse.js': 'extensions/auto-collapse.js',
+          'dist/collapsible.js': 'extensions/collapsible.js',
+          'dist/semantic-enrich.js': 'extensions/semantic-enrich.js'
         }
       }
     },
@@ -51,7 +51,7 @@ module.exports = function(grunt) {
         }
       },
       copy: [
-        'cp speech-rule-engine/lib/sre_mathjax.js dist/',
+        'cp speech-rule-engine/lib/sre_mathjax.js dist/sre.js',
         'cp speech-rule-engine/node_modules/wicked-good-xpath/dist/wgxpath.install.js dist/',
         'cp -R speech-rule-engine/src/mathmaps dist/',
         'cp extensions/*.ogg dist/',
