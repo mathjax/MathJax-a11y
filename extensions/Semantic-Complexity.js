@@ -8,15 +8,28 @@
 (function (HUB) {
   var MML;
   
+  var SETTINGS = HUB.config.menuSettings;
+  var COOKIE = {};   // replaced when menu is available
+  
   var NOCOLLAPSE = 10000000; // really big complexity
   var COMPLEXATTR = "data-semantic-complexity";
+
+  //
+  //  Set up the a11y path,if it isn't already in place
+  //
+  var PATH = MathJax.Ajax.config.path;
+  if (!PATH.a11y) PATH.a11y =
+      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
+      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+        "//cdn.mathjax.org/mathjax/contrib/a11y");
 
   var Complexity = MathJax.Extension.SemanticComplexity = {
     version: "1.0",
     config: HUB.CombineConfig("SemanticComplexity",{
       disabled: false
     }),
-    COMPLEXATTR: COMPLEXATTR,
+    dependents: [],            // the extensions that depend on this one
+    COMPLEXATTR: COMPLEXATTR,  // attribute name for the complexity value
 
     /*****************************************************************/
 
@@ -114,12 +127,38 @@
 
     /*****************************************************************/
 
-    Enable: function () {Complexity.config.disabled = false;},
-    Disable: function () {Complexity.config.disabled = true;},
+    Enable: function (update,menu) {
+      SETTINGS.collapsible = true;
+      if (menu) COOKIE.collapsible = true;
+      this.config.disabled = false;
+      MathJax.Extension.SemanticMathML.Enable(false,menu);
+      if (update) HUB.Queue(["Reprocess",HUB]);
+    },
+    Disable: function (update,menu) {
+      SETTINGS.collapsible = false;
+      if (menu) COOKIE.collapsible = false;
+      this.config.disabled = true;
+      for (var i = this.dependents.length-1; i >= 0; i--) {
+        var dependent = this.dependents[i];
+        if (dependent.Disable) dependent.Disable(false,menu);
+      }
+      if (update) HUB.Queue(["Reprocess",HUB]);
+    },
     
+    //
+    //  Register a dependent
+    //
+    Dependent: function (extension) {
+      this.dependents.push(extension);
+    },
+
     Startup: function () {
       MML = MathJax.ElementJax.mml;
-      
+      //
+      //  Inform SemanticMathML that we are a dependent
+      //
+      var SMML = MathJax.Extension.SemanticMathML;
+      if (SMML) SMML.Dependent(this);
       //
       //  Add the filter into the post-input hooks (priority 100, so other
       //  hooks run first, in particular, the enrichment hook).
@@ -135,7 +174,7 @@
       jax.root = jax.root.Collapse();
       jax.root.inputID = script.id;
     },
-
+    
     /*****************************************************************/
 
     //
@@ -398,35 +437,32 @@
     }
   };
 
-  MathJax.Hub.Register.StartupHook("MathMenu Ready", function() {
-    // This is a dirty hack. Not sure how to do it otherwise!
-    if (MathJax.Extension['Assistive']) {
-      MathJax.Menu.config.settings['responsive'] = true;
-      Complexity.Enable();
+  HUB.Register.StartupHook("End Extensions", function () {
+    if (SETTINGS.collapsible == null) {
+      SETTINGS.collapsible = !Complexity.config.disabled;
+    } else {
+      Complexity.config.disabled = !SETTINGS.collapsible;
     }
-    var Switch = function(menu) {
-      MathJax.Menu.config.settings['responsive'] ?
-        Complexity.Enable() :
-        Complexity.Disable();
-      if (menu) MathJax.Hub.Reprocess();
-    };
-    var ITEM = MathJax.Menu.ITEM;
-    var SETTINGS = MathJax.Menu.config.settings;
-    var menu = ITEM.CHECKBOX('Responsive Equations', 'responsive',
-                             {action: Switch});
-    var index = MathJax.Menu.menu.IndexOfId('Responsive Equations');
-    Switch();
-    if (index !== null) {
-      MathJax.Menu.menu.items[index] = menu;
-      return;
-    };
-    var about = MathJax.Menu.menu.IndexOfId('About');
-    if (about === null) {
-      MathJax.Menu.menu.items.push(ITEM.RULE(), menu);
-      return;
-    }
-    MathJax.Menu.menu.items.splice(about, 0, menu, ITEM.RULE());
-  });
+    HUB.Register.StartupHook("MathMenu Ready", function () {
+      COOKIE = MathJax.Menu.cookie;
+      var Switch = function(menu) {
+        Complexity[SETTINGS.collapsible ? "Enable" : "Disable"](true,true);
+        MathJax.Menu.saveCookie();
+      };
+      var ITEM = MathJax.Menu.ITEM,
+          MENU = MathJax.Menu.menu;
+      var menu = ITEM.CHECKBOX(
+        ['CollapsibleMath','Collapsible Math'], 'collapsible', {action: Switch}
+      );
+      var index = MENU.IndexOfId('CollapsibleMath');
+      if (index !== null) {
+        MENU.items[index] = menu;
+      } else {
+        index = MENU.IndexOfId('About');
+        MENU.items.splice(index,0,menu,ITEM.RULE());
+      }
+    },15);  // before Assistive-Explore
+  },15);
 
 })(MathJax.Hub);
 
@@ -438,14 +474,14 @@
  *  special handling.
  */
 
-MathJax.Ajax.Require("[RespEq]/Semantic-MathML.js");
+MathJax.Ajax.Require("[a11y]/Semantic-MathML.js");
 MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   var MML = MathJax.ElementJax.mml,
       Complexity = MathJax.Extension.SemanticComplexity,
       COMPLEXITY = Complexity.COMPLEXITY,
       COMPLEXATTR = Complexity.COMPLEXATTR;
       
-  Complexity.Startup(MML); // Initialize the collapsing process
+  Complexity.Startup(); // Initialize the collapsing process
 
   MML.mbase.Augment({
     //
@@ -678,6 +714,6 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //  Signal that we are ready
   //
   MathJax.Hub.Startup.signal.Post("Semantic Complexity Ready");
-  MathJax.Ajax.loadComplete("[RespEq]/Semantic-Complexity.js");
+  MathJax.Ajax.loadComplete("[a11y]/Semantic-Complexity.js");
 });
 
