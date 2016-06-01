@@ -15,9 +15,9 @@
       (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
         "//cdn.mathjax.org/mathjax/contrib/a11y");
 
-  var Collapse = MathJax.Extension.SemanticCollapse = {
+  var Collapse = MathJax.Extension["auto-collapse"] = {
     version: "1.0",
-    config: HUB.CombineConfig("SemanticCollapse",{
+    config: HUB.CombineConfig("auto-collapse",{
       disabled: false
     }),
     dependents: [],  // the extensions that depend on this one
@@ -28,7 +28,7 @@
       SETTINGS.autocollapse = true;
       if (menu) COOKIE.autocollapse = true
       this.config.disabled = false;
-      MathJax.Extension.SemanticComplexity.Enable(false,menu);
+      MathJax.Extension.collapsible.Enable(false,menu);
       if (update) {
         HUB.Queue(
           ["Reprocess",HUB],
@@ -56,10 +56,10 @@
 
     Startup: function () {
       //
-      //  Inform SemanticComplexity that we are a dependent
+      //  Inform collapsible extension that we are a dependent
       //
-      var Complexity = MathJax.Extension.SemanticComplexity;
-      if (Complexity) Complexity.Dependent(this);
+      var Collapsible = MathJax.Extension.collapsible;
+      if (Collapsible) Collapsible.Dependent(this);
       //
       //  Add the filter into the post-input hooks (priority 150, so other
       //  hooks run first, in particular, the enrichment and complexity hooks).
@@ -461,13 +461,13 @@ MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
 /*****************************************************************/
 
 //
-//  Load the Semantic-Compmlexity extension and
+//  Load the collapsible extension and
 //  signal the start up when that has loaded.
 //
-MathJax.Ajax.Require("[a11y]/Semantic-Complexity.js");
-MathJax.Hub.Register.StartupHook("Semantic Complexity Ready", function () {
-  MathJax.Extension.SemanticCollapse.Startup(); // Initialize the collapsing process
-  MathJax.Hub.Startup.signal.Post("Semantic Collapse Ready");
-  MathJax.Ajax.loadComplete("[a11y]/Semantic-Collapse.js");
+MathJax.Ajax.Require("[a11y]/collapsible.js");
+MathJax.Hub.Register.StartupHook("Collapsible Ready", function () {
+  MathJax.Extension["auto-collapse"].Startup(); // Initialize the collapsing process
+  MathJax.Hub.Startup.signal.Post("Auto Collapse Ready");
+  MathJax.Ajax.loadComplete("[a11y]/auto-collapse.js");
 });
 
