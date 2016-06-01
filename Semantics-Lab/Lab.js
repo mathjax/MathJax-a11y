@@ -38,12 +38,12 @@ var Lab = {
     if (this.jax) {
       var math = this.DOM.input.value;
       MathJax.Hub.Queue(
-        ["Disable",this.SMML],
+        function () {Lab.Enrich.config.disabled = true},
         ["Text",this.jax[0],math],
-        ["Enable",this.SMML],
+        function () {Lab.Enrich.config.disabled = false},
         ["Text",this.jax[1],math],
         ["ShowMathML",this],
-        ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
+        ["CollapseWideMath",MathJax.Extension["auto-collapse"]]
       );
     }
   },
@@ -54,7 +54,7 @@ var Lab = {
     MathJax.Hub.Queue(
       ["Reprocess",this.jax[1]],
       ["ShowMathML",this],
-      ["CollapseWideMath",MathJax.Extension.SemanticCollapse]
+      ["CollapseWideMath",MathJax.Extension["auto-collapse"]]
     );
   },
 
@@ -118,7 +118,7 @@ var Lab = {
   setWidth: function (width,skipHandler) {
     this.DOM.container.style.width = width + "%";
     this.DOM.range_output.innerHTML = width + "%";
-    if (!skipHandler) MathJax.Extension.SemanticCollapse.resizeHandler({});
+    if (!skipHandler) MathJax.Extension["auto-collapse"].resizeHandler({});
   },
   
   //
@@ -128,8 +128,8 @@ var Lab = {
     var n = {none:0, enrich:1, complexity:2, collapse:3}[type];
     for (var i = 1; i < 4; i++) {
       this.OPTION[["","enrich","complexity","collapse"][i]] = (i <= n);
-      var extension = MathJax.Extension["Semantic"+["","MathML","Complexity","Collapse"][i]];
-      extension[i <= n ? "Enable" : "Disable"]();
+      var extension = MathJax.Extension[["","semantic-enrich","collapsible","auto-collapse"][i]];
+      if (extension) extension[i <= n ? "Enable" : "Disable"]();
     }
     if (!skipUpdate) this.Rerender();
   },
@@ -246,7 +246,7 @@ MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 //
 MathJax.Hub.Register.StartupHook("Explorer Ready",
                                  function() {
-                                   Lab.ASSISTIVE = MathJax.Extension.Assistive;
+                                   Lab.ASSISTIVE = MathJax.Extension.Explorer;
                                    Lab.executeExplorerOptions();
                                  });
 
@@ -260,18 +260,30 @@ MathJax.Hub.Register.MessageHook('End Reprocess', ['ShowMathML', Lab]);
 //
 MathJax.Hub.Register.StartupHook("MathMenu Ready",function () {
   MathJax.Extension.MathMenu.signal.Interest(function (message) {
+    var variable, key, element;
     if (message[0] === "radio button") {
-      var variable = message[1].variable;
+      variable = message[1].variable;
       if (variable === 'renderer') {
         Lab.DOM.renderer.value = message[1].value;
         return;
       }
       if (String(variable).match(/^Assistive-/)) {
-        var key = String(variable).replace('Assistive-', '');
-        var element = document.getElementById(key);
-        if (element) {
-          element.value = message[1].value;
-        }
+        key = String(variable).replace('Assistive-', '');
+        element = document.getElementById(key);
+        if (element) element.value = message[1].value;
+        return;
+      }
+    }
+    if (message[0] === "checkbox") {
+      variable = message[1].variable;
+      if (variable === "collapsible" || variable === "autocollapse" || variable === "explorer") {
+        setTimeout(function () {
+          var SETTINGS = MathJax.Hub.config.menuSettings;
+          var type = (SETTINGS.autocollapse ? "collapse" :
+                      SETTINGS.collapsible ? "complexity" : "enrich");
+        
+          Lab.setOption("enhance",type);
+        },0);
       }
     }
   });
@@ -297,7 +309,7 @@ MathJax.Hub.Queue(function () {
   ];
   if (window.location.search.length > 1) 
     defaults = window.location.search.replace(/.*\?/,"").split(/;/);
-  Lab.SMML = MathJax.Extension.SemanticMathML;
+  Lab.Enrich = MathJax.Extension["semantic-enrich"];
   Lab.jax = MathJax.Hub.getAllJax();
   Lab.Current = parseInt(defaults[0]);
   Lab.setOption("example",defaults[0]);
