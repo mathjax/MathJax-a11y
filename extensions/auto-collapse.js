@@ -341,6 +341,7 @@
         index = MENU.IndexOfId('CollapsibleMath');
         MENU.items.splice(index+1,0,menu);
       }
+      Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"]();
     },25);  // after Assistive-Explore
   },25);
 
