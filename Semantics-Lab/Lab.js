@@ -246,7 +246,7 @@ MathJax.Hub.Register.MessageHook("New Math",["NewMath",Lab]);
 //
 MathJax.Hub.Register.StartupHook("Explorer Ready",
                                  function() {
-                                   Lab.ASSISTIVE = MathJax.Extension.Explorer;
+                                   Lab.ASSISTIVE = MathJax.Extension.explorer;
                                    Lab.executeExplorerOptions();
                                  });
 
