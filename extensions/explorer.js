@@ -119,6 +119,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       SETTINGS.explorer = true;
       if (menu) COOKIE.explorer = true;
       MathJax.Extension.collapsible.Enable(false,menu);
+      if (MathJax.Extension.AssistiveMML) {
+        MathJax.Extension.AssistiveMML.config.disabled = true;
+        SETTINGS.assistiveMML = false;
+        if (menu) COOKIE.assistiveMML = false;
+      }
       this.DisableMenus(false);
       if (!this.hook) {
         this.hook = MathJax.Hub.Register.MessageHook( 
