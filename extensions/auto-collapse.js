@@ -458,7 +458,6 @@ MathJax.Hub.Register.StartupHook("CommonHTML Jax Ready",function () {
 //  Specific implementations for NativeMML output.
 //
 MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
-  var dummyRestart = MathJax.Callback({}); dummyRestart();
   MathJax.OutputJax.NativeMML.Augment({
     sreGetMetrics: function (jax,SRE) {
       var span = document.getElementById(jax.inputID+"-Frame");
