@@ -31,7 +31,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
 
-  var Assistive = MathJax.Extension.Explorer = {
+  var Assistive = MathJax.Extension.explorer = {
     version: '1.0',
     dependents: [],            // the extensions that depend on this one
     //
@@ -261,9 +261,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       setTimeout(function() {document.body.removeChild(div);}, 1000);
     }
   });
-  MathJax.Extension.Explorer.LiveRegion = LiveRegion;
+  MathJax.Extension.explorer.LiveRegion = LiveRegion;
 
-  var Explorer = MathJax.Extension.Explorer.Explorer = {
+  var Explorer = MathJax.Extension.explorer.Explorer = {
     liveRegion: LiveRegion(),
     walker: null,
     highlighter: null,
@@ -771,6 +771,6 @@ if (!MathJax.Ajax.config.path.a11y)
 
 MathJax.Ajax.Require("[a11y]/collapsible.js");
 MathJax.Hub.Register.StartupHook('Collapsible Ready', function() {
-  MathJax.Extension.Explorer.Explorer.Startup();
+  MathJax.Extension.explorer.Explorer.Startup();
   MathJax.Ajax.loadComplete('[a11y]/explorer.js');
 });
