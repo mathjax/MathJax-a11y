@@ -163,8 +163,9 @@
       return this.collapseState(state);
     },
     collapseState: function (state) {
+      var collapse = state.collapse;
       while (state.i < state.m) {
-        var jax = state.jax[state.i], collapse = state.collapse;
+        var jax = state.jax[state.i];
         var SRE = jax.root.SRE; state.changed = false;
         if (SRE && SRE.action.length) {
           if (SRE.cwidth < SRE.m || SRE.cwidth > SRE.M) {
