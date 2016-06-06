@@ -582,12 +582,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     Walkers: {
       'syntactic': sre.SyntaxWalker,
       'semantic': sre.SemanticWalker,
-      'dummy': sre.DummyWalker
+      'none': sre.DummyWalker
     },
     ActivateWalker: function(math, jax) {
       var speechOn = Assistive.getOption('speech');
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
-          Explorer.Walkers['dummy'];
+          Explorer.Walkers['none'];
       var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
           new sre.DummySpeechGenerator();
       Explorer.GetHighlighter(.2);
@@ -694,7 +694,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               ITEM.CHECKBOX(['Active', 'Active'], 'explorer', {action: Switch}),
               ITEM.RULE(),
               ITEM.SUBMENU(['Walker', 'Walker'],
-                  ITEM.RADIO(['dummy', 'No walker'], 'Assistive-walker'),
+                  ITEM.RADIO(['none', 'No walker'], 'Assistive-walker'),
                   ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
                   ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
               ),
