@@ -767,6 +767,23 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 });
 
 //
+//  Patch problem with SVG getJaxForMath when used from explorer
+//  (can be removed after the next release of MathJax).
+//
+MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
+  var SVG = MathJax.OutputJax.SVG;
+  if (parseFloat(SVG.version) < 2.7) {
+    var JAXFROMMATH = SVG.getJaxFromMath;
+    SVG.Augment({
+      getJaxFromMath: function (math) {
+        if (math.parentNode.className.match(/MathJax_SVG_Display/)) math = math.parentNode;
+        return JAXFROMMATH.apply(this,math);
+      }
+    });
+  }
+});
+
+//
 //  Set up the a11y path,if it isn't already in place
 //
 if (!MathJax.Ajax.config.path.a11y) {
