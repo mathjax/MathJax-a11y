@@ -694,7 +694,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               ITEM.CHECKBOX(['Active', 'Active'], 'explorer', {action: Switch}),
               ITEM.RULE(),
               ITEM.SUBMENU(['Walker', 'Walker'],
-                  ITEM.RADIO(['none', 'No walker'], 'Assistive-walker'),
+                  ITEM.RADIO(['nowalker', 'No walker'], 'Assistive-walker', {value:"none"}),
                   ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
                   ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
               ),
