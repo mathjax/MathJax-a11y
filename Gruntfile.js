@@ -51,7 +51,7 @@ module.exports = function(grunt) {
         }
       },
       copy: [
-        'cp speech-rule-engine/lib/sre_mathjax.js dist/sre.js',
+        'cp speech-rule-engine/lib/sre_mathjax.js dist/mathjax-sre.js',
         'cp speech-rule-engine/node_modules/wicked-good-xpath/dist/wgxpath.install.js dist/',
         'cp -R speech-rule-engine/src/mathmaps dist/',
         'cp extensions/*.ogg dist/',
