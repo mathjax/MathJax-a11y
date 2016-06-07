@@ -685,8 +685,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Assistive[SETTINGS.explorer ? 'Enable' : 'Disable'](true, true);
         MathJax.Menu.saveCookie();
       };
-      var ITEM = MathJax.Menu.ITEM;
-      MENU = MathJax.Menu.menu;
+      var ITEM = MathJax.Menu.ITEM,
+          MENU = MathJax.Menu.menu;
       var reset = {action: Explorer.Reset};
       var speech = {action: Assistive.speechOption};
       var explorerMenu =
