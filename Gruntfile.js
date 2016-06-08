@@ -14,7 +14,8 @@ module.exports = function(grunt) {
           cwd: "."
         }
       }
-    },    'uglify': {
+    },
+    'uglify': {
       mathmaps: {
         files: {
           'dist/mathmaps/mathmaps_ie.js': 'dist/mathmaps/mathmaps_ie.js'
@@ -31,11 +32,30 @@ module.exports = function(grunt) {
       }
     },
     shell: {
+      clean_dist: {
+        command: 'rm -rf dist'
+      },
+      make_dist: {
+        command: 'mkdir -p dist'
+      },
+      clean_sre: {
+        command: 'rm -rf speech-rule-engine'
+      },
+      clean_node: {
+        command: 'rm -rf node_modules'
+      },
       prepare: {
-        command: 'rm -f dist/*.js; rm -rf dist/mathmaps; rm -f dist/*.mp3; rm -f dist/*.ogg' //; rm -rf node_modules/speech-rule-engine'
+        command: [
+          '<%= shell.clean_dist.command %>',
+          '<%= shell.make_dist.command %>'
+        ].join('&&')
       },
       clean: {
-        command: 'rm -rf speech-rule-engine'
+        command: [
+          '<%= shell.clean_node.command %>',
+          '<%= shell.clean_sre.command %>',
+          '<%= shell.clean_dist.command %>'
+        ].join('&&')
       },
       compile: {
         command: [
@@ -77,7 +97,7 @@ module.exports = function(grunt) {
     'shell:copy',
     'json-minify',
     'uglify',
-    'shell:clean'
+    'shell:clean_sre'
   ]);
 
 };
