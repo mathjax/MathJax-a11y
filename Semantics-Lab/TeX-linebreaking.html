@@ -20,13 +20,14 @@ var Lab = {
   //
   Typeset: function () {
     if (this.jax) {
-      var TeX = this.input.value;
+      var math = this.input.value;
       MathJax.Hub.Queue(
-        ["Disable",this.SMML],
-        ["Text",this.jax[0],TeX],
-        ["Enable",this.SMML],
-        ["Text",this.jax[1],TeX],
-        ["ShowMathML",this]
+        function () {Lab.Enrich.config.disabled = true},
+        ["Text",this.jax[0],math],
+        function () {Lab.Enrich.config.disabled = false},
+        ["Text",this.jax[1],math],
+        ["ShowMathML",this],
+        ["CollapseWideMath",MathJax.Extension["auto-collapse"]]
       );
     }
   },
@@ -59,7 +60,7 @@ var Lab = {
 MathJax.Hub.Queue(function () {
   Lab.jax = MathJax.Hub.getAllJax();
   Lab.input = document.getElementById("input");
-  Lab.SMML = MathJax.Extension.SemanticMathML;
+  Lab.Enrich = MathJax.Extension["semantic-enrich"];
   Lab.mathml = document.getElementById("mathml");
   if (window.location.search) {
     Lab.input.value = unescape(window.location.search.substr(1));
@@ -67,19 +68,15 @@ MathJax.Hub.Queue(function () {
   }
 });
 
-//
-//  Don't use the fast preview
-//
 MathJax.Hub.Config({
-  menuSettings: { FastPreview: false },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } }
+  extensions: ["[a11y]/explorer.js","[a11y]/auto-collapse.js"],
+  "fast-preview": {disabled: true},
+  AssistiveMML: {disabled: true},
+  "HTML-CSS": {linebreaks: {automatic: true}},
+  SVG: {linebreaks: {automatic: true}},
+  explorer: {speech: false}
 });
-MathJax.Ajax.config.path["RespEq"] = "../extensions";
-MathJax.Hub.config.extensions.push(
-  "[RespEq]/Assistive-Explore.js",
-  "[RespEq]/Semantic-Collapse.js"
-);
+MathJax.Ajax.config.path["a11y"] = "../extensions";
 
 (function() {
   window.addEventListener("resize", resizeThrottler, false);
@@ -93,8 +90,8 @@ MathJax.Hub.config.extensions.push(
       }, 300);
     }
   }
-
-}());</script>
+}());
+</script>
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>
 </head>
 <body>
@@ -124,9 +121,5 @@ Enriched MathML:
 </div>
 </p>
 
-
-
-
-
-  </body>
+</body>
 </html>

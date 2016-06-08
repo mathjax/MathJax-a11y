@@ -1,6 +1,27 @@
-//
-// Thin hook to include the accessibility extension.
-//
+/*************************************************************
+ *
+ *  [Contrib]/a11y/accessibility-menu.js
+ *  
+ *  A thin extension to add opt-in menu items for the accessibility
+ *  extensions in the a11y contributed directory.
+ *
+ *  ---------------------------------------------------------------------
+ *  
+ *  Copyright (c) 2016 The MathJax Consortium
+ * 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 (function(HUB,EXTENSIONS) {
   var SETTINGS = HUB.config.menuSettings;
   var ITEM, MENU; // filled in when MathMenu extension loads
@@ -22,7 +43,7 @@
       (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
         "//cdn.mathjax.org/mathjax/contrib/a11y");
 
-  var Accessibility = EXTENSIONS.Accessibility = {
+  var Accessibility = EXTENSIONS["accessibility-menu"] = {
     version: '1.0',
     prefix: '', //'Accessibility-',
     default: {},
@@ -120,26 +141,23 @@
   HUB.Register.StartupHook('End Extensions', function () {
     HUB.Register.StartupHook('MathMenu Ready', function () {
       Accessibility.Startup();
-      HUB.Startup.signal.Post('Accessibility Loader Ready');
+      HUB.Startup.signal.Post('Accessibility Menu Ready');
     },5);   // run before other extensions' menu hooks even if they are loaded first
   },5);
   
   Accessibility.Register(
     ModuleLoader(
-      'collapsible', 'Collapsible Math', '[a11y]/Semantic-Complexity.js',
-      'SemanticComplexity'
+      'collapsible', 'Collapsible Math', '[a11y]/collapsible.js', 'collapsible'
     )
   );
   Accessibility.Register(
     ModuleLoader(
-      'autocollapse', 'Auto Collapse', '[a11y]/Semantic-Collapse.js',
-      'SemanticCollapse'
+      'autocollapse', 'Auto Collapse', '[a11y]/auto-collapse.js', 'auto-collapse'
     )
   );
   Accessibility.Register(
     ModuleLoader(
-      'explorer', 'Accessibility', '[a11y]/Assistive-Explore.js',
-      'Assistive', true
+      'explorer', 'Explorer', '[a11y]/explorer.js', 'explorer', true
     )
   );
 
@@ -147,7 +165,7 @@
   
   MathJax.Callback.Queue(
     ["LoadExtensions",Accessibility],
-    ["loadComplete",MathJax.Ajax,"[a11y]/Accessibility-Extension.js"]
+    ["loadComplete",MathJax.Ajax,"[a11y]/accessibility-menu.js"]
   );
 
 })(MathJax.Hub,MathJax.Extension);

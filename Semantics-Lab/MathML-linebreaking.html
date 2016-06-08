@@ -20,23 +20,16 @@ var Lab = {
   //
   Typeset: function () {
     if (this.jax) {
-      var MathML = this.input.value;
+      var math = this.input.value;
       MathJax.Hub.Queue(
-        ["Disable",this.SMML],
-        ["Text",this.jax[0],MathML],
-        ["Enable",this.SMML],
-        ["Text",this.jax[1],MathML],
-        ["ShowMathML",this]
+        function () {Lab.Enrich.config.disabled = true},
+        ["Text",this.jax[0],math],
+        function () {Lab.Enrich.config.disabled = false},
+        ["Text",this.jax[1],math],
+        ["ShowMathML",this],
+        ["CollapseWideMath",MathJax.Extension["auto-collapse"]]
       );
     }
-  },
-  //
-  //  Encode the TeX and add it to the URL so that reloading the page
-  //  keeps the same TeX in place (so when you edit the code, you don't
-  //  have to retype the TeX to view it again).
-  //
-  Keep: function () {
-    window.location = String(window.location).replace(/\?.*/,"")+"?"+escape(this.input.value);
   },
   //
   //  Show the enhanced MathML
@@ -67,7 +60,7 @@ var Lab = {
 MathJax.Hub.Queue(function () {
   Lab.jax = MathJax.Hub.getAllJax();
   Lab.input = document.getElementById("input");
-  Lab.SMML = MathJax.Extension.SemanticMathML;
+  Lab.Enrich = MathJax.Extension["semantic-enrich"];
   Lab.mathml = document.getElementById("mathml");
   if (window.location.search) {
     Lab.input.value = unescape(window.location.search.substr(1));
@@ -75,19 +68,15 @@ MathJax.Hub.Queue(function () {
   }
 });
 
-//
-//  Don't use the fast preview
-//
 MathJax.Hub.Config({
-  menuSettings: { FastPreview: false },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } }
+  extensions: ["[a11y]/explorer.js","[a11y]/auto-collapse.js"],
+  "fast-preview": {disabled: true},
+  AssistiveMML: {disabled: true},
+  "HTML-CSS": {linebreaks: {automatic: true}},
+  SVG: {linebreaks: {automatic: true}},
+  explorer: {speech: false}
 });
-MathJax.Ajax.config.path["RespEq"] = "../extensions";
-MathJax.Hub.config.extensions.push(
-  "[RespEq]/Assistive-Explore.js",
-  "[RespEq]/Semantic-Collapse.js"
-);
+MathJax.Ajax.config.path["a11y"] = "../extensions";
 
 (function() {
   window.addEventListener("resize", resizeThrottler, false);
@@ -101,12 +90,13 @@ MathJax.Hub.config.extensions.push(
       }, 300);
     }
   }
-
 }());
 </script>
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML-full"></script>
+</head>
+<body>
 
-  <p>
+<p>
 <table border="0" cellpadding="0" cellspacing="2">
 <tr><td align="left">Enter MathML code here:</td></tr>
 <tr><td><textarea id="input" rows="10" cols="60" onkeypress="Lab.CheckKey(event)" style="font-size:110%"></textarea></td></tr>
@@ -131,9 +121,5 @@ Enriched MathML:
 </div>
 </p>
 
-
-
-
-
-  </body>
+</body>
 </html>

@@ -1,6 +1,26 @@
-//
-// Connection to SRE explorer.
-//
+/*************************************************************
+ *
+ *  [Contrib]/a11y/explorer.js
+ *
+ *  Implements expression exploration via the SRE explorer.
+ *
+ *  ---------------------------------------------------------------------
+ *
+ *  Copyright (c) 2016 The MathJax Consortium
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   var FALSE, KEY;
   var SETTINGS = MathJax.Hub.config.menuSettings;
@@ -11,7 +31,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     KEY = MathJax.Extension.MathEvents.Event.KEY;
   });
 
-  var Assistive = MathJax.Extension.Assistive = {
+  var Assistive = MathJax.Extension.explorer = {
     version: '1.0',
     dependents: [],            // the extensions that depend on this one
     //
@@ -36,10 +56,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
 
     addDefaults: function() {
-      var keys = Object.keys(Assistive.default);
+      var defaults = MathJax.Hub.CombineConfig('explorer', Assistive.default);
+      var keys = Object.keys(defaults);
       for (var i = 0, key; key = keys[i]; i++) {
         if (typeof(SETTINGS[Assistive.prefix + key]) === 'undefined') {
-          Assistive.addMenuOption(key, Assistive.default[key]);
+          Assistive.addMenuOption(key, defaults[key]);
         }
       }
       Assistive.setSpeechOption();
@@ -75,37 +96,42 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 
     Domain: function(domain) {
       switch (domain) {
-      case 'chromevox':
-        return 'default';
-      case 'mathspeak':
-      default:
-        return 'mathspeak';
+        case 'chromevox':
+          return 'default';
+        case 'mathspeak':
+        default:
+          return 'mathspeak';
       }
     },
 
     RuleSet: function(domain) {
       switch (domain) {
-      case 'chromevox':
-        return ['AbstractionRules', 'SemanticTreeRules'];
-      case 'mathspeak':
-      default:
-        return ['AbstractionRules', 'MathspeakRules'];
+        case 'chromevox':
+          return ['AbstractionRules', 'SemanticTreeRules'];
+        case 'mathspeak':
+        default:
+          return ['AbstractionRules', 'MathspeakRules'];
       }
     },
 
     hook: null,
-    Enable: function(update,menu) {
+    Enable: function(update, menu) {
       SETTINGS.explorer = true;
       if (menu) COOKIE.explorer = true;
-      MathJax.Extension.SemanticComplexity.Enable(false,menu);
+      MathJax.Extension.collapsible.Enable(false, menu);
+      if (MathJax.Extension.AssistiveMML) {
+        MathJax.Extension.AssistiveMML.config.disabled = true;
+        SETTINGS.assistiveMML = false;
+        if (menu) COOKIE.assistiveMML = false;
+      }
       this.DisableMenus(false);
       if (!this.hook) {
-        this.hook = MathJax.Hub.Register.MessageHook( 
-          'New Math', ['Register', this.Explorer]);
+        this.hook = MathJax.Hub.Register.MessageHook(
+            'New Math', ['Register', this.Explorer]);
       }
       if (update) MathJax.Hub.Queue(['Reprocess', MathJax.Hub]);
     },
-    Disable: function(update,menu) {
+    Disable: function(update, menu) {
       SETTINGS.explorer = false;
       if (menu) COOKIE.explorer = false;
       this.DisableMenus(true);
@@ -113,16 +139,16 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         MathJax.Hub.UnRegister.MessageHook(this.hook);
         this.hook = null;
       }
-      for (var i = this.dependents.length-1; i >= 0; i--) {
+      for (var i = this.dependents.length - 1; i >= 0; i--) {
         var dependent = this.dependents[i];
-        if (dependent.Disable) dependent.Disable(false,menu);
+        if (dependent.Disable) dependent.Disable(false, menu);
       }
       //  Reprocess on update?  I don't think it is necessary
       //    (now that we check for being enabled in the event handlers)
     },
-    DisableMenus: function (state) {
+    DisableMenus: function(state) {
       if (MathJax.Menu) {
-        var menu = MathJax.Menu.menu.FindId("Accessibility");
+        var menu = MathJax.Menu.menu.FindId('Explorer');
         if (menu) {
           var items = menu.submenu.items;
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
@@ -132,7 +158,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     //  Register a dependent
     //
-    Dependent: function (extension) {
+    Dependent: function(extension) {
       this.dependents.push(extension);
     }
   };
@@ -240,9 +266,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       setTimeout(function() {document.body.removeChild(div);}, 1000);
     }
   });
-  MathJax.Extension.Assistive.LiveRegion = LiveRegion;
+  MathJax.Extension.explorer.LiveRegion = LiveRegion;
 
-  var Explorer = MathJax.Extension.Assistive.Explorer = {
+  var Explorer = MathJax.Extension.explorer.Explorer = {
     liveRegion: LiveRegion(),
     walker: null,
     highlighter: null,
@@ -382,18 +408,18 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       if (math.getAttribute('hasspeech')) return;
       switch (Assistive.getOption('generation')) {
-      case 'eager':
-        Explorer.AddSpeechEager(mathml, id);
-        break;
-      case 'mixed':
-        var complexity = math.querySelectorAll('[data-semantic-complexity]');
-        if (complexity.length >= Assistive.eagerComplexity) {
+        case 'eager':
           Explorer.AddSpeechEager(mathml, id);
-        }
-        break;
-      case 'lazy':
-      default:
-        break;
+          break;
+        case 'mixed':
+          var complexity = math.querySelectorAll('[data-semantic-complexity]');
+          if (complexity.length >= Assistive.eagerComplexity) {
+            Explorer.AddSpeechEager(mathml, id);
+          }
+          break;
+        case 'lazy':
+        default:
+          break;
       }
     },
     AddSpeechLazy: function(math) {
@@ -402,26 +428,25 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       generator.getSpeech(Explorer.walker.rootNode, Explorer.walker.xml);
       math.setAttribute('hasspeech', 'true');
     },
-    // 
+    //
     //
     // Adds speech strings to the node using a web worker.
     //
     AddSpeechEager: function(mathml, id) {
       Explorer.MakeSpeechTask(
-        mathml, id, sre.TreeSpeechGenerator,
-        function(math, speech) {math.setAttribute('hasspeech', 'true');},
-        5);
+          mathml, id, sre.TreeSpeechGenerator,
+          function(math, speech) {math.setAttribute('hasspeech', 'true');}, 5);
     },
     //
     // Attaches the Math expression as an aria label.
     //
     AddMathLabel: function(mathml, id) {
       Explorer.MakeSpeechTask(
-        mathml, id, sre.SummarySpeechGenerator,
-        function(math, speech) {
-          math.setAttribute('haslabel', 'true');
-          math.setAttribute('aria-label', speech);},
-        5);
+          mathml, id, sre.SummarySpeechGenerator,
+          function(math, speech) {
+            math.setAttribute('haslabel', 'true');
+            math.setAttribute('aria-label', speech);},
+          5);
     },
     //
     // The actual speech task generator.
@@ -432,11 +457,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         var speechGenerator = new constructor();
         var math = document.getElementById(id);
         var dummy = new sre.DummyWalker(
-          math, speechGenerator, Explorer.highlighter, mathml);
+            math, speechGenerator, Explorer.highlighter, mathml);
         var speech = dummy.speech();
         if (speech) {
           onSpeech(math, speech);
-        };
+        }
         Explorer.RemoveMessage(messageID);
       }, time);
     },
@@ -519,14 +544,14 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.highlighter.highlight([frame]);
         Explorer.hoverer = true;
       }
-      MathJax.Extension.MathEvents.Event.False(event);
+      FALSE(event);
     },
     MouseOut: function(event) {
       if (Explorer.hoverer) {
         Explorer.highlighter.unhighlight();
         Explorer.hoverer = false;
       }
-      return MathJax.Extension.MathEvents.Event.False(event);
+      return FALSE(event);
     },
     //
     // Activates Flaming
@@ -557,17 +582,17 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     Walkers: {
       'syntactic': sre.SyntaxWalker,
       'semantic': sre.SemanticWalker,
-      'dummy': sre.DummyWalker
+      'none': sre.DummyWalker
     },
     ActivateWalker: function(math, jax) {
       var speechOn = Assistive.getOption('speech');
       var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
-          Explorer.Walkers['dummy'];
+          Explorer.Walkers['none'];
       var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
           new sre.DummySpeechGenerator();
       Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
-        math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
+          math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
       if (speechOn && !math.getAttribute('hasspeech')) {
         Explorer.AddSpeechLazy(math);
       }
@@ -645,31 +670,31 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     },
     Startup: function() {
-      var Complexity = MathJax.Extension.SemanticComplexity;
-      if (Complexity) Complexity.Dependent(Assistive);
+      var Collapsible = MathJax.Extension.collapsible;
+      if (Collapsible) Collapsible.Dependent(Assistive);
       Assistive.addDefaults();
     }
   };
 
-  MathJax.Hub.Register.StartupHook('End Extensions', function () {
-    Assistive[SETTINGS.explorer === false ? "Disable" : "Enable"]();
+  MathJax.Hub.Register.StartupHook('End Extensions', function() {
+    Assistive[SETTINGS.explorer === false ? 'Disable' : 'Enable']();
     MathJax.Hub.Startup.signal.Post('Explorer Ready');
-    MathJax.Hub.Register.StartupHook('MathMenu Ready', function () {
+    MathJax.Hub.Register.StartupHook('MathMenu Ready', function() {
       COOKIE = MathJax.Menu.cookie;
       var Switch = function(menu) {
-        Assistive[SETTINGS.explorer ? "Enable" : "Disable"](true,true);
+        Assistive[SETTINGS.explorer ? 'Enable' : 'Disable'](true, true);
         MathJax.Menu.saveCookie();
       };
-      var ITEM = MathJax.Menu.ITEM
+      var ITEM = MathJax.Menu.ITEM,
           MENU = MathJax.Menu.menu;
       var reset = {action: Explorer.Reset};
       var speech = {action: Assistive.speechOption};
-      var accessibilityMenu =
-          ITEM.SUBMENU(['Accessibility','Accessibilty'],
-              ITEM.CHECKBOX(['Active','Active'], 'explorer', {action: Switch}),
+      var explorerMenu =
+          ITEM.SUBMENU(['Explorer', 'Explorer'],
+              ITEM.CHECKBOX(['Active', 'Active'], 'explorer', {action: Switch}),
               ITEM.RULE(),
               ITEM.SUBMENU(['Walker', 'Walker'],
-                  ITEM.RADIO(['dummy', 'No walker'], 'Assistive-walker'),
+                  ITEM.RADIO(['nowalker', 'No walker'], 'Assistive-walker', {value:"none"}),
                   ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
                   ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
               ),
@@ -699,8 +724,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                   ITEM.RADIO(['blue', 'Blue'], 'Assistive-foreground', reset)
               ),
               ITEM.RULE(),
-              ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'], 'Assistive-speech',
-                            {action: Explorer.SpeechOutput}),
+              ITEM.CHECKBOX(['SpeechOutput', 'Speech Output'],
+                            'Assistive-speech', {action: Explorer.SpeechOutput}),
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
                             {disabled: !SETTINGS['Assistive-speech']}),
               ITEM.SUBMENU(['Generation', 'Generation'],
@@ -722,34 +747,53 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               ITEM.SUBMENU(['Chromevox', 'ChromeVox Rules'],
                   ITEM.RADIO(['chromevox-default', 'Verbose'],
                              'Assistive-ruleset', speech),
-                  ITEM.RADIO(['chromevox-short', 'Short'], 'Assistive-ruleset', speech),
+                  ITEM.RADIO(['chromevox-short', 'Short'], 'Assistive-ruleset',
+                             speech),
                   ITEM.RADIO(['chromevox-alternative', 'Alternative'],
                              'Assistive-ruleset', speech)
               )
           );
-      var box = MENU.IndexOfId('Accessibility');
+      var box = MENU.IndexOfId('Explorer');
       if (box !== null) {
-        MENU.items[box] = accessibilityMenu;
+        MENU.items[box] = explorerMenu;
       } else {
-        index = MENU.IndexOfId('CollapsibleMath');
-        MENU.items.splice(index+1,0,accessibilityMenu);
+        var index = MENU.IndexOfId('CollapsibleMath');
+        MENU.items.splice(index + 1, 0, explorerMenu);
       }
       if (!SETTINGS.explorer) Assistive.DisableMenus(true);
-    },20);  // Between Semantic-Complexity and Semantic-Collapse
+    },20);  // Between collapsible and auto-collapse extensions
   },20);
 
 });
 
 //
+//  Patch problem with SVG getJaxForMath when used from explorer
+//  (can be removed after the next release of MathJax).
+//
+MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
+  var SVG = MathJax.OutputJax.SVG;
+  if (parseFloat(SVG.version) < 2.7) {
+    var JAXFROMMATH = SVG.getJaxFromMath;
+    SVG.Augment({
+      getJaxFromMath: function (math) {
+        if (math.parentNode.className.match(/MathJax_SVG_Display/)) math = math.parentNode;
+        return JAXFROMMATH.apply(this,math);
+      }
+    });
+  }
+});
+
+//
 //  Set up the a11y path,if it isn't already in place
 //
-if (!MathJax.Ajax.config.path.a11y)
+if (!MathJax.Ajax.config.path.a11y) {
   MathJax.Ajax.config.path.a11y =
-    (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
-      "//cdn.mathjax.org/mathjax/contrib/a11y"
+      (String(location.protocal).match(/^https?:/) ? '' : 'http:') +
+      '//cdn.mathjax.org/mathjax/contrib/a11y';
+}
 
-MathJax.Ajax.Require("[a11y]/Semantic-Complexity.js");
-MathJax.Hub.Register.StartupHook('Semantic Complexity Ready', function() {
-  MathJax.Extension.Assistive.Explorer.Startup();
-  MathJax.Ajax.loadComplete('[a11y]/Assistive-Explore.js');
+MathJax.Ajax.Require('[a11y]/collapsible.js');
+MathJax.Hub.Register.StartupHook('Collapsible Ready', function() {
+  MathJax.Extension.explorer.Explorer.Startup();
+  MathJax.Ajax.loadComplete('[a11y]/explorer.js');
 });
