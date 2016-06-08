@@ -28,6 +28,11 @@ module.exports = function(grunt) {
           'dist/auto-collapse.js': 'extensions/auto-collapse.js',
           'dist/collapsible.js': 'extensions/collapsible.js',
           'dist/semantic-enrich.js': 'extensions/semantic-enrich.js'
+        },
+        options: {
+          beautify: {
+            ascii_only: true
+          }
         }
       }
     },
