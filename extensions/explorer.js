@@ -776,7 +776,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
     SVG.Augment({
       getJaxFromMath: function (math) {
         if (math.parentNode.className.match(/MathJax_SVG_Display/)) math = math.parentNode;
-        return JAXFROMMATH.apply(this,math);
+        return JAXFROMMATH.call(this,math);
       }
     });
   }
