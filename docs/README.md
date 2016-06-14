@@ -3,14 +3,24 @@
 * [Introduction](#introduction)
 * [Quick Start](#quick-start)
 * [Configuration and use](#configuration-and-use)
- * [accessibility-menu.js](#accessibility-menu.js)
- * [explorer.js](#explorer.js)
- * [auto-collapse.js](#auto-collapse.js)
- * [collapsible.js](#collapsible.js)
- * [semantic-enrich.js](#semantic-enrich.js)
- * [mathjax-sre.js and its components](#mathjax-sre.js-and-its-components)
- * [Compatibility](#compatibility)
+  * [accessibility-menu.js](#accessibility-menu.js)
+  * [explorer.js](#explorer.js)
+  * [auto-collapse.js](#auto-collapse.js)
+  * [collapsible.js](#collapsible.js)
+  * [semantic-enrich.js](#semantic-enrich.js)
+  * [mathjax-sre.js and its components](#mathjax-sre.js-and-its-components)
+  * [Compatibility](#compatibility)
 * [Support](#support)
+  * [Browser support](#browser-support)
+  * [Mobile support](#mobile-support)
+  * [MathJax output support](#mathjax-output-support)
+  * [Screenreader support](#screenreader-support)
+    * [Using the explorer](#using-the-explorer)
+    * [Browse and Focus mode](#browse-and-focus-mode)
+    * [Missing and excessive voicing](#missing-and-excessive-voicing)
+    * [Summary of test results](#summary-of-test-results)
+* [Demos](#demos)
+* [Videos](#videos)
 
 ## Introduction
 
@@ -198,6 +208,10 @@ Except for IE, older versions should work as well. Due to severe browser bugs, w
 
 Basic voicing (via aria-labels) should work using Apple VoiceOver and Android Talkback. The explorer tool does not yet support sub-expression exploration on mobile browsers / touchscreen interfaces.
 
+### MathJax output support
+
+While the extensions generally work with any MathJax setup, the explorer only works with MathJax's CommonHTML, SVG, and HTML-CSS output.
+
 ### Screenreader support
 
 We have tested the following screenreaders with the supported browsers on various OS versions.
@@ -211,15 +225,11 @@ We have tested the following screenreaders with the supported browsers on variou
 * [ORCA (3.18, Ubuntu 16.04)]
 * [Dolphin Screenreader (Windows 10)]
 
-Not all combinations of screenreader and browser are usable but for each one (except ORCA and Dolphin) should find some combination that works.
+Not all combinations of screenreader and browser are usable but for each one (except ORCA and Dolphin) should find some combination that works. In particular, the basic speech-text via ARIA lables should be widely supported.
 
-Other screenreaders and/or assistive technologies were tested but failed due to lack of support for ARIA labels and/or applications.
+Other screenreaders and/or assistive technologies were tested but failed due to lack of support for ARIA labels and/or live regions.
 
-### MathJax output support
-
-While the extensions generally work with any MathJax setup, the explorer only works with MathJax's CommonHTML, SVG, and HTML-CSS output.
-
-## Using the explorer
+#### Using the explorer
 
 The application for keyboard navigation allows users to explore sub-expressions simultaneously visually and aurally. The application uses the following keys bindings:
 
@@ -260,7 +270,7 @@ The second challenge occurs when exiting the Explorer tool. Readers want to cont
 
 We continue to work on improving this interaction to enable a better user experience for everyone.
 
-### Missing and excessive voicing
+#### Missing and excessive voicing
 
 Verbosity settings of screenreaders might change how elements are announced or labels are spoken.
 
@@ -268,7 +278,7 @@ Verbosity settings of screenreaders might change how elements are announced or l
 * Some screenreaders will voice (some) unexpected dashes, e.g., speaking "left-parenthesis" as "left dash paranthesis".
 
 
-### Summary of test results
+#### Summary of test results
 
 <table>
     <thead>
