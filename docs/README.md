@@ -2,6 +2,9 @@
 
 * [Introduction](#introduction)
 * [Quick Start](#quick-start)
+* [Reader Guide](#reader-guide)
+  * [Keyboard Exploration](#keyboard-exploration)
+  * [Bookmarklet](#bookmarklet)
 * [Configuration and use](#configuration-and-use)
   * [accessibility-menu.js](#accessibility-menu.js)
   * [explorer.js](#explorer.js)
@@ -71,6 +74,110 @@ MathJax.Hub.Config({
 });
 </script>
 ```
+
+## Reader Guide
+
+On a site that loads any of the MathJax Accessibility Extensions, you will find three additional items in the top level of the MathJax Menu which control the respective extensions:
+
+* "Collapsible Math" (toggle)
+* "Auto-Collapse" (toggle)
+* "Explorer" (submenu)
+
+![MathJax Menu with Accessibility Menu options](menu1.png)
+
+If the Explorer Extension is not active, its submenu will only list one toggle "Activate" and a hint that more options will appear in this submenu when the Explorer Extension is active.
+
+![MathJax Menu with inactive Explorer submenu](menu2.png)
+
+If the Explorer Extension is active, you will see a submenu structure exposing all its options:
+
+* Active (toggle)
+* (separator)
+* Walker (submenu of radio buttons)
+  * No Walker
+  * Syntax Walker (default)
+  * Semantic Walker
+* Highlight (submenu of radio buttons)
+  * None (default)
+  * hover
+  * flame
+* Background (submenu of radio buttons)
+  * Blue (default)
+  * Red
+  * Green
+  * Yellow
+  * Cyan
+  * Magenta
+  * White
+  * Black
+* Foreground (submenu of radio buttons)
+  * Black (default)
+  * White
+  * Magenta
+  * Cyan
+  * Yellow
+  * Green
+  * Red
+  * Blue
+* (separator)
+* Speech Output (toggle)
+* Generation (submenu of radio buttons)
+  * Eager
+  * Mixed
+  * Lazy (default)
+* (separator)
+* MathSpeak Rules
+  * Verbose (default)
+  * Brief
+  * Superbrief
+* ChromeVox Rules
+  * Verbose
+  * Short
+  * Alternative
+
+![MathJax Menu with active Explorer submenu](menu3.png)
+
+Let us quickly describe their function:
+
+* "Walker": controls the style of exploration.
+* "Highlight": adds a highlight to indicate the complexity measure for subexpressions (especially useful in combination with collapsed expressions)
+* "Background/Foreground": set the color for Highlight which is also used when using the walker to explore an expression
+* "Speech Output" activates the generation of speech-text in both top-level ARIA labels as well as synchronized speech-text when exploring
+* "Generation" determines if the speech output on the outer element provides a short summary, a longer summary or a speech string for the entire expression
+* "MathSpeak/ChromeVox Rules": allows you to choose between the different rule sets for speech-text generation.
+
+### Keyboard Exploration
+
+The Explorer's Walker option enables keyboard navigation for exploring sub-expressions simultaneously visually and aurally. The application uses the following keys bindings:
+
+* <kbd>SHIFT+SPACE</kbd>: start application (requires focus)
+  * **NOTE:** Depending on the implementation quality of the particular browser/screenreader/OS combination (especially Chrome and IE), users might have to disable screenreader reading modes (e.g., "browse mode" in NVDA, "virtual cursor" in JAWS) before being able to launch the application.
+* <kbd>ESC</kbd>: stop application.
+  * **NOTE:** When restarted, the application will continue where the user left off.
+* <kbd>UP</kbd>/<kbd>DOWN</kbd>: move up or down the sub-expression tree.
+  * When moving down, navigation will start at the left-most sub-expression of the level.
+  * The application plays an aural indicator (earcon) if the user is at the bottom/top level of the tree.
+* <kbd>LEFT</kbd>/<kbd>RIGHT</kbd>: navigate the current level in the sub-expression tree horizontally.
+* <kbd>ENTER</kbd>:  switch collapsed state of the current sub-expression and regenerate speech-text to match (e.g., provide summary upon collapsing).
+* <kbd>SPACE</kbd>: get positional information, i.e., the current level in the sub-expression tree as well as collapsibility/expandability of the current subexpression.
+
+For information on the keyboard navigation of the Explorer's walker, please see the [configuration section]() and the [support section]() below.
+
+### Bookmarklet
+
+If you encounter a page without the Accessibility extension, you can sideload the extensions via a bookmarklet, e.g., the following would load the Accessibility Menu:
+
+```javascript
+(function(){
+  if(Window.MathJax){
+  MathJax.Ajax.config.path["myContrib"] = "https://cdn.mathjax.org/mathjax/contrib";
+  MathJax.Ajax.Require["[myContrib]/a11y/accessibility-menu.js"];
+  }
+}());
+```
+
+Or simply <a href='javascript:(function(){if(Window.MathJax){ MathJax.Hub.Queue(function(){MathJax.Ajax.config.path["myContrib"] = "https://cdn.mathjax.org/mathjax/contrib"; MathJax.Ajax.Require["[myContrib]/a11y/accessibility-menu.js"];})}}());'> drag this link to your bookmarks</a>.
+
 
 ## Configuration and Use
 
