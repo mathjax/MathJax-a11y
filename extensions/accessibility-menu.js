@@ -138,13 +138,6 @@
     }
   });
 
-  HUB.Register.StartupHook('End Extensions', function () {
-    HUB.Register.StartupHook('MathMenu Ready', function () {
-      Accessibility.Startup();
-      HUB.Startup.signal.Post('Accessibility Menu Ready');
-    },5);   // run before other extensions' menu hooks even if they are loaded first
-  },5);
-  
   Accessibility.Register(
     ModuleLoader(
       'collapsible', 'Collapsible Math', '[a11y]/collapsible.js', 'collapsible'
@@ -162,6 +155,13 @@
   );
 
   Accessibility.AddDefaults();
+  
+  HUB.Register.StartupHook('End Extensions', function () {
+    HUB.Register.StartupHook('MathMenu Ready', function () {
+      Accessibility.Startup();
+      HUB.Startup.signal.Post('Accessibility Menu Ready');
+    },5);   // run before other extensions' menu hooks even if they are loaded first
+  },5);
   
   MathJax.Callback.Queue(
     ["LoadExtensions",Accessibility],
