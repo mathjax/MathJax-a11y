@@ -75,6 +75,10 @@ MathJax.Hub.Config({
 </script>
 ```
 
+### Local installation
+
+The MathJax accessibility extensions require a more complex build process than other MathJax extensions. You can download pre-compiled packages from the [GitHub release page](https://github.com/mathjax/MathJax-a11y/releases) or  build your own copy using Grunt, see the [repository's README](https://github.com/mathjax/MathJax-a11y/)).
+
 ## Reader Guide
 
 On a site that loads any of the MathJax Accessibility Extensions, you will find three additional items in the top level of the MathJax Menu which control the respective extensions:
@@ -168,16 +172,13 @@ For information on the keyboard navigation of the Explorer's walker, please see 
 If you encounter a page without the Accessibility extension, you can sideload the extensions via a bookmarklet, e.g., the following would load the Accessibility Menu:
 
 ```javascript
-(function(){
-  if(Window.MathJax){
+if(window.MathJax){
   MathJax.Ajax.config.path["myContrib"] = "https://cdn.mathjax.org/mathjax/contrib";
-  MathJax.Ajax.Require["[myContrib]/a11y/accessibility-menu.js"];
-  }
-}());
+  MathJax.Ajax.Require("[myContrib]/a11y/accessibility-menu.js");
+}
 ```
 
-Or simply <a href='javascript:(function(){if(Window.MathJax){ MathJax.Hub.Queue(function(){MathJax.Ajax.config.path["myContrib"] = "https://cdn.mathjax.org/mathjax/contrib"; MathJax.Ajax.Require["[myContrib]/a11y/accessibility-menu.js"];})}}());'> drag this link to your bookmarks</a>.
-
+Or simply <a href='javascript:if(window.MathJax){ MathJax.Ajax.config.path["myContrib"] = "https://cdn.mathjax.org/mathjax/contrib"; MathJax.Ajax.Require("[myContrib]/a11y/accessibility-menu.js"); }'> drag this link to your bookmarks</a>.
 
 ## Configuration and Use
 
