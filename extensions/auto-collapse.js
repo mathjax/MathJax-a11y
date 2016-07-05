@@ -1,26 +1,90 @@
-//
-//  Implements the ability to have long expressions
-//  collapse automatically on screen size changes.
-//
+/*************************************************************
+ *
+ *  [Contrib]/a11y/auto-collapse.js
+ *  
+ *  Implements the ability to have long expressions collapse
+ *  automatically on screen size changes.
+ *
+ *  ---------------------------------------------------------------------
+ *  
+ *  Copyright (c) 2016 The MathJax Consortium
+ * 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 (function (HUB) {
-  var Collapse = MathJax.Extension.SemanticCollapse = {
+  var SETTINGS = HUB.config.menuSettings;
+  var COOKIE = {};   // replaced when menu is available
+  
+  //
+  //  Set up the a11y path,if it isn't already in place
+  //
+  var PATH = MathJax.Ajax.config.path;
+  if (!PATH.a11y) PATH.a11y =
+      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
+      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+        "//cdn.mathjax.org/mathjax/contrib/a11y");
+
+  var Collapse = MathJax.Extension["auto-collapse"] = {
     version: "1.0",
-    config: HUB.CombineConfig("SemanticCollapse",{
+    config: HUB.CombineConfig("auto-collapse",{
       disabled: false
     }),
+    dependents: [],  // the extensions that depend on this one
 
     /*****************************************************************/
 
-    Enable: function () {this.config.disabled = false},
-    Disable: function () {this.config.disabled = true},
+    Enable: function (update,menu) {
+      SETTINGS.autocollapse = true;
+      if (menu) COOKIE.autocollapse = true
+      this.config.disabled = false;
+      MathJax.Extension.collapsible.Enable(false,menu);
+      if (update) {
+        HUB.Queue(
+          ["Reprocess",HUB],
+          ["CollapseWideMath",this]
+        );
+      }
+    },
+    Disable: function (update,menu) {
+      SETTINGS.autocollapse = false;
+      if (menu) COOKIE.autocollapse = false;
+      this.config.disabled = true;
+      for (var i = this.dependents.length-1; i >= 0; i--) {
+        var dependent = this.dependents[i];
+        if (dependent.Disable) dependent.Disable(false,menu);
+      }
+      if (update) HUB.Queue(["Rerender",HUB]);
+    },
     
+    //
+    //  Register a dependent
+    //
+    Dependent: function (extension) {
+      this.dependents.push(extension);
+    },
+
     Startup: function () {
+      //
+      //  Inform collapsible extension that we are a dependent
+      //
+      var Collapsible = MathJax.Extension.collapsible;
+      if (Collapsible) Collapsible.Dependent(this);
       //
       //  Add the filter into the post-input hooks (priority 150, so other
       //  hooks run first, in particular, the enrichment and complexity hooks).
       //
       HUB.postInputHooks.Add(["Filter",Collapse],150);
-      
       //
       //  Add the auto-collapsing
       //
@@ -33,7 +97,7 @@
       else if (window.attachEvent) window.attachEvent("onresize",Collapse.resizeHandler);
       else window.onresize = Collapse.resizeHandler;
     },
-    
+
     //
     //  If the math is block-level (or in an element "by itself"), then
     //  add the SRE actions for this element.
@@ -99,8 +163,9 @@
       return this.collapseState(state);
     },
     collapseState: function (state) {
+      var collapse = state.collapse;
       while (state.i < state.m) {
-        var jax = state.jax[state.i], collapse = state.collapse;
+        var jax = state.jax[state.i];
         var SRE = jax.root.SRE; state.changed = false;
         if (SRE && SRE.action.length) {
           if (SRE.cwidth < SRE.m || SRE.cwidth > SRE.M) {
@@ -222,6 +287,7 @@
     saved_delay: 0,
     
     resizeHandler: function (event) {
+      if (Collapse.config.disabled) return;
       if (Collapse.running) {Collapse.retry = true; return}
       if (Collapse.timer) clearTimeout(Collapse.timer);
       Collapse.timer = setTimeout(Collapse.resizeAction, 100);
@@ -249,7 +315,37 @@
         setTimeout(Collapse.resizeHandler,0);
       }
     }
+
   };
+
+  HUB.Register.StartupHook("End Extensions", function () {
+    if (SETTINGS.autocollapse == null) {
+      SETTINGS.autocollapse = !Collapse.config.disabled;
+    } else {
+      Collapse.config.disabled = !SETTINGS.autocollapse;
+    }
+    HUB.Register.StartupHook("MathMenu Ready", function () {
+      COOKIE = MathJax.Menu.cookie;
+      var Switch = function(menu) {
+        Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"](true,true);
+        MathJax.Menu.saveCookie();
+      };
+      var ITEM = MathJax.Menu.ITEM,
+          MENU = MathJax.Menu.menu;
+      var menu = ITEM.CHECKBOX(
+        ['AutoCollapse','Auto Collapse'], 'autocollapse', {action: Switch}
+      );
+      var index = MENU.IndexOfId('AutoCollapse');
+      if (index !== null) {
+        MENU.items[index] = menu;
+      } else {
+        index = MENU.IndexOfId('CollapsibleMath');
+        MENU.items.splice(index+1,0,menu);
+      }
+      Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"]();
+    },25);  // after Assistive-Explore
+  },25);
+
 })(MathJax.Hub);
 
 
@@ -363,7 +459,6 @@ MathJax.Hub.Register.StartupHook("CommonHTML Jax Ready",function () {
 //  Specific implementations for NativeMML output.
 //
 MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
-  var dummyRestart = MathJax.Callback({}); dummyRestart();
   MathJax.OutputJax.NativeMML.Augment({
     sreGetMetrics: function (jax,SRE) {
       var span = document.getElementById(jax.inputID+"-Frame");
@@ -387,13 +482,13 @@ MathJax.Hub.Register.StartupHook("NativeMML Jax Ready",function () {
 /*****************************************************************/
 
 //
-//  Load the Semantic-Compmlexity extension and
+//  Load the collapsible extension and
 //  signal the start up when that has loaded.
 //
-MathJax.Ajax.Require("[RespEq]/Semantic-Complexity.js");
-MathJax.Hub.Register.StartupHook("Semantic Complexity Ready", function () {
-  MathJax.Extension.SemanticCollapse.Startup(); // Initialize the collapsing process
-  MathJax.Hub.Startup.signal.Post("Semantic Collapse Ready");
-  MathJax.Ajax.loadComplete("[RespEq]/Semantic-Collapse.js");
+MathJax.Ajax.Require("[a11y]/collapsible.js");
+MathJax.Hub.Register.StartupHook("Collapsible Ready", function () {
+  MathJax.Extension["auto-collapse"].Startup(); // Initialize the collapsing process
+  MathJax.Hub.Startup.signal.Post("Auto Collapse Ready");
+  MathJax.Ajax.loadComplete("[a11y]/auto-collapse.js");
 });
 

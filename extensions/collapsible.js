@@ -1,22 +1,55 @@
-//
-//  A filter to add maction elements to the enriched MathML for parts that
-//  can be collapsed.  We determine this based on a "complexity" value and
-//  collapse those terms that exceed a given complexity.
-//
-//  The parameters controlling the complexity measure still need work.
-//
+/*************************************************************
+ *
+ *  [Contrib]/a11y/collapsible.js
+ *  
+ *  A filter to add maction elements to the enriched MathML for parts that
+ *  can be collapsed.  We determine this based on a "complexity" value and
+ *  collapse those terms that exceed a given complexity.
+ *
+ *  The parameters controlling the complexity measure still need work.
+ *
+ *  ---------------------------------------------------------------------
+ *  
+ *  Copyright (c) 2016 The MathJax Consortium
+ * 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 (function (HUB) {
   var MML;
+  
+  var SETTINGS = HUB.config.menuSettings;
+  var COOKIE = {};   // replaced when menu is available
   
   var NOCOLLAPSE = 10000000; // really big complexity
   var COMPLEXATTR = "data-semantic-complexity";
 
-  var Complexity = MathJax.Extension.SemanticComplexity = {
+  //
+  //  Set up the a11y path,if it isn't already in place
+  //
+  var PATH = MathJax.Ajax.config.path;
+  if (!PATH.a11y) PATH.a11y =
+      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
+      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+        "//cdn.mathjax.org/mathjax/contrib/a11y");
+
+  var Collapsible = MathJax.Extension.collapsible = {
     version: "1.0",
-    config: HUB.CombineConfig("SemanticComplexity",{
+    config: HUB.CombineConfig("collapsible",{
       disabled: false
     }),
-    COMPLEXATTR: COMPLEXATTR,
+    dependents: [],            // the extensions that depend on this one
+    COMPLEXATTR: COMPLEXATTR,  // attribute name for the complexity value
 
     /*****************************************************************/
 
@@ -114,17 +147,43 @@
 
     /*****************************************************************/
 
-    Enable: function () {this.config.disabled = false},
-    Disable: function () {this.config.disabled = true},
+    Enable: function (update,menu) {
+      SETTINGS.collapsible = true;
+      if (menu) COOKIE.collapsible = true;
+      this.config.disabled = false;
+      MathJax.Extension["semantic-enrich"].Enable(false,menu);
+      if (update) HUB.Queue(["Reprocess",HUB]);
+    },
+    Disable: function (update,menu) {
+      SETTINGS.collapsible = false;
+      if (menu) COOKIE.collapsible = false;
+      this.config.disabled = true;
+      for (var i = this.dependents.length-1; i >= 0; i--) {
+        var dependent = this.dependents[i];
+        if (dependent.Disable) dependent.Disable(false,menu);
+      }
+      if (update) HUB.Queue(["Reprocess",HUB]);
+    },
     
+    //
+    //  Register a dependent
+    //
+    Dependent: function (extension) {
+      this.dependents.push(extension);
+    },
+
     Startup: function () {
       MML = MathJax.ElementJax.mml;
-      
+      //
+      //  Inform semantic-enrich extension that we are a dependent
+      //
+      var Enrich = MathJax.Extension["semantic-enrich"];
+      if (Enrich) Enrich.Dependent(this);
       //
       //  Add the filter into the post-input hooks (priority 100, so other
       //  hooks run first, in particular, the enrichment hook).
       //
-      HUB.postInputHooks.Add(["Filter",Complexity],100);
+      HUB.postInputHooks.Add(["Filter",Collapsible],100);
     },
     
     //
@@ -135,7 +194,7 @@
       jax.root = jax.root.Collapse();
       jax.root.inputID = script.id;
     },
-
+    
     /*****************************************************************/
 
     //
@@ -180,8 +239,7 @@
             mml.attrNames.splice(i,1);
           }
         }
-        mrow.attrNames.push(COMPLEXATTR);
-        mrow.attr[COMPLEXATTR] = mrow.complexity = mml.complexity;
+        mrow.complexity = mml.complexity;
         maction.Append(mrow); mml.data = []; mml.Append(maction);
         mml.complexity = maction.complexity; maction = mml;
       } else {
@@ -341,7 +399,7 @@
     Collapse_bigop: function (mml) {
       if (mml.complexity > this.COLLAPSE.bigop || mml.data[0].type !== "mo") {
         var id = this.SplitAttribute(mml,"content").pop();
-        var op = Complexity.FindChildText(mml,id);
+        var op = Collapsible.FindChildText(mml,id);
         mml = this.MakeAction(this.Marker(op),mml);
       }
       return mml;
@@ -349,7 +407,7 @@
     Collapse_integral: function (mml) {
       if (mml.complexity > this.COLLAPSE.integral || mml.data[0].type !== "mo") {
         var id = this.SplitAttribute(mml,"content")[0];
-        var op = Complexity.FindChildText(mml,id);
+        var op = Collapsible.FindChildText(mml,id);
         mml = this.MakeAction(this.Marker(op),mml);
       }
       return mml;
@@ -361,7 +419,7 @@
     Collapse_relseq: function (mml) {
       if (mml.complexity > this.COLLAPSE.relseq) {
         var content = this.SplitAttribute(mml,"content");
-        var marker = Complexity.FindChildText(mml,content[0]);
+        var marker = Collapsible.FindChildText(mml,content[0]);
         if (content.length > 1) marker += "\u22EF";
         mml = this.MakeAction(this.Marker(marker),mml);
       }
@@ -370,7 +428,7 @@
     Collapse_multirel: function (mml) {
       if (mml.complexity > this.COLLAPSE.multirel) {
         var content = this.SplitAttribute(mml,"content");
-        var marker = Complexity.FindChildText(mml,content[0]) + "\u22EF";
+        var marker = Collapsible.FindChildText(mml,content[0]) + "\u22EF";
         mml = this.MakeAction(this.Marker(marker),mml);
       }
       return mml;
@@ -398,7 +456,34 @@
       return mml;
     }
   };
-  
+
+  HUB.Register.StartupHook("End Extensions", function () {
+    if (SETTINGS.collapsible == null) {
+      SETTINGS.collapsible = !Collapsible.config.disabled;
+    } else {
+      Collapsible.config.disabled = !SETTINGS.collapsible;
+    }
+    HUB.Register.StartupHook("MathMenu Ready", function () {
+      COOKIE = MathJax.Menu.cookie;
+      var Switch = function(menu) {
+        Collapsible[SETTINGS.collapsible ? "Enable" : "Disable"](true,true);
+        MathJax.Menu.saveCookie();
+      };
+      var ITEM = MathJax.Menu.ITEM,
+          MENU = MathJax.Menu.menu;
+      var menu = ITEM.CHECKBOX(
+        ['CollapsibleMath','Collapsible Math'], 'collapsible', {action: Switch}
+      );
+      var index = MENU.IndexOfId('CollapsibleMath');
+      if (index !== null) {
+        MENU.items[index] = menu;
+      } else {
+        index = MENU.IndexOfId('About');
+        MENU.items.splice(index,0,menu,ITEM.RULE());
+      }
+    },15);  // before explorer extension
+  },15);
+
 })(MathJax.Hub);
 
 
@@ -409,21 +494,21 @@
  *  special handling.
  */
 
-MathJax.Ajax.Require("[RespEq]/Semantic-MathML.js");
-MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
+MathJax.Ajax.Require("[a11y]/semantic-enrich.js");
+MathJax.Hub.Register.StartupHook("Semantic Enrich Ready", function () {
   var MML = MathJax.ElementJax.mml,
-      Complexity = MathJax.Extension.SemanticComplexity,
-      COMPLEXITY = Complexity.COMPLEXITY,
-      COMPLEXATTR = Complexity.COMPLEXATTR;
+      Collapsible = MathJax.Extension.collapsible,
+      COMPLEXITY = Collapsible.COMPLEXITY,
+      COMPLEXATTR = Collapsible.COMPLEXATTR;
       
-  Complexity.Startup(MML); // Initialize the collapsing process
+  Collapsible.Startup(); // Initialize the collapsing process
 
   MML.mbase.Augment({
     //
     //  Just call the Collapse() method from the extension by default
     //  (but can be overridden)
     //
-    Collapse: function () {return Complexity.Collapse(this)},
+    Collapse: function () {return Collapsible.Collapse(this)},
     //
     //  If we don't have a cached complexity value,
     //    For token elements, just use the data length,
@@ -452,6 +537,12 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         this.complexity = complexity;
       }
       return this.complexity;
+    },
+    reportComplexity: function () {
+      if (this.attr && this.attrNames && !(COMPLEXATTR in this.attr)) {
+        this.attrNames.push(COMPLEXATTR);
+        this.attr[COMPLEXATTR] = this.complexity;
+      }
     }
   });
 
@@ -511,8 +602,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         if (this.data[this.sub]) C += COMPLEXITY.CHILD;
         if (this.data[this.sup]) C += COMPLEXITY.CHILD;
         if (this.data[this.base]) C += this.data[this.base].getComplexity() + COMPLEXITY.CHILD;
-        this.attr[COMPLEXATTR] = this.complexity = C + COMPLEXITY.SUBSUP;
-        this.attrNames.push(COMPLEXATTR);
+        this.complexity = C + COMPLEXITY.SUBSUP;
+        this.reportComplexity();
       }
       return this.complexity;
     }
@@ -534,8 +625,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
         if (this.data[this.sub])  C += COMPLEXITY.CHILD;
         if (this.data[this.sup])  C += COMPLEXITY.CHILD;
         if (this.data[this.base]) C += COMPLEXITY.CHILD;
-        this.attr[COMPLEXATTR] = this.complexity = C + COMPLEXITY.UNDEROVER;
-        this.attrNames.push(COMPLEXATTR);
+        this.complexity = C + COMPLEXITY.UNDEROVER;
+        this.reportComplexity();
       }
       return this.complexity;
     }
@@ -546,9 +637,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML.mphantom.Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
       this.complexity = COMPLEXITY.PHANTOM;
-      this.attr[COMPLEXATTR] = this.complexity;
+      this.reportComplexity();
       return this.complexity;
     }
   });
@@ -592,9 +682,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
       //
       //  Don't cache it, since selection can change.
       //
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
       this.complexity = (this.collapsible ? this.data[0] : this.selected()).getComplexity();
-      this.attr[COMPLEXATTR] = this.complexity;
+      this.reportComplexity();
       return this.complexity;
     }
   });
@@ -606,8 +695,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
     getComplexity: function () {
       if (this.complexity == null) {
         this.complexity = (this.data[0] ? this.data[0].getComplexity() : 0);
-        this.attrNames.push(COMPLEXATTR);
-        this.attr[COMPLEXATTR] = this.complexity;
+        this.reportComplexity();
       }
       return this.complexity;
     }
@@ -618,15 +706,15 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML["annotation-xml"].Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
-      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.XML;
+      this.complexity = COMPLEXITY.XML;
+      this.reportComplexity();
       return this.complexity;
     }
   });
   MML.annotation.Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
-      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.XML;
+      this.complexity = COMPLEXITY.XML;
+      this.reportComplexity();
       return this.complexity;
     }
   });
@@ -636,8 +724,8 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   MML.mglyph.Augment({
     getComplexity: function () {
-      if (this.complexity == null) this.attrNames.push(COMPLEXATTR);
-      this.attr[COMPLEXATTR] = this.complexity = COMPLEXITY.GLYPH;
+      this.complexity = COMPLEXITY.GLYPH;
+      this.reportComplexity();
       return this.complexity;
     }
   });
@@ -645,7 +733,7 @@ MathJax.Hub.Register.StartupHook("Semantic MathML Ready", function () {
   //
   //  Signal that we are ready
   //
-  MathJax.Hub.Startup.signal.Post("Semantic Complexity Ready");
-  MathJax.Ajax.loadComplete("[RespEq]/Semantic-Complexity.js");
+  MathJax.Hub.Startup.signal.Post("Collapsible Ready");
+  MathJax.Ajax.loadComplete("[a11y]/collapsible.js");
 });
 
