@@ -95,7 +95,7 @@ MathJax.Extension["semantic-enrich"] = {
   var PATH = MathJax.Ajax.config.path;
   if (!PATH.a11y) PATH.a11y =
       (PATH.Contrib ? PATH.Contrib + "/a11y" : 
-      (String(location.protocal).match(/^https?:/) ? "" : "http:") + 
+      (String(location.protocol).match(/^https?:/) ? "" : "http:") + 
         "//cdn.mathjax.org/mathjax/contrib/a11y");
 
   //

@@ -150,7 +150,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (MathJax.Menu) {
         var menu = MathJax.Menu.menu.FindId('Explorer');
         if (menu) {
-          var items = menu.submenu.items;
+          var items = (menu.submenu||menu.menu).items;
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
         }
       }
@@ -787,7 +787,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
 //
 if (!MathJax.Ajax.config.path.a11y) {
   MathJax.Ajax.config.path.a11y =
-      (String(location.protocal).match(/^https?:/) ? '' : 'http:') +
+      (String(location.protocol).match(/^https?:/) ? '' : 'http:') +
       '//cdn.mathjax.org/mathjax/contrib/a11y';
 }
 
