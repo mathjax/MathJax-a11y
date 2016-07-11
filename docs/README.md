@@ -40,7 +40,9 @@ The MathJax Accessibility Extensions provide several features for enabling acces
 
 The easiest way to get started is by adding the Accessibility Menu Extension to your MathJax configuration. This adds very little load to your site while providing your visitors with an accessible opt-in for all features.
 
-Future MathJax releases will integrate the Accessibility Menu Extension which will automatically enable this opt-in for most sites using MathJax. For now (MathJax v2.6 and below), you will need to [load the extensions from our third party extension repository](http://docs.mathjax.org/en/latest/options/ThirdParty.html#mathjax-third-party-extension-repository).
+Future MathJax releases will integrate the Accessibility Menu Extension which will automatically enable this opt-in for most sites using MathJax. For now (MathJax v2.6), you will need to [load the extensions from our third party extension repository](http://docs.mathjax.org/en/latest/options/ThirdParty.html#mathjax-third-party-extension-repository).
+
+**Note**. The extensions require MathJax v2.6 or higher. 
 
 To load the Accessibility Menu Extension, you set the custom configuration path and add the extensions to your configuration's `extensions` array, e.g., add
 
@@ -319,6 +321,8 @@ Basic voicing (via aria-labels) should work using Apple VoiceOver and Android Ta
 ### MathJax output support
 
 While the extensions generally work with any MathJax setup, the explorer only works with MathJax's CommonHTML, SVG, and HTML-CSS output.
+
+**Note**. The extensions require MathJax v2.6 or higher.
 
 ### Screenreader support
 
