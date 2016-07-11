@@ -150,7 +150,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (MathJax.Menu) {
         var menu = MathJax.Menu.menu.FindId('Explorer');
         if (menu) {
-          var items = (menu.submenu||menu.menu).items;
+          var items = menu.submenu.items;
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
         }
       }
