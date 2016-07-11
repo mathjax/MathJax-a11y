@@ -787,7 +787,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
 //
 if (!MathJax.Ajax.config.path.a11y) {
   MathJax.Ajax.config.path.a11y =
-      (String(location.protocal).match(/^https?:/) ? '' : 'http:') +
+      (String(location.protocol).match(/^https?:/) ? '' : 'http:') +
       '//cdn.mathjax.org/mathjax/contrib/a11y';
 }
 
