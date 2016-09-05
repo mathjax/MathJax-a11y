@@ -752,12 +752,18 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                              'Assistive-ruleset', speech)
               )
           );
-      var box = MENU.IndexOfId('Explorer');
-      if (box !== null) {
-        MENU.items[box] = explorerMenu;
+      var submenu = (MENU.FindId('Accessibility')||{}).submenu, index;
+      if (submenu) {
+        index = submenu.IndexOfId('Explorer');
+        if (index !== null) {
+          submenu.items[index] = explorerMenu;
+        } else {
+          index = submenu.IndexOfId('CollapsibleMath');
+          submenu.items.splice(index+1,0,explorerMenu);
+        }
       } else {
-        var index = MENU.IndexOfId('CollapsibleMath');
-        MENU.items.splice(index + 1, 0, explorerMenu);
+        index = MENU.IndexOfId('CollapsibleMath');
+        MENU.items.splice(index+1,0,explorerMenu);
       }
       if (!SETTINGS.explorer) Assistive.DisableMenus(true);
     },20);  // Between collapsible and auto-collapse extensions
