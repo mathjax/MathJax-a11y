@@ -72,6 +72,13 @@
         items.unshift(ITEM.RULE());
         menu.submenu.items.push.apply(menu.submenu.items,items);
       } else {
+        var renderer = (MENU.FindId("Settings","Renderer")||{}).submenu;
+        if (renderer) {
+          // move AssitiveMML and InTabOrder from Renderer to Accessibility menu
+          items.unshift(ITEM.RULE());
+          items.unshift(renderer.items.pop());
+          items.unshift(renderer.items.pop());
+        }
         items.unshift("Accessibility");
         var menu = ITEM.SUBMENU.apply(ITEM.SUBMENU,items);
         var locale = MENU.IndexOfId('Locale');
