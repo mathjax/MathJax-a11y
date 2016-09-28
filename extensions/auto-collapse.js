@@ -335,9 +335,15 @@
       var menu = ITEM.CHECKBOX(
         ['AutoCollapse','Auto Collapse'], 'autocollapse', {action: Switch}
       );
-      var index = MENU.IndexOfId('AutoCollapse');
-      if (index !== null) {
-        MENU.items[index] = menu;
+      var submenu = (MENU.FindId('Accessibility')||{}).submenu, index;
+      if (submenu) {
+        index = submenu.IndexOfId('AutoCollapse');
+        if (index !== null) {
+          submenu.items[index] = menu;
+        } else {
+          index = submenu.IndexOfId('CollapsibleMath');
+          submenu.items.splice(index+1,0,menu);
+        }
       } else {
         index = MENU.IndexOfId('CollapsibleMath');
         MENU.items.splice(index+1,0,menu);

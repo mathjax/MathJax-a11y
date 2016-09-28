@@ -474,9 +474,14 @@
       var menu = ITEM.CHECKBOX(
         ['CollapsibleMath','Collapsible Math'], 'collapsible', {action: Switch}
       );
-      var index = MENU.IndexOfId('CollapsibleMath');
-      if (index !== null) {
-        MENU.items[index] = menu;
+      var submenu = (MENU.FindId('Accessibility')||{}).submenu, index;
+      if (submenu) {
+        index = submenu.IndexOfId('CollapsibleMath');
+        if (index !== null) {
+          submenu.items[index] = menu;
+        } else {
+          submenu.items.push(ITEM.RULE(),menu);
+        }
       } else {
         index = MENU.IndexOfId('About');
         MENU.items.splice(index,0,menu,ITEM.RULE());

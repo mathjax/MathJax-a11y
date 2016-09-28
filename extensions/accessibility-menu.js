@@ -67,14 +67,26 @@
     AddMenu: function() {
       var items = Array(this.modules.length);
       for (var i = 0, module; module = this.modules[i]; i++) items[i] = module.placeHolder;
-      var about = MENU.IndexOfId('About');
-      if (about === null) {
+      var menu = MENU.FindId('Accessibility');
+      if (menu) {
         items.unshift(ITEM.RULE());
-        MENU.items.push.apply(MENU.items, items);
+        menu.submenu.items.push.apply(menu.submenu.items,items);
       } else {
-        items.push(ITEM.RULE());
-        items.unshift(about, 0);
-        MENU.items.splice.apply(MENU.items, items);
+        var renderer = (MENU.FindId("Settings","Renderer")||{}).submenu;
+        if (renderer) {
+          // move AssitiveMML and InTabOrder from Renderer to Accessibility menu
+          items.unshift(ITEM.RULE());
+          items.unshift(renderer.items.pop());
+          items.unshift(renderer.items.pop());
+        }
+        items.unshift("Accessibility");
+        var menu = ITEM.SUBMENU.apply(ITEM.SUBMENU,items);
+        var locale = MENU.IndexOfId('Locale');
+        if (locale) {
+          MENU.items.splice(locale,0,menu);
+        } else {
+          MENU.items.push(ITEM.RULE(), menu);
+        }
       }
     },
     Register: function(module) {
