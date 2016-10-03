@@ -36,7 +36,7 @@
         "//cdn.mathjax.org/mathjax/contrib/a11y");
 
   var Collapse = MathJax.Extension["auto-collapse"] = {
-    version: "1.0",
+    version: "1.1",
     config: HUB.CombineConfig("auto-collapse",{
       disabled: false
     }),

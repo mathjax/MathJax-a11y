@@ -44,7 +44,7 @@
         "//cdn.mathjax.org/mathjax/contrib/a11y");
 
   var Collapsible = MathJax.Extension.collapsible = {
-    version: "1.0",
+    version: "1.1",
     config: HUB.CombineConfig("collapsible",{
       disabled: false
     }),

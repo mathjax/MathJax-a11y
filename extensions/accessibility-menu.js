@@ -44,7 +44,7 @@
         "//cdn.mathjax.org/mathjax/contrib/a11y");
 
   var Accessibility = EXTENSIONS["accessibility-menu"] = {
-    version: '1.0',
+    version: '1.1',
     prefix: '', //'Accessibility-',
     default: {},
     modules: [],
