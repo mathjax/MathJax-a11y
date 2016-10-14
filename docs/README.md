@@ -83,13 +83,13 @@ The MathJax accessibility extensions require a more complex build process than o
 
 ## Reader Guide
 
-On a site that loads any of the MathJax Accessibility Extensions, you will find three additional items in the top level of the MathJax Menu which control the respective extensions:
+On a site that loads any of the MathJax Accessibility Extensions, you will find three additional items in the "Accessibility" submenu of the MathJax Menu. These items control the respective extensions:
 
 * "Collapsible Math" (toggle)
 * "Auto-Collapse" (toggle)
 * "Explorer" (submenu)
 
-![MathJax Menu with Accessibility Menu options](menu1.png)
+![MathJax Menu with additional Accessibility Menu options](menu1.png)
 
 If the Explorer Extension is not active, its submenu will only list one toggle "Activate" and a hint that more options will appear in this submenu when the Explorer Extension is active.
 
