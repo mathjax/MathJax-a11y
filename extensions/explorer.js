@@ -477,6 +477,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       // If walker is active we redirect there.
       if (Explorer.walker && Explorer.walker.isActive()) {
+        if (typeof(Explorer.walker.modifier) !== 'undefined') {
+          Explorer.walker.modifier = event.shiftKey;
+        }
         var move = Explorer.walker.move(event.keyCode);
         if (move === null) return;
         if (move) {
@@ -579,7 +582,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Activates the walker.
     //
     Walkers: {
-      'syntactic': sre.SyntaxWalker,
+      // 'syntactic': sre.SyntaxWalker,
+      'syntactic': sre.TableWalker,
       'semantic': sre.SemanticWalker,
       'none': sre.DummyWalker
     },
