@@ -302,7 +302,7 @@
     //
     FindChildText: function (mml,id) {
       var child = this.FindChild(mml,id);
-      return (child ? child.data.join("") : "?");
+      return (child ? (child.CoreMO()||child).data.join("") : "?");
     },
     FindChild: function (mml,id) {
       if (mml) {
