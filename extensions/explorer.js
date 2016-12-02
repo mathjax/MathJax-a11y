@@ -776,6 +776,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 //  (can be removed after the next release of MathJax).
 //
 MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
+  MathJax.Hub.Config({SVG: {addMMLclasses: true}});
   var SVG = MathJax.OutputJax.SVG;
   if (parseFloat(SVG.version) < 2.7) {
     var JAXFROMMATH = SVG.getJaxFromMath;
