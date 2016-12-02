@@ -148,10 +148,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     DisableMenus: function(state) {
       if (MathJax.Menu) {
-        var menu = MathJax.Menu.menu.FindId('Explorer');
+        var menu = MathJax.Menu.menu.FindId('Accessibility', 'Explorer');
         if (menu) {
-          var items = menu.submenu.items;
+          menu = menu.submenu;
+          var items = menu.items;
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
+          if (!state && menu.FindId('SpeechOutput') && !SETTINGS[Assistive.prefix + 'speech']) {
+            menu.FindId('Subtitles').disabled = true;
+            menu.FindId('Generation').disabled = true;
+          }
         }
       }
     },
@@ -650,7 +655,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var speechItems = ['Subtitles', 'Generation'];
       speechItems.forEach(
           function(x) {
-            var item = MathJax.Menu.menu.FindId('Accessibility', x);
+            var item = MathJax.Menu.menu.FindId('Accessibility', 'Explorer', x);
             if (item) {
               item.disabled = !item.disabled;
             }});
@@ -728,6 +733,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
                             {disabled: !SETTINGS['Assistive-speech']}),
               ITEM.SUBMENU(['Generation', 'Generation'],
+                            {disabled: !SETTINGS['Assistive-speech']},
                   ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
                              {action: Explorer.Regenerate}),
                   ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
