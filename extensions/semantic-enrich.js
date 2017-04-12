@@ -105,8 +105,6 @@ MathJax.Extension["semantic-enrich"] = {
   if (!PATH.SRE) PATH.SRE = PATH.a11y;
   MathJax.Ajax.Load("[SRE]/mathjax-sre.js");
   MathJax.Hub.Register.StartupHook("Sre Ready",["loadComplete",MathJax.Ajax,"[SRE]/mathjax-sre.js"]);
-
-  MathJax.Ajax.Require("[MathJax]/jax/element/mml/jax.js");
 })();
 
 //
@@ -115,6 +113,10 @@ MathJax.Extension["semantic-enrich"] = {
 //  file must load before loading its jax.js file.
 //
 MathJax.Callback.Queue(
+  //
+  //  Load mml jax
+  //
+  ["Require",MathJax.Ajax,"[MathJax]/jax/element/mml/jax.js"],
   //
   //  Load MathML input jax (since we need Parse.MakeMML)
   //
