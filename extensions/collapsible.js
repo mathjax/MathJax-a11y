@@ -38,10 +38,7 @@
   //  Set up the a11y path,if it isn't already in place
   //
   var PATH = MathJax.Ajax.config.path;
-  if (!PATH.a11y) PATH.a11y =
-      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
-      (String(location.protocol).match(/^https?:/) ? "" : "http:") + 
-        "//cdn.mathjax.org/mathjax/contrib/a11y");
+  if (!PATH.a11y) PATH.a11y = HUB.config.root + "/extensions/a11y";
 
   var Collapsible = MathJax.Extension.collapsible = {
     version: "1.1",

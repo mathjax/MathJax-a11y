@@ -799,9 +799,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
 //  Set up the a11y path,if it isn't already in place
 //
 if (!MathJax.Ajax.config.path.a11y) {
-  MathJax.Ajax.config.path.a11y =
-      (String(location.protocol).match(/^https?:/) ? '' : 'http:') +
-      '//cdn.mathjax.org/mathjax/contrib/a11y';
+  MathJax.Ajax.config.path.a11y = MathJax.Hub.config.root + "/extensions/a11y";
 }
 
 MathJax.Ajax.Require('[a11y]/collapsible.js');
