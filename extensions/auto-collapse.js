@@ -348,7 +348,9 @@
         index = MENU.IndexOfId('CollapsibleMath');
         MENU.items.splice(index+1,0,menu);
       }
-      Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"]();
+      var init = function () {Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"]()};
+      if (MathJax.Extension.collapse) init();
+        else MathJax.Hub.Register.StartupHook("Auto Collapse Ready", init);
     },25);  // after Assistive-Explore
   },25);
 
