@@ -7,7 +7,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2016 The MathJax Consortium
+ *  Copyright (c) 2016-2017 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
  */
 
 MathJax.Extension["semantic-enrich"] = {
-  version: "1.1",
+  version: "1.2.0",
   config: MathJax.Hub.CombineConfig("semantic-enrich",{disabled: false}),
   dependents: [],     // the extensions that depend on this one
   running: false,
