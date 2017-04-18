@@ -6,7 +6,7 @@
  *
  *  ---------------------------------------------------------------------
  *
- *  Copyright (c) 2016 The MathJax Consortium
+ *  Copyright (c) 2016-2017 The MathJax Consortium
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   var Assistive = MathJax.Extension.explorer = {
-    version: '1.1.1',
+    version: '1.2.0',
     dependents: [],            // the extensions that depend on this one
     //
     // Default configurations.
