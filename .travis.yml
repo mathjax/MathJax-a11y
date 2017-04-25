@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - stable
+sudo: false
+script:
+  - npm install
+  - npm test
+deploy:
+  provider: npm
+  email: manager@mathjax.org
+  api_key:
+    secure: vBvbRZDZp5lYWyyRCs6pC/Vy7fvAl4gV41nnyl7R1orSa1FvSsxtLHZlEMxpSOj+Kg5zPy863xb+3Az+/C6l/gTkS/q0BPAND1c0wmDYMzal613BIUsD+Cc8i7bFSlC+dwp1tsht3BUrStfyVY40B0AE9SeVlMCsRLsNTKRAMGfKD8vLsEdfH3ys630rwYsTfjjYqXOI9I1zCWjYQhGEKFywRG4d0PtZtRbzstNu5qt3lNzI+0EvGo1WkIZd6KQ3dznl1CM1LYIsThhIBO2Fj17vkg6RXP+TDnowURRDbxXpVRc2N6MgqndT+WN5YDj4ZUA1yTTjOSHC5ZUOyJXPim12oYFegk20sZgKtXS5exj3uadRU0qqVBLAwOgDy1p8AA1LwAKmk1amU+ufQDwlmaOjNekaXPym6G7TDZZw94w9r41OwmcPM2eXbr3PhhdDoR+4lbO1qCsf9onSdocvpZBIL6yVXI7CiXWW3o7WblHo8uu8HaM0vdeGUz3qYObFd1Bnpd/T81+RzbwTLQaZiPLE+v8ygb38sgG8C0lniGZQ/ZOG3OjgC9KJvgzaNF4GGcvMDa4c3oNRt3U1FrB3uFUwvzVNZkDD9plsYccD+ZoRFyNM5grZG4JVsQea8EjZ/ObZldsislWNYq4/7+JYOQBdHYnSTIQYG9Nnh/TE1yM=
+  on:
+    tags: true
+    repo: mathjax/MathJax-a11y
