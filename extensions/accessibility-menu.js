@@ -98,7 +98,7 @@
     },
     LoadExtensions: function () {
       var extensions = [];
-      for (var i = 0, mpdule; module = this.modules[i]; i++) {
+      for (var i = 0, module; module = this.modules[i]; i++) {
         if (SETTINGS[module.option]) extensions.push(module.module);
       }
       return (extensions.length ? HUB.Startup.loadArray(extensions) : null);
@@ -172,10 +172,12 @@
     },5);   // run before other extensions' menu hooks even if they are loaded first
   },5);
   
-  MathJax.Callback.Queue(
-    ["LoadExtensions",Accessibility],
-    ["loadComplete",MathJax.Ajax,"[a11y]/accessibility-menu.js"]
-  );
+  MathJax.Hub.Register.StartupHook("End Cookie", function () {
+    MathJax.Callback.Queue(
+      ["LoadExtensions",Accessibility],
+      ["loadComplete",MathJax.Ajax,"[a11y]/accessibility-menu.js"]
+    );
+  });
 
 })(MathJax.Hub,MathJax.Extension);
 
