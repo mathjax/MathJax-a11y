@@ -37,7 +37,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     // Default configurations.
     //
-    default: {
+    defaults: {
       walker: 'syntactic',
       highlight: 'none',
       background: 'blue',
@@ -56,7 +56,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
 
     addDefaults: function() {
-      var defaults = MathJax.Hub.CombineConfig('explorer', Assistive.default);
+      var defaults = MathJax.Hub.CombineConfig('explorer', Assistive.defaults);
       var keys = Object.keys(defaults);
       for (var i = 0, key; key = keys[i]; i++) {
         if (typeof(SETTINGS[Assistive.prefix + key]) === 'undefined') {
