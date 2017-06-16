@@ -3,6 +3,11 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Semantic Enrichment for Collapsing Equations (MathML input)</title>
+<script type="text/x-sre-config">
+{
+"json": "https://rawgit.com/mathjax/mathjax-a11y/master/dist/mathmaps"
+}
+</script>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   extensions: ["[a11y]/explorer.js","[a11y]/auto-collapse.js"],
@@ -13,10 +18,10 @@ MathJax.Hub.Config({
 });
 MathJax.Ajax.config.path["a11y"] = "../extensions";
 if(window.location.href.indexOf("mathjax.github.io/MathJax-a11y") > -1) {
- MathJax.Ajax.config.path["SRE"] = "https://cdn.mathjax.org/mathjax/contrib/a11y";
+ MathJax.Ajax.config.path["SRE"] = "https://rawgit.com/mathjax/MathJax/master/extensions/a11y";
 }
 </script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML-full"></script>
+<script src="https://rawgit.com/mathjax/MathJax/master/MathJax.js?config=MML_HTMLorMML-full"></script>
 <script src="Lab.js"></script>
 <script src="Lab-Defaults.js"></script>
 <script src="https://progressiveaccess.com/content/tests.js"></script>
