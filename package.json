@@ -1,6 +1,6 @@
 {
     "name": "mathjax-a11y",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "description": "MathJax accessibility extension",
     "directories": {
         "test": "tests"
