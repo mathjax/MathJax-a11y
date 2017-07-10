@@ -224,10 +224,10 @@
       maction.attr[COMPLEXATTR] = maction.complexity;
       if (mml.type === "math") {
         var mrow = MML.mrow().With({
-          data: mml.data,
           complexity: mml.complexity,
           attrNames: [], attr: {}
         });
+        mrow.Append.apply(mrow,mml.data);
         for (var i = mml.attrNames.length-1, name; name = mml.attrNames[i]; i--) {
           if (name.substr(0,14) === "data-semantic-") {
             mrow.attr[name] = mml.attr[name];
