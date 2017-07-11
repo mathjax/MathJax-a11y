@@ -10,8 +10,8 @@ module.exports = function(grunt) {
       'speech-rule-engine': {
         options: {
           repository: 'https://github.com/zorkow/speech-rule-engine.git',
-          branch: 'v2.0.0-beta.2',
-          cwd: "."
+          branch: 'v2.0.0-beta.3',
+          cwd: '.'
         }
       }
     },
