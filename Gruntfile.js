@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     'json-minify': {
       build: {
-        files: 'dist/mathmaps/**/*.json'
+        files: 'dist/mathmaps/*/*.js'
       }
     },
     gitclone: {
