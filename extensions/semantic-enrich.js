@@ -7,7 +7,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2016 The MathJax Consortium
+ *  Copyright (c) 2016-2017 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
  */
 
 MathJax.Extension["semantic-enrich"] = {
-  version: "1.1",
+  version: "1.2.3",
   config: MathJax.Hub.CombineConfig("semantic-enrich",{disabled: false}),
   dependents: [],     // the extensions that depend on this one
   running: false,
@@ -93,20 +93,15 @@ MathJax.Extension["semantic-enrich"] = {
   //  Set up the a11y path,if it isn't already in place
   //
   var PATH = MathJax.Ajax.config.path;
-  if (!PATH.a11y) PATH.a11y =
-      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
-      (String(location.protocol).match(/^https?:/) ? "" : "http:") + 
-        "//cdn.mathjax.org/mathjax/contrib/a11y");
+  if (!PATH.a11y) PATH.a11y = HUB.config.root + "/extensions/a11y";
 
   //
   //  Load SRE and use the signal to tell MathJax when it is loaded.
   //  Since SRE waits for the mml element jax, load that too.
   //
-  if (!PATH.SRE) PATH.SRE = PATH.a11y;
+  if (!PATH.SRE) PATH.SRE = MathJax.Ajax.fileURL(PATH.a11y);
   MathJax.Ajax.Load("[SRE]/mathjax-sre.js");
   MathJax.Hub.Register.StartupHook("Sre Ready",["loadComplete",MathJax.Ajax,"[SRE]/mathjax-sre.js"]);
-
-  MathJax.Ajax.Require("[MathJax]/jax/element/mml/jax.js");
 })();
 
 //
@@ -115,6 +110,10 @@ MathJax.Extension["semantic-enrich"] = {
 //  file must load before loading its jax.js file.
 //
 MathJax.Callback.Queue(
+  //
+  //  Load mml jax
+  //
+  ["Require",MathJax.Ajax,"[MathJax]/jax/element/mml/jax.js"],
   //
   //  Load MathML input jax (since we need Parse.MakeMML)
   //

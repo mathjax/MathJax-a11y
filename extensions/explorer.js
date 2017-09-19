@@ -6,7 +6,7 @@
  *
  *  ---------------------------------------------------------------------
  *
- *  Copyright (c) 2016 The MathJax Consortium
+ *  Copyright (c) 2016-2017 The MathJax Consortium
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,12 +32,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   var Assistive = MathJax.Extension.explorer = {
-    version: '1.1',
+    version: '1.2.3',
     dependents: [],            // the extensions that depend on this one
     //
     // Default configurations.
     //
-    default: {
+    defaults: {
       walker: 'syntactic',
       highlight: 'none',
       background: 'blue',
@@ -56,7 +56,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
 
     addDefaults: function() {
-      var defaults = MathJax.Hub.CombineConfig('explorer', Assistive.default);
+      var defaults = MathJax.Hub.CombineConfig('explorer', Assistive.defaults);
       var keys = Object.keys(defaults);
       for (var i = 0, key; key = keys[i]; i++) {
         if (typeof(SETTINGS[Assistive.prefix + key]) === 'undefined') {
@@ -148,10 +148,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     DisableMenus: function(state) {
       if (MathJax.Menu) {
-        var menu = MathJax.Menu.menu.FindId('Explorer');
+        var menu = MathJax.Menu.menu.FindId('Accessibility', 'Explorer');
         if (menu) {
-          var items = menu.submenu.items;
+          menu = menu.submenu;
+          var items = menu.items;
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
+          if (!state && menu.FindId('SpeechOutput') && !SETTINGS[Assistive.prefix + 'speech']) {
+            menu.FindId('Subtitles').disabled = true;
+            menu.FindId('Generation').disabled = true;
+          }
         }
       }
     },
@@ -268,6 +273,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
   MathJax.Extension.explorer.LiveRegion = LiveRegion;
 
+  var A11Y_PATH = MathJax.Ajax.fileURL(MathJax.Ajax.config.path.a11y);
+  
   var Explorer = MathJax.Extension.explorer.Explorer = {
     liveRegion: LiveRegion(),
     walker: null,
@@ -275,9 +282,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     hoverer: null,
     flamer: null,
     speechDiv: null,
-    earconFile: MathJax.Ajax.config.path.a11y+'/invalid_keypress' +
-        (['Firefox', 'Chrome', 'Opera'].
-        indexOf(MathJax.Hub.Browser.name) !== -1 ?
+    earconFile: A11Y_PATH + '/invalid_keypress' +
+        (['Firefox', 'Chrome', 'Opera'].indexOf(MathJax.Hub.Browser.name) !== -1 ?
         '.ogg' : '.mp3'),
     expanded: false,
     focusoutEvent: MathJax.Hub.Browser.isFirefox ? 'blur' : 'focusout',
@@ -654,7 +660,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var speechItems = ['Subtitles', 'Generation'];
       speechItems.forEach(
           function(x) {
-            var item = MathJax.Menu.menu.FindId('Accessibility', x);
+            var item = MathJax.Menu.menu.FindId('Accessibility', 'Explorer', x);
             if (item) {
               item.disabled = !item.disabled;
             }});
@@ -732,6 +738,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
                             {disabled: !SETTINGS['Assistive-speech']}),
               ITEM.SUBMENU(['Generation', 'Generation'],
+                            {disabled: !SETTINGS['Assistive-speech']},
                   ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
                              {action: Explorer.Regenerate}),
                   ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
@@ -780,6 +787,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
 //  (can be removed after the next release of MathJax).
 //
 MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
+  MathJax.Hub.Config({SVG: {addMMLclasses: true}});
   var SVG = MathJax.OutputJax.SVG;
   if (parseFloat(SVG.version) < 2.7) {
     var JAXFROMMATH = SVG.getJaxFromMath;
@@ -796,9 +804,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
 //  Set up the a11y path,if it isn't already in place
 //
 if (!MathJax.Ajax.config.path.a11y) {
-  MathJax.Ajax.config.path.a11y =
-      (String(location.protocol).match(/^https?:/) ? '' : 'http:') +
-      '//cdn.mathjax.org/mathjax/contrib/a11y';
+  MathJax.Ajax.config.path.a11y = MathJax.Hub.config.root + "/extensions/a11y";
 }
 
 MathJax.Ajax.Require('[a11y]/collapsible.js');

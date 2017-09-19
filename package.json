@@ -1,6 +1,6 @@
 {
-    "name": "MathJax-accessibility",
-    "version": "1.1.0",
+    "name": "mathjax-a11y",
+    "version": "1.2.3",
     "description": "MathJax accessibility extension",
     "directories": {
         "test": "tests"
@@ -11,19 +11,19 @@
     ],
     "bugs": {
         "email": "info@mathjax.org",
-        "url": "https://github.com/mathjax/MathJax-accessibility"
+        "url": "https://github.com/mathjax/mathjax-a11y"
     },
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/mathjax/MathJax-accessibility"
+        "url": "https://github.com/mathjax/mathjax-a11y"
     },
     "keywords": [
         "mathjax",
         "screen-reader",
         "a11y"
     ],
-    "homepage": "https://github.com/mathjax/MathJax-accessibility",
+    "homepage": "https://github.com/mathjax/mathjax-a11y",
     "dependencies": {},
     "devDependencies": {
         "grunt": "^1.0.1",
@@ -34,6 +34,7 @@
     },
     "files": [
         "LICENSE",
-        "README.md"
+        "README.md",
+        "dist"
     ]
 }

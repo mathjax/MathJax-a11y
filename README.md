@@ -1,10 +1,16 @@
 # MathJax-Accessibility
 
-MathJax extensions for accessibility features (with demos)
+MathJax extensions for accessibility features (with demos). 
 
-## Quick links
+## Source
 
-### Live tests
+The source code is hosted on GitHub at [mathjax/MathJax-a11y](https://github.com/mathjax/MathJax-a11y/).
+
+## Documentation
+
+The documentation can be found at [/docs](https://mathjax.github.io/MathJax-a11y/docs/). Slides from [Volker Sorge's talk at CSUN 2016](https://mathjax.github.io/MathJax-a11y/slides/csun16-talk.pdf) are also available.
+
+## Live tests
 
 * [Collapsing equations test lab with TeX input](https://mathjax.github.io/MathJax-a11y/Semantics-Lab/TeX.html)
 * [Collapsing equations test lab with MathML input](https://mathjax.github.io/MathJax-a11y/Semantics-Lab/MathML.html)
@@ -14,9 +20,6 @@ MathJax extensions for accessibility features (with demos)
 * [Equation explorer test lab with TeX input](https://mathjax.github.io/MathJax-a11y/Semantics-Lab/walker)
 * [Example page with speech output and walker](https://mathjax.github.io/MathJax-a11y/examples/Struik-speech.html)
 
-### Documentation
-
-* [CSUN 2016 slides](https://mathjax.github.io/MathJax-a11y/slides/csun16-talk.pdf)
 
 
 ## Build

@@ -3,15 +3,15 @@ module.exports = function(grunt) {
   grunt.initConfig({
     'json-minify': {
       build: {
-        files: 'dist/mathmaps/**/*.json'
+        files: 'dist/mathmaps/*/*.js'
       }
     },
     gitclone: {
       'speech-rule-engine': {
         options: {
           repository: 'https://github.com/zorkow/speech-rule-engine.git',
-          branch: 'v1.2.0',
-          cwd: "."
+          branch: 'v2.0.0',
+          cwd: '.'
         }
       }
     },

@@ -7,7 +7,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2016 The MathJax Consortium
+ *  Copyright (c) 2016-2017 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,13 +30,10 @@
   //  Set up the a11y path,if it isn't already in place
   //
   var PATH = MathJax.Ajax.config.path;
-  if (!PATH.a11y) PATH.a11y =
-      (PATH.Contrib ? PATH.Contrib + "/a11y" : 
-      (String(location.protocol).match(/^https?:/) ? "" : "http:") + 
-        "//cdn.mathjax.org/mathjax/contrib/a11y");
+  if (!PATH.a11y) PATH.a11y = HUB.config.root + "/extensions/a11y";
 
   var Collapse = MathJax.Extension["auto-collapse"] = {
-    version: "1.1",
+    version: "1.2.3",
     config: HUB.CombineConfig("auto-collapse",{
       disabled: false
     }),
@@ -348,7 +345,9 @@
         index = MENU.IndexOfId('CollapsibleMath');
         MENU.items.splice(index+1,0,menu);
       }
-      Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"]();
+      var init = function () {Collapse[SETTINGS.autocollapse ? "Enable" : "Disable"]()};
+      if (MathJax.Extension.collapse) init();
+        else MathJax.Hub.Register.StartupHook("Auto Collapse Ready", init);
     },25);  // after Assistive-Explore
   },25);
 
@@ -410,7 +409,6 @@ MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
 //  Specific implementations for SVG output.
 //
 MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
-  MathJax.Hub.Config({SVG: {addMMLclasses: true}});
   MathJax.OutputJax.SVG.Augment({
     getMetrics: function (jax) {
       this.em = MathJax.ElementJax.mml.mbase.prototype.em = jax.SVG.em; this.ex = jax.SVG.ex;

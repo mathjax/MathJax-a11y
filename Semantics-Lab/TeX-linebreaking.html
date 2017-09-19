@@ -10,6 +10,11 @@
     <h1>Test Semantic Enrichment of MathML for Display Accuracy (TeX input, with line-breaking))</h1>
 <span>©2015 MathJax Consortium</span>
 
+<script type="text/x-sre-config">
+{
+"json": "https://rawgit.com/mathjax/mathjax-a11y/master/dist/mathmaps"
+}
+</script>
 <script type="text/x-mathjax-config">
 //
 //  The code to drive the interactive page
@@ -78,7 +83,7 @@ MathJax.Hub.Config({
 });
 MathJax.Ajax.config.path["a11y"] = "../extensions";
 if(window.location.href.indexOf("mathjax.github.io/MathJax-a11y") > -1) {
- MathJax.Ajax.config.path["SRE"] = "https://cdn.mathjax.org/mathjax/contrib/a11y";
+ MathJax.Ajax.config.path["SRE"] = "https://rawgit.com/mathjax/MathJax/master/extensions/a11y";
 }
 
 (function() {
@@ -95,7 +100,7 @@ if(window.location.href.indexOf("mathjax.github.io/MathJax-a11y") > -1) {
   }
 }());
 </script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>
+<script src="https://rawgit.com/mathjax/MathJax/master/MathJax.js?config=TeX-AMS_HTML-full"></script>
 </head>
 <body>
 

@@ -40,7 +40,9 @@ The MathJax Accessibility Extensions provide several features for enabling acces
 
 The easiest way to get started is by adding the Accessibility Menu Extension to your MathJax configuration. This adds very little load to your site while providing your visitors with an accessible opt-in for all features.
 
-Future MathJax releases will integrate the Accessibility Menu Extension which will automatically enable this opt-in for most sites using MathJax. For now (MathJax v2.6), you will need to [load the extensions from our third party extension repository](http://docs.mathjax.org/en/latest/options/ThirdParty.html#mathjax-third-party-extension-repository).
+Version 2.7.0 included the Accessibility Menu Extension in its combined configuration files, so users of most websites that load MathJax will have access to the new menu automatically.
+
+For MathJax v2.6, you need to load the extensions from a v2.7 distribution.
 
 **Note**. The extensions require MathJax v2.6 or higher. 
 
@@ -48,10 +50,10 @@ To load the Accessibility Menu Extension, you set the custom configuration path 
 
 ```html
 <script type="text/x-mathjax-config">
-MathJax.Ajax.config.path["Contrib"] = "https://cdn.mathjax.org/mathjax/contrib";
+MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y";
 MathJax.Hub.Config({
   // ...your configuration options...
-  extensions: ["[Contrib]/a11y/accessibility-menu.js"]
+  extensions: ["[a11y]/accessibility-menu.js"]
 });
 </script>
 ```
@@ -64,10 +66,10 @@ Of course, you can activate the sub-extensions by loading them directly in the e
 
 ```html
 <script type="text/x-mathjax-config">
-MathJax.Ajax.config.path["Contrib"] = "https://cdn.mathjax.org/mathjax/contrib";
+MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y";
 MathJax.Hub.Config({
   // ...your other configuration options...
-  extensions: ["[Contrib]/accessibility-menu.js"]
+  extensions: ["[a11y]/accessibility-menu.js"]
   menuSettings: {
     collapsible: true,
     autocollapse: true,
@@ -175,12 +177,12 @@ If you encounter a page without the Accessibility extension, you can sideload th
 
 ```javascript
 if(window.MathJax){
-  MathJax.Ajax.config.path["a11y"] = "https://cdn.mathjax.org/mathjax/contrib/a11y";
+  MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y";
   MathJax.Ajax.Require("[a11y]/accessibility-menu.js");
 }
 ```
 
-Or simply <a href='javascript:if(window.MathJax){ MathJax.Ajax.config.path["a11y"] = "https://cdn.mathjax.org/mathjax/contrib/a11y"; MathJax.Ajax.Require("[a11y]/accessibility-menu.js"); }'> drag this link to your bookmarks</a>.
+Or simply <a href='javascript:if(window.MathJax){ MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y"; MathJax.Ajax.Require("[a11y]/accessibility-menu.js"); }'> drag this link to your bookmarks</a>.
 
 ## Configuration and Use
 
