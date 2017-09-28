@@ -81,7 +81,8 @@ module.exports = function(grunt) {
         'cp -R speech-rule-engine/src/mathmaps dist/',
         'cp extensions/*.ogg dist/',
         'cp extensions/*.mp3 dist/',
-        'rm dist/mathmaps/math_map.js'
+        'rm dist/mathmaps/math_map.js',
+        'rm dist/mathmaps/.htaccess'
       ].join('&&')
     }
   });
