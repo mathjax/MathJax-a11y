@@ -10,7 +10,7 @@ module.exports = function(grunt) {
       'speech-rule-engine': {
         options: {
           repository: 'https://github.com/zorkow/speech-rule-engine.git',
-          branch: 'v2.0.0',
+          branch: 'v2.0.1',
           cwd: '.'
         }
       }
@@ -81,7 +81,8 @@ module.exports = function(grunt) {
         'cp -R speech-rule-engine/src/mathmaps dist/',
         'cp extensions/*.ogg dist/',
         'cp extensions/*.mp3 dist/',
-        'rm dist/mathmaps/math_map.js'
+        'rm dist/mathmaps/math_map.js',
+        'rm dist/mathmaps/.htaccess'
       ].join('&&')
     }
   });
