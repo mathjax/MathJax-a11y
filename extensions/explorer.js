@@ -155,7 +155,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
           if (!state && menu.FindId('SpeechOutput') && !SETTINGS[Assistive.prefix + 'speech']) {
             menu.FindId('Subtitles').disabled = true;
-            menu.FindId('Generation').disabled = true;
           }
         }
       }
@@ -657,7 +656,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     SpeechOutput: function() {
       Explorer.Reset();
-      var speechItems = ['Subtitles', 'Generation'];
+      var speechItems = ['Subtitles'];
       speechItems.forEach(
           function(x) {
             var item = MathJax.Menu.menu.FindId('Accessibility', 'Explorer', x);
@@ -737,15 +736,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                             'Assistive-speech', {action: Explorer.SpeechOutput}),
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
                             {disabled: !SETTINGS['Assistive-speech']}),
-              ITEM.SUBMENU(['Generation', 'Generation'],
-                            {disabled: !SETTINGS['Assistive-speech']},
-                  ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
-                             {action: Explorer.Regenerate}),
-                  ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
-                             {action: Explorer.Regenerate}),
-                  ITEM.RADIO(['lazy', 'Lazy'], 'Assistive-generation',
-                             {action: Explorer.Regenerate})
-              ),
               ITEM.RULE(),
               ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
                   ITEM.RADIO(['mathspeak-default', 'Verbose'],
