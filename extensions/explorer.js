@@ -38,7 +38,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Default configurations.
     //
     defaults: {
-      walker: 'syntactic',
+      walker: 'table',
       highlight: 'none',
       background: 'blue',
       foreground: 'black',
@@ -587,14 +587,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Activates the walker.
     //
     Walkers: {
-      // 'syntactic': sre.SyntaxWalker,
-      'syntactic': sre.TableWalker,
+      'syntactic': sre.SyntaxWalker,
+      'table': sre.TableWalker,
       'semantic': sre.SemanticWalker,
       'none': sre.DummyWalker
     },
     ActivateWalker: function(math, jax) {
       var speechOn = Assistive.getOption('speech');
-      var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
+      var constructor = Assistive.getOption('walker') ?
+          Explorer.Walkers[Assistive.defaults.walker] :
           Explorer.Walkers['none'];
       var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
           new sre.DummySpeechGenerator();
@@ -701,11 +702,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           ITEM.SUBMENU(['Explorer', 'Explorer'],
               ITEM.CHECKBOX(['Active', 'Active'], 'explorer', {action: Switch}),
               ITEM.RULE(),
-              ITEM.SUBMENU(['Walker', 'Walker'],
-                  ITEM.RADIO(['nowalker', 'No walker'], 'Assistive-walker', {value:"none"}),
-                  ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
-                  ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
-              ),
+              ITEM.CHECKBOX(['Walker', 'Walker'], 'Assistive-walker'),
               ITEM.SUBMENU(['Highlight', 'Highlight'],
                   ITEM.RADIO(['none', 'None'], 'Assistive-highlight', reset),
                   ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', reset),
