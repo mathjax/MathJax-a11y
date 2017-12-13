@@ -87,6 +87,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var ruleset = SETTINGS[Assistive.prefix + 'ruleset'];
       var cstr = ruleset.split('-');
       sre.System.getInstance().setupEngine({
+        locale: MathJax.Localization.locale,
         domain: Assistive.Domain(cstr[0]),
         style: cstr[1],
         rules: Assistive.RuleSet(cstr[0])
@@ -110,7 +111,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           return ['AbstractionRules', 'SemanticTreeRules'];
         case 'mathspeak':
         default:
-          return ['AbstractionRules', 'MathspeakRules'];
+          return ['AbstractionRules', 'MathspeakRules', 'MathspeakSpanish'];
       }
     },
 
