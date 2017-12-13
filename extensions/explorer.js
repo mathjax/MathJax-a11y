@@ -411,7 +411,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.AddMathLabel(mathml, id);
       }
       if (math.getAttribute('hasspeech')) return;
-      switch (Assistive.getOption('generation')) {
+      switch (MathJax.Hub.config.explorer.generation) {
         case 'eager':
           Explorer.AddSpeechEager(mathml, id);
           break;
@@ -595,8 +595,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     ActivateWalker: function(math, jax) {
       var speechOn = Assistive.getOption('speech');
       var constructor = Assistive.getOption('walker') ?
-          Explorer.Walkers[Assistive.defaults.walker] :
-          Explorer.Walkers['none'];
+            Explorer.Walkers[MathJax.Hub.config.explorer.walker] :
+            Explorer.Walkers['none'];
       var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
           new sre.DummySpeechGenerator();
       Explorer.GetHighlighter(.2);
