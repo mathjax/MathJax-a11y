@@ -38,7 +38,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Default configurations.
     //
     defaults: {
-      walker: 'syntactic',
+      walker: 'table',
       highlight: 'none',
       background: 'blue',
       foreground: 'black',
@@ -155,7 +155,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           for (var i = 2, item; item = items[i]; i++) item.disabled = state;
           if (!state && menu.FindId('SpeechOutput') && !SETTINGS[Assistive.prefix + 'speech']) {
             menu.FindId('Subtitles').disabled = true;
-            menu.FindId('Generation').disabled = true;
           }
         }
       }
@@ -412,7 +411,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         Explorer.AddMathLabel(mathml, id);
       }
       if (math.getAttribute('hasspeech')) return;
-      switch (Assistive.getOption('generation')) {
+      switch (MathJax.Hub.config.explorer.generation) {
         case 'eager':
           Explorer.AddSpeechEager(mathml, id);
           break;
@@ -483,6 +482,9 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       // If walker is active we redirect there.
       if (Explorer.walker && Explorer.walker.isActive()) {
+        if (typeof(Explorer.walker.modifier) !== 'undefined') {
+          Explorer.walker.modifier = event.shiftKey;
+        }
         var move = Explorer.walker.move(event.keyCode);
         if (move === null) return;
         if (move) {
@@ -586,13 +588,15 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Walkers: {
       'syntactic': sre.SyntaxWalker,
+      'table': sre.TableWalker,
       'semantic': sre.SemanticWalker,
       'none': sre.DummyWalker
     },
     ActivateWalker: function(math, jax) {
       var speechOn = Assistive.getOption('speech');
-      var constructor = Explorer.Walkers[Assistive.getOption('walker')] ||
-          Explorer.Walkers['none'];
+      var constructor = Assistive.getOption('walker') ?
+            Explorer.Walkers[MathJax.Hub.config.explorer.walker] :
+            Explorer.Walkers['none'];
       var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
           new sre.DummySpeechGenerator();
       Explorer.GetHighlighter(.2);
@@ -653,7 +657,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     SpeechOutput: function() {
       Explorer.Reset();
-      var speechItems = ['Subtitles', 'Generation'];
+      var speechItems = ['Subtitles'];
       speechItems.forEach(
           function(x) {
             var item = MathJax.Menu.menu.FindId('Accessibility', 'Explorer', x);
@@ -698,11 +702,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           ITEM.SUBMENU(['Explorer', 'Explorer'],
               ITEM.CHECKBOX(['Active', 'Active'], 'explorer', {action: Switch}),
               ITEM.RULE(),
-              ITEM.SUBMENU(['Walker', 'Walker'],
-                  ITEM.RADIO(['nowalker', 'No walker'], 'Assistive-walker', {value:"none"}),
-                  ITEM.RADIO(['syntactic', 'Syntax walker'], 'Assistive-walker'),
-                  ITEM.RADIO(['semantic', 'Semantic walker'], 'Assistive-walker')
-              ),
+              ITEM.CHECKBOX(['Walker', 'Walker'], 'Assistive-walker'),
               ITEM.SUBMENU(['Highlight', 'Highlight'],
                   ITEM.RADIO(['none', 'None'], 'Assistive-highlight', reset),
                   ITEM.RADIO(['hover', 'Hover'], 'Assistive-highlight', reset),
@@ -733,15 +733,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                             'Assistive-speech', {action: Explorer.SpeechOutput}),
               ITEM.CHECKBOX(['Subtitles', 'Subtitles'], 'Assistive-subtitle',
                             {disabled: !SETTINGS['Assistive-speech']}),
-              ITEM.SUBMENU(['Generation', 'Generation'],
-                            {disabled: !SETTINGS['Assistive-speech']},
-                  ITEM.RADIO(['eager', 'Eager'], 'Assistive-generation',
-                             {action: Explorer.Regenerate}),
-                  ITEM.RADIO(['mixed', 'Mixed'], 'Assistive-generation',
-                             {action: Explorer.Regenerate}),
-                  ITEM.RADIO(['lazy', 'Lazy'], 'Assistive-generation',
-                             {action: Explorer.Regenerate})
-              ),
               ITEM.RULE(),
               ITEM.SUBMENU(['Mathspeak', 'Mathspeak Rules'],
                   ITEM.RADIO(['mathspeak-default', 'Verbose'],
