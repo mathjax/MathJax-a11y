@@ -50,6 +50,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     eagerComplexity: 80,
     prefix: 'Assistive-',
     hook: null,
+    locHook: null,
     oldrules: null,
     addMenuOption: function(key, value) {
       SETTINGS[Assistive.prefix + key] = value;
@@ -87,6 +88,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var ruleset = SETTINGS[Assistive.prefix + 'ruleset'];
       var cstr = ruleset.split('-');
       sre.System.getInstance().setupEngine({
+        locale: MathJax.Localization.locale,
         domain: Assistive.Domain(cstr[0]),
         style: cstr[1],
         rules: Assistive.RuleSet(cstr[0])
@@ -110,11 +112,13 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
           return ['AbstractionRules', 'SemanticTreeRules'];
         case 'mathspeak':
         default:
-          return ['AbstractionRules', 'MathspeakRules'];
+          return ['AbstractionRules', 'AbstractionSpanish',
+                  'MathspeakRules', 'MathspeakSpanish'];
       }
     },
 
     hook: null,
+    locHook: null,
     Enable: function(update, menu) {
       SETTINGS.explorer = true;
       if (menu) COOKIE.explorer = true;
@@ -128,6 +132,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       if (!this.hook) {
         this.hook = MathJax.Hub.Register.MessageHook(
             'New Math', ['Register', this.Explorer]);
+      }
+      if (!this.locHook) {
+        this.locHook = MathJax.Hub.Register.MessageHook(
+          'Locale Reset', ['RemoveSpeech', this.Explorer]);
       }
       if (update) MathJax.Hub.Queue(['Reprocess', MathJax.Hub]);
     },
@@ -667,13 +675,26 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       Explorer.Regenerate();
     },
     //
+    // Remove speech and resets SRE options.
+    //
+    RemoveSpeech: function() {
+      Assistive.setSpeechOption();
+      for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
+        var math = document.getElementById(jax.inputID + '-Frame');
+        if (math) {
+          math.removeAttribute('hasspeech');
+          math.removeAttribute('haslabel');
+        }
+      }
+    },
+    //
     // Regenerates speech.
     //
     Regenerate: function() {
       for (var i = 0, all = MathJax.Hub.getAllJax(), jax; jax = all[i]; i++) {
         var math = document.getElementById(jax.inputID + '-Frame');
         if (math) {
-          math.removeAttribute('hasSpeech');
+          math.removeAttribute('hasspeech');
           Explorer.AddSpeech(math);
         }
       }
