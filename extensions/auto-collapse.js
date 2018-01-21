@@ -33,7 +33,7 @@
   if (!PATH.a11y) PATH.a11y = HUB.config.root + "/extensions/a11y";
 
   var Collapse = MathJax.Extension["auto-collapse"] = {
-    version: "1.2.3",
+    version: "1.3.1",
     config: HUB.CombineConfig("auto-collapse",{
       disabled: false
     }),
