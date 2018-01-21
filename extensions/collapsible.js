@@ -41,7 +41,7 @@
   if (!PATH.a11y) PATH.a11y = HUB.config.root + "/extensions/a11y";
 
   var Collapsible = MathJax.Extension.collapsible = {
-    version: "1.2.3",
+    version: "1.3.1",
     config: HUB.CombineConfig("collapsible",{
       disabled: false
     }),
