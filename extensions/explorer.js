@@ -32,7 +32,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   var Assistive = MathJax.Extension.explorer = {
-    version: '1.3.1',
+    version: '1.4.0',
     dependents: [],            // the extensions that depend on this one
     //
     // Default configurations.
