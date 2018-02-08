@@ -41,7 +41,7 @@
   if (!PATH.a11y) PATH.a11y = HUB.config.root + "/extensions/a11y";
 
   var Accessibility = EXTENSIONS["accessibility-menu"] = {
-    version: '1.3.1',
+    version: '1.4.0',
     prefix: '', //'Accessibility-',
     defaults: {},
     modules: [],
