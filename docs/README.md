@@ -50,7 +50,7 @@ To load the Accessibility Menu Extension, you set the custom configuration path 
 
 ```html
 <script type="text/x-mathjax-config">
-MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y";
+MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/extensions/a11y";
 MathJax.Hub.Config({
   // ...your configuration options...
   extensions: ["[a11y]/accessibility-menu.js"]
@@ -66,7 +66,7 @@ Of course, you can activate the sub-extensions by loading them directly in the e
 
 ```html
 <script type="text/x-mathjax-config">
-MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y";
+MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/extensions/a11y";
 MathJax.Hub.Config({
   // ...your other configuration options...
   extensions: ["[a11y]/accessibility-menu.js"]
@@ -177,12 +177,12 @@ If you encounter a page without the Accessibility extension, you can sideload th
 
 ```javascript
 if(window.MathJax){
-  MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y";
+  MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/extensions/a11y";
   MathJax.Ajax.Require("[a11y]/accessibility-menu.js");
 }
 ```
 
-Or simply <a href='javascript:if(window.MathJax){ MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/extensions/a11y"; MathJax.Ajax.Require("[a11y]/accessibility-menu.js"); }'> drag this link to your bookmarks</a>.
+Or simply <a href='javascript:if(window.MathJax){ MathJax.Ajax.config.path["a11y"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/extensions/a11y"; MathJax.Ajax.Require("[a11y]/accessibility-menu.js"); }'> drag this link to your bookmarks</a>.
 
 ## Configuration and Use
 
@@ -565,8 +565,8 @@ Verbosity settings of screenreaders might change how elements are announced or l
 
 ### Demos
 
-* A demo for testing individual equations is available at https://mathjax.github.io/MathJax-RespEq/Semantics-Lab/walker/.
-* A demonstration with real-world content is available at http://mathjax.github.io/MathJax-RespEq/examples/Struik-speech.html; note that the input was not optimized and contains common authoring mistakes not all of which can be compensated.
+* A demo for testing individual equations is available at https://mathjax.github.io/MathJax-a11y/Semantics-Lab/walker.
+* A demonstration with real-world content is available at https://mathjax.github.io/MathJax-a11y/examples/Struik-speech.html; note that the input was not optimized and contains common authoring mistakes not all of which can be compensated.
 
 ### Videos
 
