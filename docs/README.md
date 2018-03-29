@@ -565,8 +565,8 @@ Verbosity settings of screenreaders might change how elements are announced or l
 
 ### Demos
 
-* A demo for testing individual equations is available at https://mathjax.github.io/MathJax-RespEq/Semantics-Lab/walker/.
-* A demonstration with real-world content is available at http://mathjax.github.io/MathJax-RespEq/examples/Struik-speech.html; note that the input was not optimized and contains common authoring mistakes not all of which can be compensated.
+* A demo for testing individual equations is available at https://mathjax.github.io/MathJax-a11y/Semantics-Lab/walker.
+* A demonstration with real-world content is available at https://mathjax.github.io/MathJax-a11y/examples/Struik-speech.html; note that the input was not optimized and contains common authoring mistakes not all of which can be compensated.
 
 ### Videos
 
