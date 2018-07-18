@@ -20,7 +20,7 @@ module.exports = function(grunt) {
           'dist/semantic-enrich.js': 'extensions/semantic-enrich.js'
         },
         options: {
-          beautify: {
+           beautify: {
             ascii_only: true
           }
         }
