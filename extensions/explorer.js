@@ -90,8 +90,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       sre.System.getInstance().setupEngine({
         locale: MathJax.Localization.locale,
         domain: Assistive.Domain(cstr[0]),
-        style: cstr[1],
-        rules: Assistive.RuleSet(cstr[0])
+        style: cstr[1]
+        // rules: Assistive.RuleSet(cstr[0])
       });
       Assistive.oldrules = ruleset;
     },

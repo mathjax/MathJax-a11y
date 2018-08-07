@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Braille Test Page</title>
+<script type="text/x-sre-config">
+{
+"json": "./dist/mathmaps",
+"domain": "default",
+"style": "default",
+"locale": "nemeth"
+}
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  extensions: ["[a11y]/explorer.js","[a11y]/auto-collapse.js"],
+  MMLorHTML: {MSIE: "HTML"},
+  AssistiveMML: {disabled: true},
+  "fast-preview": {disabled: true},
+autocollapse: false,
+explorer: {subtitle: true,
+speech: true,
+ruleset: "mathspeak-nemeth"
+},
+menuSettings: {
+explorer: true
+}
+});
+<!-- MathJax.Ajax.config.path["a11y"] = "./dist"; -->
+MathJax.Ajax.config.path["a11y"] = "./extensions";
+</script>
+<script src="https://mathjax.accessibilityally.com/MathJax2/MathJax.js?config=TeX-AMS_HTML-full"></script>
+
+<br clear="all"/>
+
+<h2>Nested Roots</h2>
+
+$$\sqrt{x+\sqrt{y+\sqrt{z}}}$$
+
+$$\sqrt[3]{x+\sqrt[4]{y+\sqrt[5]{z}}}$$
+
+$$\sqrt{x+\frac{1}{\sqrt{y+\sqrt{z}}}}$$
+
+<h2>Matrices</h2>
+
+$$
+\begin{pmatrix}
+a & b\\ c & d
+\end{pmatrix}
+$$
+
+$$
+\begin{vmatrix}
+a & b\\ c & d
+\end{vmatrix} = ad - bc
+$$
+
+
+$$
+\begin{bmatrix}
+1 & 2 & 3\\  4 & 5 & 6 \\ 7 & 8 & 9
+\end{bmatrix}
+$$
+
+
+$$J_i = \begin{bmatrix} C_i & I & \; & \; \\ \; & C_i & \ddots & \; \\ \; & \; & \ddots & I \\ \; & \; & \; & C_i \\ \end{bmatrix}$$
+
+<h2>Alphabet</h2>
+$$a$$
+
+$$b$$
+
+$$c$$
+
+$$a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z$$
+
+$$A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z$$
+
+$$ &#x1D49C;, &#x1D56C;, &#x1D4D0;, &#x1D608;, &#x1D434;, &#x1D400;, &#x1D5D4;$$
+
+$$ &#x1D6AA;, &#x1D758;, &#x1D6E4;$$
+<h2>Numbers</h2>
+
+$$1$$
+
+$$2$$
+
+$$3$$
+
+$$0,1,2,3,4,5,6,7,8,9$$
+
+  <h2 value="1">Quadratic Formula</h2>
+  
+  $$x = \frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
+
+  <h2 value="2">Cauchy-Schwarz Inequality</h2>
+$$\left( \sum_{k=1}^n a_k b_k \right)^{\!\!2} \leq  \left( \sum_{k=1}^n a_k^2 \right)  \left( \sum_{k=1}^n b_k^2 \right)$$
+
+
+<!--   <h2 value="3">An Identity of Ramanujan</h2> -->
+<!-- $$\frac{1}{\Bigl(\sqrt{\phi\sqrt{5}}-\phi\Bigr)  e^{\frac25\pi}} =    1+\frac{e^{-2\pi}}      {1+\frac{e^{-4\pi}}        {1+\frac{e^{-6\pi}}          {1+\frac{e^{-8\pi}}            {1+\ldots} } } }$$ -->
+
+  <h2 value="4">A Rogers-Ramanujan Identity</h2>
+$$1 + \frac{q^2}{(1-q)}  + \frac{q^6}{(1-q)(1-q^2)} + \cdots =\prod_{j=0}^{\infty}  \frac{1}{(1-q^{5j+2})(1-q^{5j+3})},     \quad\quad \text{for $|q|<1$}$$
+
+  <h2 value="5">A Summation Formula</h2>
+  $$\sum_{n=1}^\infty {1\over n^2} = {\pi^2\over 6}$$
+																				 
+  <h2 value="6">Cauchy's Integral Formula</h2>
+  $$f(a) = \oint_\gamma \frac{f(z)}{z-a}dz$$
+
+  <h2 value="7">Standard Deviation</h2>
+  $$\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^N {(x_i-\mu)}^2}$$
+
+  <h2 value="7">Standard Deviation</h2>
+  $$\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^N {(x_i-\mu)}^2}$$
+
+
+<p>
+</p>
+
+</body>
+</html>
