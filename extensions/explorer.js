@@ -324,7 +324,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var oldJax = Explorer.jaxCache[id];
       if (oldJax && oldJax === jax.root) return;
       if (oldJax) {
-        Explorer.highlighter.resetState(id + '-Frame');
+        sre.Walker.resetState(id + '-Frame');
       }
       Explorer.jaxCache[id] = jax.root;
     },
@@ -436,8 +436,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     AddSpeechLazy: function(math) {
       var generator = new sre.TreeSpeechGenerator();
-      generator.setRebuilt(Explorer.walker.rebuilt);
-      generator.getSpeech(Explorer.walker.rootNode, Explorer.walker.xml);
+      generator.setRebuilt(Explorer.walker.getRebuilt());
+      generator.getSpeech(Explorer.walker.rootNode, Explorer.walker.getXml());
       math.setAttribute('hasspeech', 'true');
     },
     //
