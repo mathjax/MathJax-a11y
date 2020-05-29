@@ -481,7 +481,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
     Keydown: function(event) {
-      if (event.keyCode === KEY.ESCAPE) {
+      var code = event.keyCode;
+      // Maps the return key to dash for SRE v3.
+      code = code === KEY.RETURN ? 189 : code;
+      if (code === KEY.ESCAPE) {
         if (!Explorer.walker) return;
         Explorer.RemoveHook();
         Explorer.DeactivateWalker();
@@ -493,7 +496,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         if (typeof(Explorer.walker.modifier) !== 'undefined') {
           Explorer.walker.modifier = event.shiftKey;
         }
-        var move = Explorer.walker.move(event.keyCode);
+        var move = Explorer.walker.move(code);
         if (move === null) return;
         if (move) {
           if (Explorer.walker.moved === 'expand') {
@@ -519,7 +522,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         return;
       }
       var math = event.target;
-      if (event.keyCode === KEY.SPACE) {
+      if (code === KEY.SPACE) {
         if (event.shiftKey && Assistive.hook) {
           var jax = MathJax.Hub.getJaxFor(math);
           Explorer.ActivateWalker(math, jax);
