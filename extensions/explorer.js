@@ -610,6 +610,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             Explorer.Walkers['none'];
       var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
           new sre.DummySpeechGenerator();
+      var options = sre.System.getInstance().engineSetup();
+      speechGenerator.setOptions({
+        locale: options.locale, domain: options.domain,
+        style: options.style, modality: 'speech'});
       Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
