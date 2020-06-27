@@ -512,14 +512,16 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         return;
       }
       var math = event.target;
-      if (code === KEY.SPACE) {
-        if (event.shiftKey && Assistive.hook) {
+      if (code === KEY.SPACE && !event.shiftKey) {
+        MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
+        FALSE(event);
+        return;
+      }
+      if (Assistive.hook && (code === KEY.RETURN ||
+                             (code === KEY.SPACE && event.shiftKey))) {
           var jax = MathJax.Hub.getJaxFor(math);
           Explorer.ActivateWalker(math, jax);
           Explorer.AddHook(jax);
-        } else {
-          MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
-        }
         FALSE(event);
         return;
       }
