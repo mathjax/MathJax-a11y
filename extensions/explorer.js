@@ -217,7 +217,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     }
   }, {
-    ANNOUNCE: 'Navigatable Math in page. Explore with shift space and arrow' +
+    ANNOUNCE: 'Navigatable Math in page. Explore with enter or shift space and arrow' +
         ' keys. Expand or collapse elements hitting enter.',
     announced: false,
     added: false,
