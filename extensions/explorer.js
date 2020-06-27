@@ -90,8 +90,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       sre.System.getInstance().setupEngine({
         locale: MathJax.Localization.locale,
         domain: Assistive.Domain(cstr[0]),
-        style: cstr[1],
-        rules: Assistive.RuleSet(cstr[0])
+        style: cstr[1]
       });
       Assistive.oldrules = ruleset;
     },
@@ -100,20 +99,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       switch (domain) {
         case 'chromevox':
           return 'default';
+        case 'clearspeak':
+          return 'clearspeak';
         case 'mathspeak':
         default:
           return 'mathspeak';
-      }
-    },
-
-    RuleSet: function(domain) {
-      switch (domain) {
-        case 'chromevox':
-          return ['AbstractionRules', 'SemanticTreeRules'];
-        case 'mathspeak':
-        default:
-          return ['AbstractionRules', 'AbstractionSpanish',
-                  'MathspeakRules', 'MathspeakSpanish'];
       }
     },
 
@@ -482,8 +472,6 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     //
     Keydown: function(event) {
       var code = event.keyCode;
-      // Maps the return key to dash for SRE v3.
-      code = code === KEY.RETURN ? 189 : code;
       if (code === KEY.ESCAPE) {
         if (!Explorer.walker) return;
         Explorer.RemoveHook();
@@ -493,6 +481,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       // If walker is active we redirect there.
       if (Explorer.walker && Explorer.walker.isActive()) {
+        // Maps the return key to dash for SRE v3.
+        code = code === KEY.RETURN ? KEY.DASH : code;
         if (typeof(Explorer.walker.modifier) !== 'undefined') {
           Explorer.walker.modifier = event.shiftKey;
         }
@@ -637,6 +627,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Deactivates the walker.
     //
     DeactivateWalker: function() {
+      var setup = sre.System.getInstance().engineSetup();
+      var domain = setup.domain;
+      var style = domain === 'clearspeak' ? 'default' : setup.style;
+      Assistive.setOption('ruleset', setup.domain + '-' + style);
       Explorer.liveRegion.Clear();
       Explorer.liveRegion.Hide();
       Explorer.Unhighlight();
@@ -769,11 +763,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                   ITEM.RADIO(['mathspeak-sbrief', 'Superbrief'],
                              'Assistive-ruleset', speech)
               ),
+              ITEM.RADIO(['clearspeak-default', 'Clearspeak Rules'],
+                         'Assistive-ruleset', speech),
               ITEM.SUBMENU(['Chromevox', 'ChromeVox Rules'],
                   ITEM.RADIO(['chromevox-default', 'Verbose'],
                              'Assistive-ruleset', speech),
-                  ITEM.RADIO(['chromevox-short', 'Short'], 'Assistive-ruleset',
-                             speech),
                   ITEM.RADIO(['chromevox-alternative', 'Alternative'],
                              'Assistive-ruleset', speech)
               )
