@@ -32,7 +32,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
   });
 
   var Assistive = MathJax.Extension.explorer = {
-    version: '1.5.0',
+    version: '1.6.0',
     dependents: [],            // the extensions that depend on this one
     //
     // Default configurations.
@@ -90,8 +90,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       sre.System.getInstance().setupEngine({
         locale: MathJax.Localization.locale,
         domain: Assistive.Domain(cstr[0]),
-        style: cstr[1],
-        rules: Assistive.RuleSet(cstr[0])
+        style: cstr[1]
       });
       Assistive.oldrules = ruleset;
     },
@@ -100,20 +99,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       switch (domain) {
         case 'chromevox':
           return 'default';
+        case 'clearspeak':
+          return 'clearspeak';
         case 'mathspeak':
         default:
           return 'mathspeak';
-      }
-    },
-
-    RuleSet: function(domain) {
-      switch (domain) {
-        case 'chromevox':
-          return ['AbstractionRules', 'SemanticTreeRules'];
-        case 'mathspeak':
-        default:
-          return ['AbstractionRules', 'AbstractionSpanish',
-                  'MathspeakRules', 'MathspeakSpanish'];
       }
     },
 
@@ -227,7 +217,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
     }
   }, {
-    ANNOUNCE: 'Navigatable Math in page. Explore with shift space and arrow' +
+    ANNOUNCE: 'Navigatable Math in page. Explore with enter or shift space and arrow' +
         ' keys. Expand or collapse elements hitting enter.',
     announced: false,
     added: false,
@@ -324,7 +314,7 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       var oldJax = Explorer.jaxCache[id];
       if (oldJax && oldJax === jax.root) return;
       if (oldJax) {
-        Explorer.highlighter.resetState(id + '-Frame');
+        sre.Walker.resetState(id + '-Frame');
       }
       Explorer.jaxCache[id] = jax.root;
     },
@@ -436,8 +426,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     },
     AddSpeechLazy: function(math) {
       var generator = new sre.TreeSpeechGenerator();
-      generator.setRebuilt(Explorer.walker.rebuilt);
-      generator.getSpeech(Explorer.walker.rootNode, Explorer.walker.xml);
+      generator.setRebuilt(Explorer.walker.getRebuilt());
+      generator.getSpeech(Explorer.walker.rootNode, Explorer.walker.getXml());
       math.setAttribute('hasspeech', 'true');
     },
     //
@@ -481,7 +471,8 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Event execution on keydown. Subsumes the same method of MathEvents.
     //
     Keydown: function(event) {
-      if (event.keyCode === KEY.ESCAPE) {
+      var code = event.keyCode;
+      if (code === KEY.ESCAPE) {
         if (!Explorer.walker) return;
         Explorer.RemoveHook();
         Explorer.DeactivateWalker();
@@ -490,10 +481,12 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
       }
       // If walker is active we redirect there.
       if (Explorer.walker && Explorer.walker.isActive()) {
+        // Maps the return key to dash for SRE v3.
+        code = code === KEY.RETURN ? KEY.DASH : code;
         if (typeof(Explorer.walker.modifier) !== 'undefined') {
           Explorer.walker.modifier = event.shiftKey;
         }
-        var move = Explorer.walker.move(event.keyCode);
+        var move = Explorer.walker.move(code);
         if (move === null) return;
         if (move) {
           if (Explorer.walker.moved === 'expand') {
@@ -519,14 +512,16 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
         return;
       }
       var math = event.target;
-      if (event.keyCode === KEY.SPACE) {
-        if (event.shiftKey && Assistive.hook) {
+      if (code === KEY.SPACE && !event.shiftKey) {
+        MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
+        FALSE(event);
+        return;
+      }
+      if (Assistive.hook && (code === KEY.RETURN ||
+                             (code === KEY.SPACE && event.shiftKey))) {
           var jax = MathJax.Hub.getJaxFor(math);
           Explorer.ActivateWalker(math, jax);
           Explorer.AddHook(jax);
-        } else {
-          MathJax.Extension.MathEvents.Event.ContextMenu(event, math);
-        }
         FALSE(event);
         return;
       }
@@ -607,6 +602,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
             Explorer.Walkers['none'];
       var speechGenerator = speechOn ? new sre.DirectSpeechGenerator() :
           new sre.DummySpeechGenerator();
+      var options = sre.System.getInstance().engineSetup();
+      speechGenerator.setOptions({
+        locale: options.locale, domain: options.domain,
+        style: options.style, modality: 'speech'});
       Explorer.GetHighlighter(.2);
       Explorer.walker = new constructor(
           math, speechGenerator, Explorer.highlighter, jax.root.toMathML());
@@ -630,6 +629,10 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
     // Deactivates the walker.
     //
     DeactivateWalker: function() {
+      var setup = sre.System.getInstance().engineSetup();
+      var domain = setup.domain;
+      var style = domain === 'clearspeak' ? 'default' : setup.style;
+      Assistive.setOption('ruleset', setup.domain + '-' + style);
       Explorer.liveRegion.Clear();
       Explorer.liveRegion.Hide();
       Explorer.Unhighlight();
@@ -762,11 +765,11 @@ MathJax.Hub.Register.StartupHook('Sre Ready', function() {
                   ITEM.RADIO(['mathspeak-sbrief', 'Superbrief'],
                              'Assistive-ruleset', speech)
               ),
+              ITEM.RADIO(['clearspeak-default', 'Clearspeak Rules'],
+                         'Assistive-ruleset', speech),
               ITEM.SUBMENU(['Chromevox', 'ChromeVox Rules'],
                   ITEM.RADIO(['chromevox-default', 'Verbose'],
                              'Assistive-ruleset', speech),
-                  ITEM.RADIO(['chromevox-short', 'Short'], 'Assistive-ruleset',
-                             speech),
                   ITEM.RADIO(['chromevox-alternative', 'Alternative'],
                              'Assistive-ruleset', speech)
               )
