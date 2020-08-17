@@ -1,6 +1,6 @@
 {
     "name": "mathjax-a11y",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "description": "MathJax accessibility extension",
     "directories": {
         "test": "tests"
@@ -26,10 +26,10 @@
     "homepage": "https://github.com/mathjax/mathjax-a11y",
     "dependencies": {},
     "devDependencies": {
-        "grunt": "^1.0.3",
-        "grunt-contrib-uglify": "^2.0.0",
-        "grunt-git": "^1.0.9",
-        "grunt-shell": "^2.1.0"
+        "grunt": "^1.2.1",
+        "grunt-contrib-uglify": "^5.0.0",
+        "grunt-git": "^1.0.14",
+        "grunt-shell": "^3.0.1"
     },
     "files": [
         "LICENSE",
