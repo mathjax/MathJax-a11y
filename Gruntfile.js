@@ -5,7 +5,7 @@ module.exports = function(grunt) {
       'speech-rule-engine': {
         options: {
           repository: 'https://github.com/zorkow/speech-rule-engine.git',
-          branch: 'v2.2.2',
+          branch: 'v3.1.0',
           cwd: '.'
         }
       }
@@ -39,10 +39,18 @@ module.exports = function(grunt) {
       clean_node: {
         command: 'rm -rf node_modules'
       },
+      patch_makefile: {
+        command: "sed -i '' \"s/@sed -i s/@sed -i '' s/\" Makefile",
+        options: {
+          execOptions: {
+            cwd: 'speech-rule-engine'
+          }
+        }
+      },
       prepare: {
         command: [
           '<%= shell.clean_dist.command %>',
-          '<%= shell.make_dist.command %>'
+          '<%= shell.make_dist.command %>',
         ].join('&&')
       },
       clean: {
@@ -55,10 +63,7 @@ module.exports = function(grunt) {
       compile: {
         command: [
           'npm install',
-          'npm install --only=dev',
-          'npm install wicked-good-xpath',
           'make mathjax',
-          'make maps',
           'make iemaps'
         ].join('&&'),
         options: {
@@ -87,6 +92,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', [
     'shell:prepare',
     'gitclone',
+    'shell:patch_makefile',
     'shell:compile',
     'shell:copy',
     'uglify',
