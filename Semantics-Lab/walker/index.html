@@ -4,6 +4,11 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MathJax Accessibility Tool</title>
+  <script type="text/x-sre-config">
+  {
+    "json": "https://cdn.jsdelivr.net/gh/mathjax/MathJax-a11y@master/dist/mathmaps"
+  }
+  </script>
   <script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["[a11y]/explorer.js","[a11y]/auto-collapse.js"],
@@ -14,10 +19,10 @@
   });
   MathJax.Ajax.config.path["a11y"] = "../../extensions";
   if(window.location.href.indexOf("mathjax.github.io/MathJax-a11y") > -1) {
-    MathJax.Ajax.config.path["SRE"] = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/extensions/a11y";
+     MathJax.Ajax.config.path["SRE"] = "https://cdn.jsdelivr.net/gh/mathjax/MathJax@legacy-v2/extensions/a11y";
   }
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML-full"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mathjax/MathJax@legacy-v2/MathJax.js?config=TeX-AMS_HTML-full"></script>
   <script src="../Lab.js"></script>
   <script src="../Lab-Defaults.js"></script>
   <script>
