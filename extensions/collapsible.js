@@ -227,7 +227,7 @@
           complexity: mml.complexity,
           attrNames: [], attr: {}
         });
-        mrow.Append.apply(mrow,mml.data);
+        mrow.Append.apply(mrow,mml.data[0].data); mml.data[0].data = [];
         for (var i = mml.attrNames.length-1, name; name = mml.attrNames[i]; i--) {
           if (name.substr(0,14) === "data-semantic-") {
             mrow.attr[name] = mml.attr[name];
@@ -237,7 +237,7 @@
           }
         }
         mrow.complexity = mml.complexity;
-        maction.Append(mrow); mml.data = []; mml.Append(maction);
+        maction.Append(mrow); mml.Append(maction);
         mml.complexity = maction.complexity; maction = mml;
       } else {
         maction.Append(mml);
