@@ -132,10 +132,10 @@
                     attrNames: [],
                     attr: {}
                 });
-                a.Append.apply(a, i.data);
+                a.Append.apply(a, i.data[0].data), i.data[0].data = [];
                 for (var s, l = i.attrNames.length - 1; s = i.attrNames[l]; l--) "data-semantic-" === s.substr(0, 14) && (a.attr[s] = i.attr[s], 
                 a.attrNames.push(s), delete i.attr[s], i.attrNames.splice(l, 1));
-                a.complexity = i.complexity, e.Append(a), i.data = [], i.Append(e), i.complexity = e.complexity, 
+                a.complexity = i.complexity, e.Append(a), i.Append(e), i.complexity = e.complexity, 
                 e = i;
             } else e.Append(i);
             return e;
