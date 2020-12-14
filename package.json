@@ -5,7 +5,9 @@
     "directories": {
         "test": "tests"
     },
-    "scripts": {},
+    "scripts": {
+        "test": "echo 'no tests'"
+    },
     "maintainers": [
         "MathJax <info@mathjax.org> (https://mathjax.org)"
     ],
