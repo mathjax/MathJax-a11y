@@ -43,7 +43,7 @@
   var Accessibility = EXTENSIONS["accessibility-menu"] = {
     version: '1.6.0',
     prefix: '', //'Accessibility-',
-    defaults: {},
+    defaults: {explorer: true},
     modules: [],
     MakeOption: function(name) {
       return Accessibility.prefix + name;
@@ -87,7 +87,7 @@
       }
     },
     Register: function(module) {
-      Accessibility.defaults[module.option] = false;
+      Accessibility.defaults[module.option] = Accessibility.defaults[module.option] || false;
       Accessibility.modules.push(module);
     },
     Startup: function() {
